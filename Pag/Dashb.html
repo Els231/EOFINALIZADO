@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Escolar - Escuela Primaria</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome / fuente -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Fuente infantil -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="../conex/Styledash.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Mnu -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="sidebar-header text-center py-4">
+                    <img src="Imagenes/edu.ico" alt="Icono EduOptima" class="img-fluid" style="max-width: 120px;">
+                    <h3 class="school-name">Escuela Primaria<br>Jesus El Buen Maestro</h3>
+                </div>
+                <div class="sidebar-menu">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-home me-2"></i> Inicio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-user-graduate me-2"></i> Alumnos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./Prof.html">
+                                <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                                <a class="nav-link" href="./Nots.html">
+                                <i class="fas fa-book me-2"></i> Notas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="./Matri.html">
+                                <i class="fas fa-clipboard-list me-2"></i> Matrículas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./Cal.html">
+                                <i class="fas fa-calendar-alt me-2"></i> Calendario
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./E.O.html">
+                                <i class="fas fa-chalkboard-teacher me-2"></i> EduOptima
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="sidebar-footer mt-auto p-3 text-center">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-cog me-1"></i> Configuración
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Cotenidp -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard de la Escuela</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-primary">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                            <button type="button" class="btn btn-sm btn-success">
+                                <i class="fas fa-print me-1"></i> Imprimir
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-warning">
+                            <i class="fas fa-bell me-1"></i> Notificaciones
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenido -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card card-primary">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title">Alumnos</h5>
+                                        <h2 class="card-number">140</h2>
+                                    </div>
+                                    <div class="icon-circle">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                </div>
+                                <p class="card-text"><small>Total de estudiantes matriculados</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-success">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title">Profesores</h5>
+                                        <h2 class="card-number">16</h2>
+                                    </div>
+                                    <div class="icon-circle">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </div>
+                                </div>
+                                <p class="card-text"><small>Personal docente</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-warning">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title">Aprobados</h5>
+                                        <h2 class="card-number">92%</h2>
+                                    </div>
+                                    <div class="icon-circle">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                </div>
+                                <p class="card-text"><small>Promedio general</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card card-danger">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title">Nuevas Matrículas</h5>
+                                        <h2 class="card-number">35</h2>
+                                    </div>
+                                    <div class="icon-circle">
+                                        <i class="fas fa-clipboard-list"></i>
+                                    </div>
+                                </div>
+                                <p class="card-text"><small>Este año</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Tablas -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Rendimiento por Grado</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="performanceChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Separacion por edad</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="ageChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Últimas Matrículas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Grado</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>María López</td>
+                                                <td>1° A</td>
+                                                <td>15/03/2023</td>
+                                                <td><span class="badge bg-success">Activa</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Juan Pérez</td>
+                                                <td>2° B</td>
+                                                <td>14/03/2023</td>
+                                                <td><span class="badge bg-success">Activa</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ana García</td>
+                                                <td>3° A</td>
+                                                <td>10/03/2023</td>
+                                                <td><span class="badge bg-warning">Pendiente</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Carlos Ruiz</td>
+                                                <td>1° B</td>
+                                                <td>08/03/2023</td>
+                                                <td><span class="badge bg-success">Activa</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Lucía Méndez</td>
+                                                <td>4° A</td>
+                                                <td>05/03/2023</td>
+                                                <td><span class="badge bg-danger">Incompleta</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Notas Recientes</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Alumno</th>
+                                                <th>Materia</th>
+                                                <th>Nota</th>
+                                                <th>Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>María López</td>
+                                                <td>Matemáticas</td>
+                                                <td>8.5</td>
+                                                <td>20/03/2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Juan Pérez</td>
+                                                <td>Lengua</td>
+                                                <td>7.0</td>
+                                                <td>18/03/2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ana García</td>
+                                                <td>Ciencias</td>
+                                                <td>9.2</td>
+                                                <td>17/03/2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Carlos Ruiz</td>
+                                                <td>Matemáticas</td>
+                                                <td>6.5</td>
+                                                <td>15/03/2023</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Lucía Méndez</td>
+                                                <td>Arte</td>
+                                                <td>10.0</td>
+                                                <td>14/03/2023</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- JS Personalizado -->
+    <script src="../conex/scriptdash.js"></script>
+</body>
+</html>

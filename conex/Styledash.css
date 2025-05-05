@@ -1,0 +1,213 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #34495e;
+    --warning-color: #f39c12;
+    --info-color: #9b59b6;
+
+    --sidebar-width: 280px;
+}
+
+body {
+    font-family: 'Comic Neue', cursive;
+    background-color: #f5f6fa;
+    color: #333;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka One', cursive;
+    color: #2c3e50;
+}
+
+/* Sidebar */
+.sidebar {
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    width: var(--sidebar-width);
+    padding: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.school-name {
+    font-family: 'Fredoka One', cursive;
+    color: white;
+    font-size: 1.4rem;
+    margin-top: 10px;
+}
+
+.sidebar-menu {
+    padding: 20px;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 5px;
+    border-radius: 5px;
+    padding: 10px 15px;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content */
+main {
+    margin-left: var(--sidebar-width);
+    padding-top: 20px;
+    width: calc(100% - var(--sidebar-width));
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 2px solid #eee;
+    font-family: 'Fredoka One', cursive;
+    color: var(--dark-color);
+}
+
+.card-primary {
+    border-left: 5px solid var(--primary-color);
+}
+
+.card-success {
+    border-left: 5px solid var(--secondary-color);
+}
+
+.card-warning {
+    border-left: 5px solid var(--warning-color);
+}
+
+.card-danger {
+    border-left: 5px solid var(--accent-color);
+}
+
+.card-title {
+    font-size: 1rem;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.card-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.card-primary .icon-circle {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+}
+
+.card-success .icon-circle {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: var(--secondary-color);
+}
+
+.card-warning .icon-circle {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: var(--warning-color);
+}
+
+.card-danger .icon-circle {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--accent-color);
+}
+
+/* Tablas */
+.table {
+    font-family: 'Comic Neue', cursive;
+}
+
+.table th {
+    font-family: 'Fredoka One', cursive;
+    color: var(--dark-color);
+}
+
+/* Badges */
+.badge {
+    font-family: 'Comic Neue', cursive;
+    font-weight: normal;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+/* Botones */
+.btn {
+    font-family: 'Fredoka One', cursive;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+}
+
+.btn-sm {
+    padding: 5px 15px;
+    font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+ /* Cal */
+     .fc-event {
+            font-family: 'Comic Neue', cursive;
+            border-radius: 5px;
+            padding: 2px 5px;
+            margin-bottom: 2px;
+        }
+        .fc-event-title {
+            font-weight: bold;
+        }
+        .fc-daygrid-event-dot {
+            display: none;
+        }

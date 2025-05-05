@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilo personalizado -->
+    <link rel="stylesheet" href="conex/style2.css">
+</head>
+ <header>
+        <h1>Jesus El Buen Maestro</h1>
+    </header>
+<body>
+    <!-- Navbar Responsivo -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-book me-2"></i>Jesús El Buen Maestro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#collapseOne"><i class="bi bi-house"></i> Inicio</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="visionDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-lightbulb"></i> Visión Educativa
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#collapseTwo"><i class="bi bi-file-text"></i> Objetivos</a></li>
+                            <li><a class="dropdown-item" href="#collapseThree"><i class="bi bi-journal-bookmark"></i> Misión</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="serviciosDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-collection"></i> Servicios
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href=./Pag/log.html><i class="bi bi-check-circle"></i> Registrar Estudiante</a></li>
+                            <li><a class="dropdown-item" href="./Pag/E.O.html"><i class="bi bi-check-circle"></i> Información EduOptima</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Dashb.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contacto"><i class="bi bi-envelope"></i> Contacto</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenid principal -->
+     <div class="accordion" id="Menu">
+            <!-- Sección Inicio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        <i class="bi bi-house-door-fill me-2"></i><strong>Inicio</strong>
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#Menu">
+      <div class="accordion-body p-4">
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6>Informacion De La Escuela:</h6>
+                        <p class="mb-3">La Escuela Jesús el Buen Maestro está ubicada frente a la iglesia de San Juan de Oriente, reconocida por el desempeño de docentes dedicados a la educación de niños. Esta institución educativa está comprometida con:</p>
+                        <ul class="list-unstyled ps-4">
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>La preparación académica de calidad</li>
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>El desarrollo del conocimiento</li>
+                            <li><i class="bi bi-check2-circle text-primary me-2"></i>La formación en valores cristianos</li>
+                        </ul>
+                        <p class="mt-3">Diseñada para ofrecer un ambiente de aprendizaje inclusivo, la escuela se esfuerza por proporcionar un espacio acogedor y funcional para el estudio y la colaboración, a pesar de las limitaciones en recursos tecnológicos.</p>
+                    </div>
+
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6>Infraestructura:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-book me-2 text-primary"></i>Pequeña biblioteca con libros de texto</li>
+                                    <li class="mb-2"><i class="bi bi-people me-2 text-primary"></i>Sala de reuniones</li>
+                                    <li><i class="bi bi-gear me-2 text-primary"></i>Dirección administrativa</li>
+                                </ul>
+                            </div>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-door-open me-2 text-primary"></i>Dos baños para estudiantes</li>
+                                <li class="mb-2"><i class="bi bi-tree me-2 text-primary"></i>Pequeño campo deportivo</li>
+                                <li><i class="bi bi-mic me-2 text-primary"></i>Auditorio para presentaciones</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 shadow-sm">
+                        <h5><i class="bi bi-mortarboard me-2"></i>Oferta Académica</h5>
+                        <p>Ofrece educación primaria completa de primer a sexto grado, en turnos matutino y vespertino, con las materias básicas para el desarrollo integral de estudiantes entre 7 y 13 años.</p>
+                        <div class="mt-3 p-3 bg-white">
+                            <h6 class="fw-bold">Sistema de Evaluación:</h6>
+                            <p class="mb-2"><i class="bi bi-check-square-fill text-primary me-2"></i>Evaluaciones acumulativas con métodos cuantitativos</p>
+                            <p class="mb-0"><i class="bi bi-check-square-fill text-primary me-2"></i>Calificaciones numéricas</p>
+                        </div>
+                        <div class="mt-3 p-3 bg-white rounded-2 border">
+                            <h6 class="fw-bold">Estructura Organizacional:</h6>
+                            <p class="mb-0">Director → Supervisor → Secretaria → Docentes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Objetivos -->
+         <div class="accordion-item">
+               <h2 class="accordion-header">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Objetivo General y Específicos
+                      </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                      <div class="accordion-body p-4">
+                    <h5><i class="bi bi-star-fill me-2"></i>Objetivo General</h5>
+                    <p class="lead">La Escuelita Jesús el Buen Maestro tiene como objetivo principal ofrecer un ambiente de aprendizaje inclusivo que:</p>
+                    <div class="ps-4">
+                        <p class="mb-2"><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>Refuerce los valores católicos</p>
+                        <p class="mb-2"><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>Proporcione espacios funcionales para el estudio</p>
+                        <p><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>Fomente la colaboración mutua en la enseñanza</p>
+                    </div>
+
+                    <div class="mb-4 p-3 bg-light rounded-3 shadow-sm">
+                        <h5><i class="bi bi-stars me-2"></i>Objetivos Específicos</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Enseñanza bíblica</h6>
+                                            <p class="small mb-0">Formación en principios y valores cristianos</p>
+                                        </div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Aprendizaje integral</h6>
+                                            <p class="small mb-0">Desarrollo académico con base en la integridad bíblica</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Valores sociales</h6>
+                                            <p class="small mb-0">Formación en valores para la convivencia en sociedad</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Comunicación educativa</h6>
+                                            <p class="small mb-0">Diálogo constante entre escuela, estudiantes y familias</p>
+                                        </div>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Desarrollo personal</h6>
+                                            <p class="small mb-0">Crecimiento individual dentro de la comunidad</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Aprendizaje cotidiano</h6>
+                                            <p class="small mb-0">Aplicación práctica del conocimiento en la vida diaria</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <img src="Pag/Imagenes/buenjesus.jpg" class="img-fluid rounded-3 shadow" alt="Vida estudiantil en la escuela Jesús el Buen Maestro">
+                        <p class="text-muted mt-2">Ambiente educativo en la Escuela Jesús el Buen Maestro</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Misión-Visión -->
+        <div class="accordion-item">
+                <h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+      Misión - Visión
+    </button>
+  </h2>
+   <div id="collapseThree" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+    <div class="accordion-body bg-white p-4">
+                    <div class="bg-light rounded">
+                        <h5 class="fw-bold text-dark mb-3">Misión</h5>
+                        <p class="mb-2">Es hacer que la institución Educativa "Jesús el buen Maestro", sea grande y que ocupe un lugar de prestigio dentro de la sociedad, forjando niños de valores y principios, exaltando el nombre de DIOS.</p>
+                        <p>Nuestra formación Educativa es con proyección al futuro buscando formar niños íntegros en valores sociales, en valores morales y espirituales que le permitan aportar el gran cambio de una sociedad carente de principios.</p>
+                        <p>Nuestro propósito es orientar, instruir, formar al niño que en el futuro nos permita crear un individuo que pueda ser eficiente y eficaz en el impulso del desarrollo de nuestro país teniendo como modelo a Jesús en la gran transformación de una nueva vida.</p>
+                    </div>
+
+                    <div class="p-3 bg-light rounded mt-3">
+                        <h5 class="fw-bold text-dark mb-3">Visión</h5>
+                        <div class="ps-2">
+                            <p class="mb-2">Es educar a los niños dándoles una formación integral, basada en un proceso permanente en forma ordenada y sistemática, promoviendo la transformación del conocimiento y ejerciendo una educación pensante, creativa y crítica forjando niños con visión de futuro.</p>
+                            <p>Impulsando su desarrollo personal como fuente de riqueza para la sociedad, siguiendo los principios basados en el amor de DIOS.</p>
+                            <p>La escuela "Jesus El Buen Maesrto" siendo su estructura un lugar para la educuacion primaria se esta ejerciendo para desarrollarse en la tecnologia y adentrarse en la tecnologia actual</p>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="Pag/E.O.html" class="btn btn-primary px-4 py-2">
+                                <i class="bi bi-arrow-right-circle me-2"></i>Saber más
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacto -->
+    <section id="contacto" class="my-4 p-4 bg-light rounded">
+        <h2>Contacto de Recomendacion</h2>
+        <form action="#" method="post">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo electrónico:</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="mensaje" class="form-label">Mensaje:</label>
+                <textarea class="form-control" id="mensaje" name="mensaje" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center p-3">
+        <p class="mb-0">&copy; Escuela Jesús El Buen Maestro (Educación Optimizada) 2025 ®</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="conex/scrpt2.js"></script>
+</body>
+</html>
