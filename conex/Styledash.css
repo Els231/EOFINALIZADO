@@ -6,15 +6,16 @@
     --dark-color: #34495e;
     --warning-color: #f39c12;
     --info-color: #9b59b6;
-
-    --sidebar-width: 280px;
 }
 
+/* Estilos base del body con padding para el navbar fijo */
 body {
     font-family: 'Comic Neue', cursive;
-    background-color: #f5f6fa;
+    background-image: url('../Pag/Imagenes/fondo-escuela.jpg.jpg');
+    background-color: #53899f;
     color: #333;
     overflow-x: hidden;
+    padding-top: 80px; /* Espacio para el navbar fijo */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -22,57 +23,96 @@ h1, h2, h3, h4, h5, h6 {
     color: #2c3e50;
 }
 
-/* Sidebar */
-.sidebar {
-    background: linear-gradient(135deg, #3498db, #2c3e50);
-    color: white;
-    height: 100vh;
+/* Navbar principal - Estilo corregido */
+.navbar-claro {
     position: fixed;
-    width: var(--sidebar-width);
-    padding: 0;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    background-color: white;
 }
 
-.school-name {
-    font-family: 'Fredoka One', cursive;
-    color: white;
-    font-size: 1.4rem;
-    margin-top: 10px;
+/* Estilos cuando el navbar está contraído */
+.navbar-claro.scrolled {
+    padding: 5px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.sidebar-menu {
-    padding: 20px;
+.navbar-claro.scrolled .navbar-brand img {
+    height: 40px;
+    transition: all 0.3s ease;
 }
 
-.sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 5px;
-    border-radius: 5px;
-    padding: 10px 15px;
-    transition: all 0.3s;
+/* Estilos para los elementos del menú */
+.navbar-nav .nav-item {
+    position: relative;
+    margin: 0 8px;
 }
 
-.sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
+.nav-link {
+    transition: all 0.2s ease;
+    padding: 8px 15px;
+    border-radius: 20px;
 }
 
-.sidebar .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    font-weight: bold;
+.nav-link:hover {
+    transform: translateY(-3px);
+    background-color: rgba(0,0,0,0.05);
 }
 
-.sidebar .nav-link i {
-    width: 20px;
-    text-align: center;
+/* Dropdown mejorado */
+.dropdown-menu {
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    display: block;
+    transform: translateY(15px);
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* Main Content */
-main {
-    margin-left: var(--sidebar-width);
-    padding-top: 20px;
-    width: calc(100% - var(--sidebar-width));
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Contenedor principal */
+.container-fluid {
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Carrusel automático */
+.carousel-container {
+    width: 100%;
+    overflow: hidden;
+    margin: 20px 0;
+    position: relative;
+}
+
+.carousel-auto {
+    display: flex;
+    width: 300%;
+    animation: slide 15s infinite;
+}
+
+.carousel-auto img {
+    width: 33.33%;
+    height: auto;
+    object-fit: cover;
+}
+
+@keyframes slide {
+    0%, 20% { transform: translateX(0); }
+    25%, 45% { transform: translateX(-33.33%); }
+    50%, 70% { transform: translateX(-66.66%); }
+    75%, 95% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
 }
 
 /* Cards */
@@ -95,65 +135,7 @@ main {
     color: var(--dark-color);
 }
 
-.card-primary {
-    border-left: 5px solid var(--primary-color);
-}
-
-.card-success {
-    border-left: 5px solid var(--secondary-color);
-}
-
-.card-warning {
-    border-left: 5px solid var(--warning-color);
-}
-
-.card-danger {
-    border-left: 5px solid var(--accent-color);
-}
-
-.card-title {
-    font-size: 1rem;
-    color: #7f8c8d;
-    margin-bottom: 5px;
-}
-
-.card-number {
-    font-family: 'Fredoka One', cursive;
-    font-size: 2rem;
-    margin: 0;
-}
-
-.icon-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.card-primary .icon-circle {
-    background-color: rgba(52, 152, 219, 0.1);
-    color: var(--primary-color);
-}
-
-.card-success .icon-circle {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: var(--secondary-color);
-}
-
-.card-warning .icon-circle {
-    background-color: rgba(243, 156, 18, 0.1);
-    color: var(--warning-color);
-}
-
-.card-danger .icon-circle {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: var(--accent-color);
-}
-
-/* Tablas */
+/* Estilos para tablas */
 .table {
     font-family: 'Comic Neue', cursive;
 }
@@ -163,51 +145,311 @@ main {
     color: var(--dark-color);
 }
 
-/* Badges */
-.badge {
-    font-family: 'Comic Neue', cursive;
-    font-weight: normal;
-    padding: 5px 10px;
-    border-radius: 10px;
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px; /* Menor espacio en móviles */
+    }
+
+    .navbar-claro {
+        padding: 5px 0;
+    }
+
+    .nav-link {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+
+    .btn-claro {
+        padding: 5px 15px;
+        font-size: 0.85rem;
+    }
 }
 
-/* Botones */
-.btn {
-    font-family: 'Fredoka One', cursive;
+
+/* Variables de color para el Menu */
+:root {
+    --azul-suave: #657dc5;  /* Fondo azul muy claro */
+    --azul-primario: #4a89dc; /* Azul principal para elementos activos */
+    --azul-oscuro: #2a5ea0; /* Azul oscuro para hover */
+    --texto-oscuro: #2c3e50; /* Color para texto */
+}
+
+/* Estilos para el navbar */
+.navbar-claro {
+    background-color: var(--azul-suave) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* Estilos para los items del menú */
+.navbar-claro .nav-link {
+    color: var(--texto-oscuro) !important;
+    padding: 8px 15px;
+    margin: 0 5px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.navbar-claro .nav-link:hover,
+.navbar-claro .nav-link:focus {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--azul-oscuro) !important;
+}
+
+.navbar-claro .nav-link.active {
+    background-color: var(--azul-primario) !important;
+    color: white !important;
+}
+
+/* Estilos para el dropdown */
+.navbar-claro .dropdown-menu {
+    background-color: white;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 0 0 8px 8px;
+}
+
+.navbar-claro .dropdown-item {
+    color: var(--texto-oscuro);
+    padding: 8px 16px;
+}
+
+.navbar-claro .dropdown-item:hover {
+    background-color: var(--azul-suave);
+    color: var(--azul-oscuro);
+}
+
+/* Botón principal */
+.btn-claro {
+    background-color: var(--azul-primario) !important;
+    color: white !important;
+    border: none;
     border-radius: 20px;
     padding: 8px 20px;
-    font-size: 0.9rem;
+    transition: all 0.2s;
 }
 
-.btn-sm {
-    padding: 5px 15px;
-    font-size: 0.8rem;
+.btn-claro:hover {
+    background-color: var(--azul-oscuro) !important;
+    transform: translateY(-2px);
+}
+
+/* Botón de configuración */
+.sidebar-footer .btn-outline-primary {
+    color: var(--azul-primario);
+    border-color: var(--azul-primario);
+}
+
+.sidebar-footer .btn-outline-primary:hover {
+    background-color: var(--azul-primario);
+    color: white;
+}
+
+/* Efecto para el navbar al hacer scroll */
+.navbar-claro.scrolled {
+    background-color: white !important;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.navbar-claro.scrolled .nav-link {
+    color: var(--texto-oscuro) !important;
+}
+
+.navbar-claro.scrolled .nav-link.active {
+    background-color: var(--azul-primario) !important;
+    color: white !important;
+}
+/* Estilo para los items del menú principal */
+.navbar-claro .navbar-nav .nav-item .nav-link {
+    background-color: #f8f9fa;
+    color: #495057 !important;
+    margin: 0 5px;
+    border-radius: 20px;
+    padding: 8px 15px;
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Estilo para los items con dropdown */
+.navbar-claro .navbar-nav .nav-item.dropdown .nav-link {
+    background-color: #e9ecef;
+    color: #212529 !important;
+    font-weight: 500;
+    position: relative;
+}
+
+/* Flecha del dropdown */
+.navbar-claro .navbar-nav .nav-item.dropdown .nav-link::after {
+    content: "▾";
+    margin-left: 5px;
+    border: none;
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+/* Estilo para el submenú */
+.navbar-claro .dropdown-menu {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 5px 0;
+    margin-top: 5px;
+}
+
+/* Items del submenú */
+.navbar-claro .dropdown-item {
+    color: #495057 !important;
+    padding: 8px 20px;
+    border-radius: 5px;
+    margin: 2px 10px;
+    transition: all 0.2s ease;
+}
+
+/* Hover en items del submenú */
+.navbar-claro .dropdown-item:hover {
+    background-color: #e9ecef;
+    color: #212529 !important;
+    transform: translateX(5px);
+}
+
+/* Estilo para items activos */
+.navbar-claro .nav-link.active,
+.navbar-claro .dropdown-item.active {
+    background-color: #4a89dc !important;
+    color: white !important;
+}
+
+/* Efecto hover para items del menú principal */
+.navbar-claro .navbar-nav .nav-item .nav-link:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilo específico para el botón EduOptima */
+.navbar-claro .btn-claro {
+    background-color: #4a89dc !important;
+    color: white !important;
+    border-radius: 20px;
+    padding: 8px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-claro .btn-claro:hover {
+    background-color: #3a79cc !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Estilo para el botón de configuración */
+.sidebar-footer .btn-outline-primary {
+    border-color: #4a89dc;
+    color: #4a89dc;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-footer .btn-outline-primary:hover {
+    background-color: #4a89dc;
+    color: white;
+}
+
+/* Estilos generales */
+body {
+    font-family: 'Comic Neue', cursive;
+    background-color: #f8f9fa;
+    padding-top: 60px;
+}
+
+/* Barra de navegación */
+.navbar-claro {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand img {
+    height: 40px;
+}
+
+.btn-claro {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #212529;
+}
+
+.btn-claro:hover {
+    background-color: #d6d8db;
+    border-color: #c8cbcf;
+}
+
+/* Estilos del calendario */
+#calendar {
+    font-family: 'Comic Neue', cursive;
+}
+
+.fc-event {
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.fc-daygrid-event {
+    white-space: normal;
+    padding: 2px 4px;
+}
+
+/* Tipos de eventos */
+.event-clase {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.event-examen {
+    background-color: #e74a3b;
+    border-color: #e74a3b;
+}
+
+.event-reunion {
+    background-color: #f6c23e;
+    border-color: #f6c23e;
+}
+
+.event-actividad {
+    background-color: #1cc88a;
+    border-color: #1cc88a;
+}
+
+.event-feriado {
+    background-color: #858796;
+    border-color: #858796;
+}
+
+/* Tarjetas y contenedores */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    font-weight: 600;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
+    .fc-toolbar-title {
+        font-size: 1.2em;
     }
 
-    main {
-        margin-left: 0;
-        width: 100%;
+    .fc-button {
+        padding: 0.3em 0.6em;
+        font-size: 0.8em;
     }
 }
-
- /* Cal */
-     .fc-event {
-            font-family: 'Comic Neue', cursive;
-            border-radius: 5px;
-            padding: 2px 5px;
-            margin-bottom: 2px;
-        }
-        .fc-event-title {
-            font-weight: bold;
-        }
-        .fc-daygrid-event-dot {
-            display: none;
-        }

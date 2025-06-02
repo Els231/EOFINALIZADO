@@ -14,59 +14,75 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../conex/Styledash.css">
 </head>
-<div class="container-fluid">
-        <div class="row">
-            <!-- Menu -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
-                <div class="sidebar-header text-center py-4">
-                    <img src="Imagenes/edu.ico" alt="Icono EduOptima" class="img-fluid" style="max-width: 120px;">
-                    <h3 class="school-name">Escuela Primaria<br>Jesus El Buen Maestro</h3>
-                </div>
-                <div class="sidebar-menu">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="Dashb.html">
-                                <i class="fas fa-home me-2"></i> Inicio
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-user-graduate me-2"></i> Alumnos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./Prof.html">
-                                <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                                <a class="nav-link" href="./Nots.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" href="./Matri.html">
-                                <i class="fas fa-clipboard-list me-2"></i> Matrículas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./Cal.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./E.O.html">
-                                <i class="fas fa-chalkboard-teacher me-2"></i> EduOptima
-                            </a>
-                        </li>
+<!-- Menú estilo Claro -->
+<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img src="./Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="serviciosDropdown" role="button"
+                       data-bs-toggle="dropdown">
+                        <i class="bi bi-collection me-1"></i> Servicios
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="serviciosDropdown">
+                        <li><a class="dropdown-item" href="./Pag/log.html"><i class="fas fa-user-plus me-2"></i>
+                            Registrar Estudiante</a></li>
+                        <li><a class="dropdown-item" href="./Pag/E.O.html"><i class="fas fa-info-circle me-2"></i>
+                            Información EduOptima</a></li>
                     </ul>
-                </div>
-                <div class="sidebar-footer mt-auto p-3 text-center">
-                    <button class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-cog me-1"></i> Configuración
-                    </button>
-                </div>
-            </nav>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./Dashb.html">
+                        <i class="fas fa-user-graduate me-2"></i> Alumnos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./Pag/Prof.html">
+                        <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./Nots.html">
+                        <i class="fas fa-book me-2"></i> Notas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./Matri.html">
+                        <i class="fas fa-clipboard-list me-2"></i> Matrículas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./Pag/Cal.html">
+                        <i class="fas fa-calendar-alt me-2"></i> Calendario
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a href="./Pag/E.O.html" class="btn btn-claro">
+                    <i class="fas fa-chalkboard-teacher me-1"></i> EduOptima
+                </a>
+            </div>
+            <div class="sidebar-footer mt-auto p-3 text-center">
+                <button class=" btn btn-claro btn-outline-primary">
+                    <i class="fas fa-cog me-1"></i>configuracion
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
 
             <!-- Contenido -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">

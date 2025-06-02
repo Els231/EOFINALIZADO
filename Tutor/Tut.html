@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Matrículas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Archivos CSS locales -->
+    <link rel="stylesheet" href="./TutCSS.css">
+    <link rel="stylesheet" href="../conex/Styledash.css">
+
+</head>
+<body>
+    <!-- Menú estilo Claro -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="../Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro" class="img-fluid" style="max-height: 40px;">
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="serviciosDropdown" role="button"
+                           data-bs-toggle="dropdown">
+                            <i class="bi bi-collection me-1"></i> Servicios
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="serviciosDropdown">
+                            <li><a class="dropdown-item" href="./Pag/log.html"><i class="fas fa-user-plus me-2"></i>
+                                Registrar Estudiante</a></li>
+                            <li><a class="dropdown-item" href="./Pag/E.O.html"><i class="fas fa-info-circle me-2"></i>
+                                Información EduOptima</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Dashb.html">
+                            <i class="fas fa-user-graduate me-2"></i> Alumnos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Prof.html">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Nots.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Matri.html">
+                            <i class="fas fa-clipboard-list me-2"></i> Matrículas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Cal.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="./Pag/E.O.html" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-chalkboard-teacher me-1"></i> EduOptima
+                    </a>
+                </div>
+                <div class="sidebar-footer ms-2">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-cog me-1"></i> Configuración
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+ <!-- Contenido principal -->
+    <main class="container mt-5 pt-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h4 mb-0"><i class="fas fa-user-tie me-2"></i> Datos de Tutor</h1>
+                    </div>
+                    <div class="card-body">
+                        <div id="message" class="message"></div>
+                        <form id="tutorForm" novalidate>
+                            <!-- ID Tutor -->
+                            <div class="mb-3">
+                                <label for="idtutor" class="form-label">Identificación del Tutor</label>
+                                <input type="text" class="form-control" id="idtutor"
+                                       placeholder="Formato: 000-000000-0000A"
+                                       required>
+                                <div id="error-idtutor" class="error"></div>
+                                <small class="text-muted">Ejemplo: 405-107438-1009A</small>
+                            </div>
+
+                            <!-- Nombre -->
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre completo</label>
+                                <input type="text" class="form-control" id="nombre"
+                                       placeholder="Nombre completo"
+                                       required>
+                                <div id="error-nombre" class="error"></div>
+                            </div>
+
+                            <!-- Centro de trabajo -->
+                            <div class="mb-3">
+                                <label for="centro" class="form-label">Centro de trabajo</label>
+                                <input type="text" class="form-control" id="centro"
+                                       placeholder="Centro de trabajo"
+                                       required>
+                                <div id="error-centro" class="error"></div>
+                            </div>
+
+                            <!-- Teléfono - Versión mejorada responsiva -->
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <div class="row g-2">
+                                    <div class="col-12 col-sm-4 col-md-3">
+                                        <select class="form-select h-100" id="codigoPais">
+                                            <option value="+503">SV +503</option>
+                                            <option value="+504">HN +504</option>
+                                            <option value="+505">NI +505</option>
+                                            <option value="+506">CR +506</option>
+                                            <option value="+507">PA +507</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-md-9">
+                                        <input type="tel" class="form-control" id="telefono"
+                                               placeholder="Número de teléfono"
+                                               required>
+                                    </div>
+                                </div>
+                                <div id="error-telefono" class="error"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="emailtutor" class="form-label">Correo electrónico</label>
+                                <input type="email" class="form-control" id="emailtutor"
+                                       placeholder="Correo electrónico"
+                                       required>
+                                <div id="error-email" class="error"></div>
+                            </div>
+
+                            <!-- Ocupación -->
+                            <div class="mb-3">
+                                <label for="ocupacion" class="form-label">Ocupación</label>
+                                <input type="text" class="form-control" id="ocupacion"
+                                       placeholder="Ocupación"
+                                       required>
+                                <div id="error-ocupacion" class="error"></div>
+                            </div>
+
+                            <!-- Botón Guardar -->
+                            <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary flex-grow-1 flex-sm-grow-0" id="btnGuardar">
+                                    <i class="fas fa-save me-1"></i> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script de validación -->
+    <script src="./TutJS.js"></script>
+</body>
+</html>

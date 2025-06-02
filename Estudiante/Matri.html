@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Matrículas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Archivos CSS locales -->
+    <link rel="stylesheet" href="./MatriCSS.css">
+    <link rel="stylesheet" href="../conex/Styledash.css">
+</head>
+<body>
+
+    <!-- Menú estilo Claro -->
+    <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="./Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="serviciosDropdown" role="button"
+                           data-bs-toggle="dropdown">
+                            <i class="bi bi-collection me-1"></i> Servicios
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="serviciosDropdown">
+                            <li><a class="dropdown-item" href="./Pag/log.html"><i class="fas fa-user-plus me-2"></i>
+                                Registrar Estudiante</a></li>
+                            <li><a class="dropdown-item" href="./Pag/E.O.html"><i class="fas fa-info-circle me-2"></i>
+                                Información EduOptima</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Dashb.html">
+                            <i class="fas fa-user-graduate me-2"></i> Alumnos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Prof.html">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Nots.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Matri.html">
+                            <i class="fas fa-clipboard-list me-2"></i> Matrículas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./Pag/Cal.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="./Pag/E.O.html" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-chalkboard-teacher me-1"></i> EduOptima
+                    </a>
+                </div>
+                <div class="sidebar-footer ms-2">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-cog me-1"></i> Configuración
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="main-container">
+            <h2 class="form-title"><i class="fas fa-clipboard-list me-2"></i> Registro de Matrículas</h2>
+
+            <div id="message" class="alert" style="display: none;"></div>
+
+            <!-- Formulario para agregar Datos estudiantes -->
+            <form id="matriculaForm">
+                <div class="form-group">
+                    <label for="codeStudent" class="form-label">Código Estudiantil</label>
+                    <input type="text" class="form-control" id="codeStudent" placeholder="Formato: 000000-AAAA" required>
+                    <span id="error-code" class="error"></span>
+                    <div class="example-text">Ejemplo: 123456-ABCD</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" placeholder="Nombre completo" required>
+                            <span id="error-nombre" class="error"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="apellido" class="form-label">Apellido</label>
+                            <input type="text" class="form-control" id="apellido" placeholder="Apellido completo" required>
+                            <span id="error-apellido" class="error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Sexo</label>
+                    <div class="radio-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sexo" id="sexoM" value="M" required>
+                            <label class="form-check-label" for="sexoM">
+                                Masculino
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sexo" id="sexoF" value="F">
+                            <label class="form-check-label" for="sexoF">
+                                Femenino
+                            </label>
+                        </div>
+                    </div>
+                    <span id="error-sexo" class="error"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="text" class="form-control" id="fechaNacimiento" placeholder="DD/MM/AAAA" required>
+                            <span id="error-fecha" class="error"></span>
+                            <div class="example-text">Formato: DD/MM/AAAA (ej. 15/05/2000)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="edad" class="form-label">Edad</label>
+                            <input type="number" class="form-control" id="edad" min="5" max="12" required>
+                            <span id="error-edad" class="error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <input type="text" class="form-control" id="direccion" placeholder="Dirección completa" required>
+                    <span id="error-direccion" class="error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <div class="phone-container">
+                        <select class="form-select" id="codigoPais">
+                            <option value="+503">SV +503</option>
+                            <option value="+504">HN +504</option>
+                            <option value="+505">NI +505</option>
+                            <option value="+506">CR +506</option>
+                            <option value="+507">PA +507</option>
+                        </select>
+                        <input type="tel" class="form-control" id="telefono" placeholder="Número de teléfono" required>
+                    </div>
+                    <span id="error-telefono" class="error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailEstudiante" class="form-label">Correo Electrónico del Padre</label>
+                    <input type="email" class="form-control" id="emailEstudiante" placeholder="correo@ejemplo.com" required>
+                    <span id="error-email" class="error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-submit btn-lg">
+                    <i class="fas fa-save me-2"></i> Guardar Matrícula
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="MatriJV.js"></script>
+</body>
+</html>
