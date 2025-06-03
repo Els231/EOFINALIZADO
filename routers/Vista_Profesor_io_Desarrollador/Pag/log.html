@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Autenticación</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Coneccion Css -->
+    <link rel="stylesheet" href="../InicionSecion/parlog.css">
+    <style>
+        /* Estilos  */
+        .nav-buttons-container {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-family: 'Arial', sans-serif;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 16px;
+        }
+
+        .nav-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .nav-button i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Asegura  el contenido para no quedar oculto  */
+        body {
+            padding-top: 70px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenedor para ambos botones -->
+    <div class="nav-buttons-container">
+        <!-- Botón Izquierdo  -->
+        <a href="E.O.html" class="nav-button">
+            <i class="fas fa-arrow-left"></i> Regresar
+        </a>
+
+        <!-- Botón Derecho (Registrar) -->
+        <a href="regist.html" class="nav-button">
+            Registrar <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+
+
+    <div class="auth-container" id="authContainer">
+
+    </div>
+
+    <script src="../InicionSecion/palog.js"></script>
+</body>
+</html>

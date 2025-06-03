@@ -1,0 +1,224 @@
+  /* Estilos CSS para la página */
+
+
+  body {
+      font-family: "Times New Roman", sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('../Pag/Imagenes/fondo-escuela.jpg.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      transition: background-color 0.5s ease;
+      color: #333;
+  }
+
+        /* Contenedor para la imagen
+      .imagen-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 20px auto;
+          max-width: 800px;
+      }*/
+
+  .imagen-container img {
+      max-width: 100%;
+      height: auto;
+      border: 5px solid #333;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  header {
+      text-align: center;
+      padding: 20px;
+  }
+
+  h1 {
+      background-color: lightskyblue;
+      color: black;
+      padding: 8px;
+      border-radius: 5px;
+      display: inline-block;
+  }
+
+  nav {
+      background-color: #333;
+      padding: 10px;
+  }
+
+  nav ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+  }
+
+  nav li {
+      margin: 0 15px;
+  }
+
+  nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+  }
+
+  nav a:hover {
+      color: DodgerBlue;
+  }
+
+  section {
+      padding: 20px;
+      margin: 20px;
+      background-color: rgba(252, 237, 242, 0.8);
+      border-radius: 5px;
+  }
+
+  article {
+      margin-bottom: 15px;
+  }
+
+  #color-changer {
+      text-align: center;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.8);
+      margin: 20px;
+      border-radius: 5px;
+  }
+
+  #color-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+  }
+
+  .color-btn {
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+  }
+
+  form {
+      max-width: 500px;
+      margin: 0 auto;
+  }
+
+  label {
+      display: block;
+      margin-top: 10px;
+  }
+
+  input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+  }
+
+  button[type="submit"] {
+      background-color: DodgerBlue;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+  }
+
+  button[type="submit"]:hover {
+      background-color: #1e7ebb;
+  }
+
+  footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #333;
+      color: white;
+  }
+
+  canvas {
+      display: block;
+      margin: 20px auto;
+  }
+
+    /* Estilos para mejorar la presentación */
+  .mission-vision-section {
+    padding: 10px;
+  }
+
+  .section-title {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+  }
+
+  .section-content p {
+    text-align: justify;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  .mission-vision-divider {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+    margin: 20px 0;
+  }
+
+  .accordion-body {
+    padding: 20px;
+  }
+
+  /* Menu */
+
+  /* Estilos para el submenú */
+.has-submenu {
+    position: relative;
+}
+
+.submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: #34495e;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.submenu.active {
+    max-height: 500px; /* Ajusta este valor según necesites */
+}
+
+.submenu a {
+    display: block;
+    padding: 12px 20px 12px 40px;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.submenu a:hover {
+    background: #3d566e;
+}
+
+.toggle-icon {
+    margin-left: auto;
+    transition: transform 0.3s;
+}
+
+.menu-item.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+
+

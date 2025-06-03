@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">   <title>Document</title>
+    <link rel="stylesheet" href="../conex/Style.css">
+    <!-- Referencia a la libreria de iconos para el boton de editar y eliminar-->
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css">
+</head>
+<body>
+<Style>
+.back-button-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-family: 'Fredoka One', cursive;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 16px;
+}
+
+.btn-back:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.btn-back i {
+    margin-right: 8px;
+    font-size: 18px;
+}
+</Style>
+ <!-- Butoom-->
+  <div class="back-button-container">
+    <a href="log.html" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Regresar
+    </a>
+</div>
+       <!-- Div Principañ-->
+    <div class="container">
+        <!-- Div Encabezado-->
+        <div class="header">
+            <span>Registro de Tutores</span>
+            <button id="new" onclick="openModal()">Registrar</button>
+
+        </div>
+        <!-- Div Tabla-->
+        <div class="divTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CEDULA</th>
+                        <th>NOMBRES</th>
+                        <th>APELLIDOS</th>
+                        <th>CENTRO DE TRABAJO</th>
+                        <th>TELEFONO</th>
+                        <th>CORREO ELECTRONICO</th>
+                        <th>SALARIO</th>
+                        <th>OCUPACION</th>
+                        <th class="acao">Editar</th>
+                        <th class="acao">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+
+          <!-- Modal-->
+
+          <div class="modal-container">
+            <div class="modal">
+                <form>
+                    <label for="m-cedula">CÉDULA</label>
+                    <input id="m-cedula" type="text" required/>
+
+                    <label for="m-nombre"> NOMBRES</label>
+                    <input id="m-nombre" type="text" required />
+
+                    <label for="m-apellido"> APELLIDOS</label>
+                    <input id="m-apellido" type="text" required />
+
+                    <label for="m-trab"> CENTRO DE TRABAJO</label>
+                    <input id="m-trab" type="text" required />
+
+                    <label for="m-phone"> TELEFONO</label>
+                    <input id="m-phone" type="number" required />
+
+                    <label for="m-email"> CORREO ELECTRONICO</label>
+                    <input id="m-email" type="text" required />
+
+                    <label for="m-salario"> salario</label>
+                    <input id="m-salario" type="number" required />
+
+                    <label for="m-ocup"> OCUPACION</label>
+                    <input id="m-ocup" type="text" required />
+
+                    <button id="btnSalvar">Guardar</button>
+
+                </form>
+            </div>
+          </div>
+    </div>
+
+    <script src="../conex/script.js"></script>
+</body>
+</html>
