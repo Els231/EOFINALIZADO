@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Escolar - Escuela Primaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-primario: #4e73df;
+            --color-secundario: #1cc88a;
+            --color-terciario: #36b9cc;
+            --color-cuaternario: #f6c23e;
+            --color-fondo: #f8f9fc;
+            --color-texto: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            padding-top: 70px;
+        }
+        
+        .navbar-claro {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .card {
+            border-radius: 0.35rem;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: bold;
+            color: var(--color-texto);
+        }
+        
+        .fc-event {
+            cursor: pointer;
+        }
+        
+        .fc-event-title {
+            white-space: normal;
+        }
+        
+        .evento-importante {
+            background-color: #e74a3b;
+            border-color: #e74a3b;
+        }
+        
+        .evento-general {
+            background-color: #36b9cc;
+            border-color: #36b9cc;
+        }
+        
+        .evento-escolar {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+        
+        .evento-personal {
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+        
+        .evento-familiar {
+            background-color: #f6c23e;
+            border-color: #f6c23e;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--color-texto);
+        }
+        
+        .fc-toolbar-title {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .proximos-eventos {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .evento-card {
+            border-left: 4px solid;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evento-importante-card {
+            border-left-color: #e74a3b;
+        }
+        
+        .evento-general-card {
+            border-left-color: #36b9cc;
+        }
+        
+        .evento-escolar-card {
+            border-left-color: #4e73df;
+        }
+        
+        .evento-personal-card {
+            border-left-color: #1cc88a;
+        }
+        
+        .evento-familiar-card {
+            border-left-color: #f6c23e;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbTutor.html">
+                                <i class="fas fa-child me-2"></i> Mis Hijos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbNotTut.html">
+                                <i class="fas fa-book me-2"></i> Notas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbAsisTut.html">
+                                <i class="fas fa-calendar-check me-2"></i> Asistencia
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashComuTut.html">
+                                <i class="fas fa-bullhorn me-2"></i> Comunicados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbCalTut.html">
+                                <i class="fas fa-calendar-alt me-2"></i> Calendario
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <a href="./DashbMensjTut.html" class="btn btn-claro">
+                            <i class="fas fa-envelope me-1"></i> Mensajes
+                        </a>
+                    </div>
+                    <div class="sidebar-footer mt-auto p-3 text-center">
+                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
+                            <i class="fas fa-cog me-1"></i> Configuración
+                            </a>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <main class="col-md-12 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Calendario Escolar</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button class="btn btn-sm btn-outline-secondary" id="btnHoy"><i class="fas fa-calendar-day me-1"></i> Hoy</button>
+                        <button class="btn btn-sm btn-outline-primary" id="btnAgregarEvento"><i class="fas fa-plus me-1"></i> Agregar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="calendario"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Próximos Eventos</h5>
+                        </div>
+                        <div class="card-body proximos-eventos">
+                            <div class="card evento-card evento-importante-card mb-2">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">Entrega de boletines</h6>
+                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 27 Mar 2023</small></p>
+                                    <p class="card-text mb-0"><small><i class="fas fa-clock me-1"></i> 14:00 - 16:00</small></p>
+                                </div>
+                            </div>
+                            <div class="card evento-card evento-general-card mb-2">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">Suspensión de clases</h6>
+                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 25 Mar 2023</small></p>
+                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Todo el día</small></p>
+                                </div>
+                            </div>
+                            <div class="card evento-card evento-escolar-card mb-2">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">Día del Libro</h6>
+                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 2 Abr 2023</small></p>
+                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Actividades especiales</small></p>
+                                </div>
+                            </div>
+                            <div class="card evento-card evento-familiar-card mb-2">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">Cumpleaños de María</h6>
+                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 5 Abr 2023</small></p>
+                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Evento personal</small></p>
+                                </div>
+                            </div>
+                            <div class="card evento-card evento-escolar-card mb-2">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">Reunión de padres 3°A</h6>
+                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 10 Abr 2023</small></p>
+                                    <p class="card-text mb-0"><small><i class="fas fa-clock me-1"></i> 16:00 - 17:30</small></p>
+                                </div>
+                            </div>
+                            <div class="card evento-card evento-general-card mb-2">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1">Cambio de uniforme</h6>
+                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 1 Abr 2023</small></p>
+                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Uniforme de verano</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Eventos por Hijo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="switchMaria" checked>
+                                <label class="form-check-label" for="switchMaria">María López (3°A)</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchJuan" checked>
+                                <label class="form-check-label" for="switchJuan">Juan López (1°B)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal para agregar evento -->
+<div class="modal fade" id="modalEvento" tabindex="-1" aria-labelledby="modalEventoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEventoLabel">Agregar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEvento">
+                    <div class="mb-3">
+                        <label for="tituloEvento" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="tituloEvento" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipoEvento" class="form-label">Tipo de Evento</label>
+                        <select class="form-select" id="tipoEvento">
+                            <option value="personal">Personal/Familiar</option>
+                            <option value="escolar">Escolar</option>
+                            <option value="importante">Importante</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fechaEvento" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fechaEvento" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="horaInicio" class="form-label">Hora de inicio</label>
+                            <input type="time" class="form-control" id="horaInicio">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="horaFin" class="form-label">Hora de fin</label>
+                            <input type="time" class="form-control" id="horaFin">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcionEvento" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcionEvento" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarEvento">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendario');
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: [
+                {
+                    title: 'Entrega de boletines',
+                    start: '2023-03-27T14:00:00',
+                    end: '2023-03-27T16:00:00',
+                    className: 'evento-importante'
+                },
+                {
+                    title: 'Suspensión de clases',
+                    start: '2023-03-25',
+                    className: 'evento-general'
+                },
+                {
+                    title: 'Día del Libro',
+                    start: '2023-04-02',
+                    className: 'evento-escolar'
+                },
+                {
+                    title: 'Cumpleaños de María',
+                    start: '2023-04-05',
+                    className: 'evento-familiar'
+                },
+                {
+                    title: 'Reunión de padres 3°A',
+                    start: '2023-04-10T16:00:00',
+                    end: '2023-04-10T17:30:00',
+                    className: 'evento-escolar'
+                },
+                {
+                    title: 'Cambio de uniforme',
+                    start: '2023-04-01',
+                    className: 'evento-general'
+                }
+            ],
+            eventClick: function(info) {
+                alert('Evento: ' + info.event.title + '\nFecha: ' + info.event.start.toLocaleString());
+            }
+        });
+        
+        calendar.render();
+        
+        // Botón "Hoy"
+        document.getElementById('btnHoy').addEventListener('click', function() {
+            calendar.today();
+        });
+        
+        // Botón para agregar evento
+        var modalEvento = new bootstrap.Modal(document.getElementById('modalEvento'));
+        
+        document.getElementById('btnAgregarEvento').addEventListener('click', function() {
+            modalEvento.show();
+        });
+        
+        document.getElementById('btnGuardarEvento').addEventListener('click', function() {
+            var titulo = document.getElementById('tituloEvento').value;
+            var tipo = document.getElementById('tipoEvento').value;
+            var fecha = document.getElementById('fechaEvento').value;
+            var horaInicio = document.getElementById('horaInicio').value;
+            var horaFin = document.getElementById('horaFin').value;
+            var descripcion = document.getElementById('descripcionEvento').value;
+            
+            if (!titulo || !fecha) {
+                alert('Por favor complete los campos obligatorios');
+                return;
+            }
+            
+            var evento = {
+                title: titulo,
+                start: fecha + (horaInicio ? 'T' + horaInicio : ''),
+                end: horaFin ? (fecha + 'T' + horaFin) : null,
+                className: tipo === 'personal' ? 'evento-familiar' : 
+                          tipo === 'escolar' ? 'evento-escolar' : 'evento-importante',
+                extendedProps: {
+                    description: descripcion
+                }
+            };
+            
+            calendar.addEvent(evento);
+            modalEvento.hide();
+            document.getElementById('formEvento').reset();
+            
+            // Agregar también a la lista de próximos eventos
+            agregarProximoEvento(evento);
+        });
+        
+        function agregarProximoEvento(evento) {
+            var eventosContainer = document.querySelector('.proximos-eventos');
+            var eventoCard = document.createElement('div');
+            eventoCard.className = 'card evento-card ' + 
+                (evento.className === 'evento-familiar' ? 'evento-familiar-card' :
+                 evento.className === 'evento-escolar' ? 'evento-escolar-card' : 'evento-importante-card') + ' mb-2';
+            
+            var fechaEvento = new Date(evento.start);
+            var fechaFormateada = fechaEvento.toLocaleDateString('es-ES', { 
+                day: 'numeric', month: 'short', year: 'numeric' 
+            });
+            
+            var horaFormateada = '';
+            if (evento.start.includes('T')) {
+                horaFormateada = fechaEvento.toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', minute: '2-digit' 
+                });
+            }
+            
+            eventoCard.innerHTML = `
+                <div class="card-body p-2">
+                    <h6 class="card-title mb-1">${evento.title}</h6>
+                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> ${fechaFormateada}</small></p>
+                    ${horaFormateada ? `<p class="card-text mb-0"><small><i class="fas fa-clock me-1"></i> ${horaFormateada}</small></p>` : 
+                      '<p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Todo el día</small></p>'}
+                </div>
+            `;
+            
+            eventosContainer.prepend(eventoCard);
+        }
+    });
+</script>
+</body>
+</html>

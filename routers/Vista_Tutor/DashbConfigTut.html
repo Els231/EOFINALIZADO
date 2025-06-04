@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Escuela Primaria</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primario: #4e73df;
+            --color-secundario: #1cc88a;
+            --color-terciario: #36b9cc;
+            --color-cuaternario: #f6c23e;
+            --color-fondo: #f8f9fc;
+            --color-texto: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            padding-top: 70px;
+        }
+        
+        .navbar-claro {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .card {
+            border-radius: 0.35rem;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: bold;
+            color: var(--color-texto);
+        }
+        
+        .nav-pills .nav-link.active {
+            background-color: var(--color-primario);
+        }
+        
+        .nav-pills .nav-link {
+            color: var(--color-texto);
+        }
+        
+        .avatar-grande {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--color-primario);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--color-texto);
+        }
+        
+        .configuracion-opcion {
+            padding: 1rem;
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .configuracion-opcion:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbTutor.html">
+                                <i class="fas fa-child me-2"></i> Mis Hijos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbNotTut.html">
+                                <i class="fas fa-book me-2"></i> Notas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbAsisTut.html">
+                                <i class="fas fa-calendar-check me-2"></i> Asistencia
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashComuTut.html">
+                                <i class="fas fa-bullhorn me-2"></i> Comunicados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./DashbCalTut.html">
+                                <i class="fas fa-calendar-alt me-2"></i> Calendario
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <a href="./DashbMensjTut.html" class="btn btn-claro">
+                            <i class="fas fa-envelope me-1"></i> Mensajes
+                        </a>
+                    </div>
+                    <div class="sidebar-footer mt-auto p-3 text-center">
+                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
+                            <i class="fas fa-cog me-1"></i> Configuración
+                            </a>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+<div class="container-fluid">
+    <div class="row">
+        <main class="col-md-12 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Configuración</h1>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="avatar-grande mb-3">JL</div>
+                            <h5 class="card-title">Jorge López</h5>
+                            <p class="card-text text-muted">Tutor principal</p>
+                            <button class="btn btn-sm btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-camera me-1"></i> Cambiar foto
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary w-100">
+                                <i class="fas fa-pencil-alt me-1"></i> Editar perfil
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Menú</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <a href="#perfil" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
+                                <i class="fas fa-user me-2"></i> Perfil
+                            </a>
+                            <a href="#seguridad" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                                <i class="fas fa-lock me-2"></i> Seguridad
+                            </a>
+                            <a href="#notificaciones" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                                <i class="fas fa-bell me-2"></i> Notificaciones
+                            </a>
+                            <a href="#hijos" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                                <i class="fas fa-child me-2"></i> Mis hijos
+                            </a>
+                            <a href="#preferencias" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                                <i class="fas fa-cog me-2"></i> Preferencias
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="perfil">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Información del perfil</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="nombre" class="form-label">Nombre</label>
+                                                <input type="text" class="form-control" id="nombre" value="Jorge">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="apellido" class="form-label">Apellido</label>
+                                                <input type="text" class="form-control" id="apellido" value="López">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="email" class="form-label">Correo electrónico</label>
+                                                <input type="email" class="form-control" id="email" value="jorge.lopez@example.com">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="telefono" class="form-label">Teléfono</label>
+                                                <input type="tel" class="form-control" id="telefono" value="+54 11 1234 5678">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="direccion" class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" id="direccion" value="Calle Falsa 123">
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="ciudad" class="form-label">Ciudad</label>
+                                                <input type="text" class="form-control" id="ciudad" value="Buenos Aires">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="provincia" class="form-label">Provincia</label>
+                                                <input type="text" class="form-control" id="provincia" value="Buenos Aires">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="cp" class="form-label">C.P.</label>
+                                                <input type="text" class="form-control" id="cp" value="1234">
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="seguridad">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Seguridad y contraseña</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="contrasenaActual" class="form-label">Contraseña actual</label>
+                                            <input type="password" class="form-control" id="contrasenaActual">
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="nuevaContrasena" class="form-label">Nueva contraseña</label>
+                                                <input type="password" class="form-control" id="nuevaContrasena">
+                                                <div class="form-text">Mínimo 8 caracteres</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="confirmarContrasena" class="form-label">Confirmar contraseña</label>
+                                                <input type="password" class="form-control" id="confirmarContrasena">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="verificacionDosPasos">
+                                            <label class="form-check-label" for="verificacionDosPasos">Habilitar verificación en dos pasos</label>
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Sesiones activas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Dispositivo</th>
+                                                    <th>Ubicación</th>
+                                                    <th>Última actividad</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <i class="fas fa-desktop me-2"></i> Windows - Chrome
+                                                    </td>
+                                                    <td>Buenos Aires, AR (Actual)</td>
+                                                    <td>Hace 5 minutos</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-danger">Cerrar sesión</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <i class="fas fa-mobile-alt me-2"></i> Android - Chrome
+                                                    </td>
+                                                    <td>Buenos Aires, AR</td>
+                                                    <td>Hace 2 horas</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-danger">Cerrar sesión</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="notificaciones">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Preferencias de notificaciones</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <h6 class="mb-3">Notificaciones por correo electrónico</h6>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="notificacionesCorreo" checked>
+                                                <label class="form-check-label" for="notificacionesCorreo">Recibir notificaciones por correo</label>
+                                            </div>
+                                        </div>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="notasCorreo" checked>
+                                                <label class="form-check-label" for="notasCorreo">Nuevas calificaciones</label>
+                                            </div>
+                                        </div>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="asistenciaCorreo" checked>
+                                                <label class="form-check-label" for="asistenciaCorreo">Inasistencias</label>
+                                            </div>
+                                        </div>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="comunicadosCorreo" checked>
+                                                <label class="form-check-label" for="comunicadosCorreo">Comunicados escolares</label>
+                                            </div>
+                                        </div>
+                                        
+                                        <h6 class="mb-3 mt-4">Notificaciones en la aplicación</h6>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="notificacionesApp" checked>
+                                                <label class="form-check-label" for="notificacionesApp">Recibir notificaciones en la app</label>
+                                            </div>
+                                        </div>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="mensajesApp" checked>
+                                                <label class="form-check-label" for="mensajesApp">Nuevos mensajes</label>
+                                            </div>
+                                        </div>
+                                        <div class="configuracion-opcion">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="eventosApp" checked>
+                                                <label class="form-check-label" for="eventosApp">Próximos eventos</label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="text-end mt-3">
+                                            <button type="submit" class="btn btn-primary">Guardar preferencias</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="hijos">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Mis hijos</h5>
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarHijo">
+                                        <i class="fas fa-plus me-1"></i> Agregar hijo
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Grado</th>
+                                                    <th>Edad</th>
+                                                    <th>Parentesco</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>María López Pérez</td>
+                                                    <td>3° A</td>
+                                                    <td>8 años</td>
+                                                    <td>Hija</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Juan López Pérez</td>
+                                                    <td>1° B</td>
+                                                    <td>6 años</td>
+                                                    <td>Hijo</td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
+                                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash-alt"></i></button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="preferencias">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Preferencias de la cuenta</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="idioma" class="form-label">Idioma preferido</label>
+                                            <select class="form-select" id="idioma">
+                                                <option selected>Español</option>
+                                                <option>Inglés</option>
+                                                <option>Portugués</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="zonaHoraria" class="form-label">Zona horaria</label>
+                                            <select class="form-select" id="zonaHoraria">
+                                                <option selected>(UTC-03:00) Buenos Aires</option>
+                                                <option>(UTC-05:00) Bogotá, Lima</option>
+                                                <option>(UTC-06:00) Ciudad de México</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="tema" class="form-label">Tema de la aplicación</label>
+                                            <select class="form-select" id="tema">
+                                                <option selected>Claro</option>
+                                                <option>Oscuro</option>
+                                                <option>Automático</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="recordatorios" checked>
+                                            <label class="form-check-label" for="recordatorios">Recordatorios de eventos importantes</label>
+                                        </div>
+                                        <div class="text-end">
+                                            <button type="submit" class="btn btn-primary">Guardar preferencias</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal para agregar hijo -->
+<div class="modal fade" id="modalAgregarHijo" tabindex="-1" aria-labelledby="modalAgregarHijoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAgregarHijoLabel">Agregar hijo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nombreHijo" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombreHijo">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="apellidoHijo" class="form-label">Apellido</label>
+                            <input type="text" class="form-control" id="apellidoHijo">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                            <input type="date" class="form-control" id="fechaNacimiento">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="parentesco" class="form-label">Parentesco</label>
+                            <select class="form-select" id="parentesco">
+                                <option selected>Hijo/a</option>
+                                <option>Sobrino/a</option>
+                                <option>Tutor legal</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gradoHijo" class="form-label">Grado</label>
+                        <select class="form-select" id="gradoHijo">
+                            <option selected>Seleccione un grado</option>
+                            <option>1° Grado</option>
+                            <option>2° Grado</option>
+                            <option>3° Grado</option>
+                            <option>4° Grado</option>
+                            <option>5° Grado</option>
+                            <option>6° Grado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="seccionHijo" class="form-label">Sección</label>
+                        <select class="form-select" id="seccionHijo">
+                            <option selected>A</option>
+                            <option>B</option>
+                            <option>C</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
