@@ -1,0 +1,71 @@
+
+       :root {
+            --color-primario: #4e73df;
+            --color-secundario: #1cc88a;
+            --color-terciario: #36b9cc;
+            --color-cuaternario: #f6c23e;
+            --color-fondo: #f8f9fc;
+            --color-texto: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            padding-top: 70px;
+        }
+        
+        .navbar-claro {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .card {
+            border-radius: 0.35rem;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: bold;
+            color: var(--color-texto);
+        }
+        
+       .nav-pills .nav-link.active {
+            background-color: var(--color-primario);
+        }
+        
+        .nav-pills .nav-link {
+            color: var(--color-texto);
+        }
+        
+        .avatar-grande {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--color-primario);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--color-texto);
+        }
+        
+        .configuracion-opcion {
+            padding: 1rem;
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .configuracion-opcion:last-child {
+            border-bottom: none;
+        }

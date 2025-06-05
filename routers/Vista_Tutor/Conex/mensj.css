@@ -1,0 +1,81 @@
+ .list-group-item {
+            border-left: none;
+            border-right: none;
+            cursor: pointer;
+        }
+        
+        .list-group-item:first-child {
+            border-top: none;
+        }
+        
+        .list-group-item.active {
+            background-color: #f8f9fc;
+            color: var(--color-texto);
+            border-color: #e3e6f0;
+            border-left: 3px solid var(--color-primario);
+        }
+        
+        .list-group-item.unread {
+            background-color: rgba(78, 115, 223, 0.05);
+            font-weight: bold;
+        }
+        
+        .mensaje-card {
+            transition: transform 0.2s;
+        }
+        
+        .mensaje-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-primario);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .mensaje-preview {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--color-texto);
+        }
+        
+        .conversacion {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .mensaje-enviado {
+            background-color: #e3f2fd;
+            border-radius: 1rem 1rem 0 1rem;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            max-width: 70%;
+            align-self: flex-end;
+        }
+        
+        .mensaje-recibido {
+            background-color: #f1f1f1;
+            border-radius: 1rem 1rem 1rem 0;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            max-width: 70%;
+            align-self: flex-start;
+        }
+        
+        .hora-mensaje {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }

@@ -1,0 +1,89 @@
+  :root {
+            --color-primario: #4e73df;
+            --color-secundario: #1cc88a;
+            --color-terciario: #36b9cc;
+            --color-cuaternario: #f6c23e;
+            --color-fondo: #f8f9fc;
+            --color-texto: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            padding-top: 70px;
+        }
+        
+        .navbar-claro {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .card {
+            border-radius: 0.35rem;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: bold;
+            color: var(--color-texto);
+        }
+        
+        .asistencia-presente {
+            color: #1cc88a;
+        }
+        
+        .asistencia-ausente {
+            color: #e74a3b;
+        }
+        
+        .asistencia-justificada {
+            color: #f6c23e;
+        }
+        
+        .asistencia-tardia {
+            color: #36b9cc;
+        }
+        
+        .badge-asistencia {
+            font-size: 0.8em;
+            padding: 0.35em 0.65em;
+            border-radius: 0.25rem;
+        }
+        
+        .presente {
+            background-color: #1cc88a;
+            color: white;
+        }
+        
+        .ausente {
+            background-color: #e74a3b;
+            color: white;
+        }
+        
+        .justificada {
+            background-color: #f6c23e;
+            color: #000;
+        }
+        
+        .tardia {
+            background-color: #36b9cc;
+            color: white;
+        }
+        
+        .filtros-asistencia {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--color-texto);
+        }

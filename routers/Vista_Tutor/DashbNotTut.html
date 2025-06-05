@@ -7,91 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --color-primario: #4e73df;
-            --color-secundario: #1cc88a;
-            --color-terciario: #36b9cc;
-            --color-cuaternario: #f6c23e;
-            --color-fondo: #f8f9fc;
-            --color-texto: #5a5c69;
-        }
-        
-        body {
-            font-family: 'Comic Neue', cursive;
-            background-color: var(--color-fondo);
-            color: var(--color-texto);
-            padding-top: 70px;
-        }
-        
-        .navbar-claro {
-            background-color: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-        }
-        
-        .card {
-            border-radius: 0.35rem;
-            border: none;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-header {
-            background-color: #f8f9fc;
-            border-bottom: 1px solid #e3e6f0;
-            font-weight: bold;
-            color: var(--color-texto);
-        }
-        
-        .badge-nota {
-            font-size: 0.9em;
-            padding: 0.35em 0.65em;
-            border-radius: 0.25rem;
-        }
-        
-        .nota-alta {
-            background-color: #1cc88a;
-            color: white;
-        }
-        
-        .nota-media {
-            background-color: #f6c23e;
-            color: #000;
-        }
-        
-        .nota-baja {
-            background-color: #e74a3b;
-            color: white;
-        }
-        
-        .progress {
-            height: 1rem;
-            border-radius: 0.35rem;
-        }
-        
-        .progress-bar {
-            background-color: var(--color-primario);
-        }
-        
-        .filtros-notas {
-            background-color: white;
-            padding: 1rem;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-            margin-bottom: 1.5rem;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Fredoka One', cursive;
-            color: var(--color-texto);
-        }
-    </style>
+    <link href="./Conex/TurtDash.Css" rel="stylesheet">
+    <link href="./Conex/Not.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="#">
-                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+                    <img src="../Vista_Profesor_io_Desarrollador/Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
@@ -397,116 +320,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Evolución de notas para María
-    const ctxMaria = document.getElementById('evolucionNotasMaria').getContext('2d');
-    const chartMaria = new Chart(ctxMaria, {
-        type: 'line',
-        data: {
-            labels: ['1° Trim', '2° Trim', '3° Trim'],
-            datasets: [
-                {
-                    label: 'Matemáticas',
-                    data: [8.2, 9.0, null],
-                    borderColor: '#4e73df',
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Lengua',
-                    data: [8.0, 8.5, null],
-                    borderColor: '#1cc88a',
-                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Ciencias',
-                    data: [8.5, 8.8, null],
-                    borderColor: '#36b9cc',
-                    backgroundColor: 'rgba(54, 185, 204, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Promedio',
-                    data: [8.3, 8.7, null],
-                    borderColor: '#f6c23e',
-                    backgroundColor: 'rgba(246, 194, 62, 0.1)',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 6,
-                    max: 10
-                }
-            }
-        }
-    });
-
-    // Evolución de notas para Juan
-    const ctxJuan = document.getElementById('evolucionNotasJuan').getContext('2d');
-    const chartJuan = new Chart(ctxJuan, {
-        type: 'line',
-        data: {
-            labels: ['1° Trim', '2° Trim', '3° Trim'],
-            datasets: [
-                {
-                    label: 'Matemáticas',
-                    data: [7.0, 7.5, null],
-                    borderColor: '#4e73df',
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Lengua',
-                    data: [7.5, 8.0, null],
-                    borderColor: '#1cc88a',
-                    backgroundColor: 'rgba(28, 200, 138, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Ciencias',
-                    data: [7.2, 7.8, null],
-                    borderColor: '#36b9cc',
-                    backgroundColor: 'rgba(54, 185, 204, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Promedio',
-                    data: [7.3, 7.8, null],
-                    borderColor: '#f6c23e',
-                    backgroundColor: 'rgba(246, 194, 62, 0.1)',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 6,
-                    max: 10
-                }
-            }
-        }
-    });
-</script>
+<script src="./Conex/Not.js"></script>
 </body>
 </html>
