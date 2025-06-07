@@ -18,61 +18,58 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Menú estilo Claro -->
-        <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+       <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#Menu" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"><i class="fas fa-home me-1"></i> Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./DashbTutor.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                        <i class="fas fa-child me-2"></i> Mis Hijos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./DashbNotTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                        <i class="fas fa-book me-2"></i> Notas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./DashbAsisTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                        <i class="fas fa-calendar-check me-2"></i> Asistencia
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./DashComuTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                        <i class="fas fa-bullhorn me-2"></i> Comunicados
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./DashbCalTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                        <i class="fas fa-calendar-alt me-2"></i> Calendario
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex flex-column flex-lg-row align-items-center">
+                <a href="./DashbMensjTut.html" class="btn btn-claro mb-2 mb-lg-0 me-lg-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                    <i class="fas fa-envelope me-1"></i> Mensajes
                 </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <i class="fas fa-bars"></i>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbTutor.html">
-                                <i class="fas fa-child me-2"></i> Mis Hijos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbNotTut.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbAsisTut.html">
-                                <i class="fas fa-calendar-check me-2"></i> Asistencia
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashComuTut.html">
-                                <i class="fas fa-bullhorn me-2"></i> Comunicados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbCalTut.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex">
-                        <a href="./DashbMensjTut.html" class="btn btn-claro">
-                            <i class="fas fa-envelope me-1"></i> Mensajes
-                        </a>
-                    </div>
-                    <div class="sidebar-footer mt-auto p-3 text-center">
-                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
-                            <i class="fas fa-cog me-1"></i> Configuración
-                            </a>
-                        </button>
-                    </div>
-                </div>
+                <a href="./DashbConfigTut.html" class="btn btn-claro btn-outline-primary" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
+                    <i class="fas fa-cog me-1"></i> Configuración
+                </a>
             </div>
-        </nav>
+        </div>
+    </div>
+</nav>
         <!-- Contenido -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">

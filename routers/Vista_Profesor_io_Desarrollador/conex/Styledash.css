@@ -1,455 +1,233 @@
+/* ============ VARIABLES Y RESET ============ */
 :root {
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-    --accent-color: #e74c3c;
-    --light-color: #ecf0f1;
-    --dark-color: #34495e;
-    --warning-color: #f39c12;
-    --info-color: #9b59b6;
+  /* Colores principales */
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --accent-color: #e74c3c;
+  --light-color: #fff;
+  --dark-color: #34495e;
+  --warning-color: #f39c12;
+  --info-color: #9b59b6;
+  
+  /* Colores específicos para navbar */
+  --azul-suave: #657dc5;
+  --azul-primario: #4a89dc;
+  --azul-oscuro: #2a5ea0;
+  --texto-oscuro: #2c3e50;
 }
 
-/* Estilos base del body con padding para el navbar fijo */
+/* ============ ESTILOS BASE ============ */
 body {
-    font-family: 'Comic Neue', cursive;
-    background-image: url('../Pag/Imagenes/fondo-escuela.jpg.jpg');
-    background-color: #53899f;
-    color: #333;
-    overflow-x: hidden;
-    padding-top: 80px; /* Espacio para el navbar fijo */
+  font-family: 'Comic Neue', cursive;
+  background-image: url('https://m.media-amazon.com/images/I/71-4CtgiynL._AC_SL1500_.jpg');
+  background-color: #53899f;
+  color: #333;
+  overflow-x: hidden;
+  padding-top: 80px;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Fredoka One', cursive;
-    color: #2c3e50;
+  font-family: 'Fredoka One', cursive;
+  color: #2c3e50;
+  margin-top: 0;
 }
 
-/* Navbar principal - Estilo corregido */
+/* ============ COMPONENTES PRINCIPALES ============ */
+/* ----- Navbar ----- */
 .navbar-claro {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1030;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    background-color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  background-color: white;
 }
 
-/* Estilos cuando el navbar está contraído */
 .navbar-claro.scrolled {
-    padding: 5px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 5px 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .navbar-claro.scrolled .navbar-brand img {
-    height: 40px;
-    transition: all 0.3s ease;
+  height: 40px;
+  transition: all 0.3s ease;
 }
 
-/* Estilos para los elementos del menú */
+/* ----- Items del menú ----- */
 .navbar-nav .nav-item {
-    position: relative;
-    margin: 0 8px;
+  position: relative;
+  margin: 0 8px;
 }
 
 .nav-link {
-    transition: all 0.2s ease;
-    padding: 8px 15px;
-    border-radius: 20px;
+  transition: all 0.2s ease;
+  padding: 8px 15px;
+  border-radius: 20px;
+  color: var(--texto-oscuro) !important;
 }
 
-.nav-link:hover {
-    transform: translateY(-3px);
-    background-color: rgba(0,0,0,0.05);
+.nav-link:hover,
+.nav-link:focus {
+  transform: translateY(-3px);
+  background-color: rgba(0,0,0,0.05);
+  color: var(--azul-oscuro) !important;
 }
 
-/* Dropdown mejorado */
+/* ============ COMPONENTES SECUNDARIOS ============ */
+/* ----- Dropdown ----- */
 .dropdown-menu {
-    transition: all 0.3s ease;
-    opacity: 0;
-    visibility: hidden;
-    display: block;
-    transform: translateY(15px);
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  display: block;
+  transform: translateY(15px);
+  border: none;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: white;
 }
 
 .dropdown:hover .dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
-/* Contenedor principal */
-.container-fluid {
-    margin-top: 20px;
-    position: relative;
-    z-index: 1;
+.dropdown-item {
+  color: var(--texto-oscuro);
+  padding: 8px 16px;
 }
 
-/* Carrusel automático */
+.dropdown-item:hover {
+  background-color: var(--azul-suave);
+  color: var(--azul-oscuro);
+}
+
+/* ----- Carrusel ----- */
 .carousel-container {
-    width: 100%;
-    overflow: hidden;
-    margin: 20px 0;
-    position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin: 20px 0;
+  position: relative;
 }
 
 .carousel-auto {
-    display: flex;
-    width: 300%;
-    animation: slide 15s infinite;
+  display: flex;
+  width: 300%;
+  animation: slide 15s infinite;
 }
 
 .carousel-auto img {
-    width: 33.33%;
-    height: auto;
-    object-fit: cover;
+  width: 33.33%;
+  height: auto;
+  object-fit: cover;
 }
 
 @keyframes slide {
-    0%, 20% { transform: translateX(0); }
-    25%, 45% { transform: translateX(-33.33%); }
-    50%, 70% { transform: translateX(-66.66%); }
-    75%, 95% { transform: translateX(-100%); }
-    100% { transform: translateX(0); }
+  0%, 20% { transform: translateX(0); }
+  25%, 45% { transform: translateX(-33.33%); }
+  50%, 70% { transform: translateX(-66.66%); }
+  75%, 95% { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
 }
 
-/* Cards */
+/* ============ COMPONENTES DE INTERFAZ ============ */
+/* ----- Cards ----- */
 .card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-    margin-bottom: 20px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  margin-bottom: 20px;
 }
 
 .card:hover {
-    transform: translateY(-5px);
+  transform: translateY(-5px);
 }
 
 .card-header {
-    background-color: white;
-    border-bottom: 2px solid #eee;
-    font-family: 'Fredoka One', cursive;
-    color: var(--dark-color);
+  background-color: white;
+  border-bottom: 2px solid #eee;
+  font-family: 'Fredoka One', cursive;
+  color: var(--dark-color);
 }
 
-/* Estilos para tablas */
+/* ----- Tablas ----- */
 .table {
-    font-family: 'Comic Neue', cursive;
+  font-family: 'Comic Neue', cursive;
 }
 
 .table th {
-    font-family: 'Fredoka One', cursive;
-    color: var(--dark-color);
+  font-family: 'Fredoka One', cursive;
+  color: var(--dark-color);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    body {
-        padding-top: 60px; /* Menor espacio en móviles */
-    }
-
-    .navbar-claro {
-        padding: 5px 0;
-    }
-
-    .nav-link {
-        padding: 5px 10px;
-        font-size: 0.9rem;
-    }
-
-    .btn-claro {
-        padding: 5px 15px;
-        font-size: 0.85rem;
-    }
-}
-
-
-/* Variables de color para el Menu */
-:root {
-    --azul-suave: #657dc5;  /* Fondo azul muy claro */
-    --azul-primario: #4a89dc; /* Azul principal para elementos activos */
-    --azul-oscuro: #2a5ea0; /* Azul oscuro para hover */
-    --texto-oscuro: #2c3e50; /* Color para texto */
-}
-
-/* Estilos para el navbar */
-.navbar-claro {
-    background-color: var(--azul-suave) !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-/* Estilos para los items del menú */
-.navbar-claro .nav-link {
-    color: var(--texto-oscuro) !important;
-    padding: 8px 15px;
-    margin: 0 5px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.navbar-claro .nav-link:hover,
-.navbar-claro .nav-link:focus {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: var(--azul-oscuro) !important;
-}
-
-.navbar-claro .nav-link.active {
-    background-color: var(--azul-primario) !important;
-    color: white !important;
-}
-
-/* Estilos para el dropdown */
-.navbar-claro .dropdown-menu {
-    background-color: white;
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border-radius: 0 0 8px 8px;
-}
-
-.navbar-claro .dropdown-item {
-    color: var(--texto-oscuro);
-    padding: 8px 16px;
-}
-
-.navbar-claro .dropdown-item:hover {
-    background-color: var(--azul-suave);
-    color: var(--azul-oscuro);
-}
-
-/* Botón principal */
-.btn-claro {
-    background-color: var(--azul-primario) !important;
-    color: white !important;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 20px;
-    transition: all 0.2s;
-}
-
-.btn-claro:hover {
-    background-color: var(--azul-oscuro) !important;
-    transform: translateY(-2px);
-}
-
-/* Botón de configuración */
-.sidebar-footer .btn-outline-primary {
-    color: var(--azul-primario);
-    border-color: var(--azul-primario);
-}
-
-.sidebar-footer .btn-outline-primary:hover {
-    background-color: var(--azul-primario);
-    color: white;
-}
-
-/* Efecto para el navbar al hacer scroll */
-.navbar-claro.scrolled {
-    background-color: white !important;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-}
-
-.navbar-claro.scrolled .nav-link {
-    color: var(--texto-oscuro) !important;
-}
-
-.navbar-claro.scrolled .nav-link.active {
-    background-color: var(--azul-primario) !important;
-    color: white !important;
-}
-/* Estilo para los items del menú principal */
-.navbar-claro .navbar-nav .nav-item .nav-link {
-    background-color: #f8f9fa;
-    color: #495057 !important;
-    margin: 0 5px;
-    border-radius: 20px;
-    padding: 8px 15px;
-    transition: all 0.3s ease;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-/* Estilo para los items con dropdown */
-.navbar-claro .navbar-nav .nav-item.dropdown .nav-link {
-    background-color: #e9ecef;
-    color: #212529 !important;
-    font-weight: 500;
-    position: relative;
-}
-
-/* Flecha del dropdown */
-.navbar-claro .navbar-nav .nav-item.dropdown .nav-link::after {
-    content: "▾";
-    margin-left: 5px;
-    border: none;
-    font-size: 1.2em;
-    vertical-align: middle;
-}
-
-/* Estilo para el submenú */
-.navbar-claro .dropdown-menu {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    padding: 5px 0;
-    margin-top: 5px;
-}
-
-/* Items del submenú */
-.navbar-claro .dropdown-item {
-    color: #495057 !important;
-    padding: 8px 20px;
-    border-radius: 5px;
-    margin: 2px 10px;
-    transition: all 0.2s ease;
-}
-
-/* Hover en items del submenú */
-.navbar-claro .dropdown-item:hover {
-    background-color: #e9ecef;
-    color: #212529 !important;
-    transform: translateX(5px);
-}
-
-/* Estilo para items activos */
-.navbar-claro .nav-link.active,
-.navbar-claro .dropdown-item.active {
-    background-color: #4a89dc !important;
-    color: white !important;
-}
-
-/* Efecto hover para items del menú principal */
-.navbar-claro .navbar-nav .nav-item .nav-link:hover {
-    background-color: #e9ecef;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Estilo específico para el botón EduOptima */
-.navbar-claro .btn-claro {
-    background-color: #4a89dc !important;
-    color: white !important;
-    border-radius: 20px;
-    padding: 8px 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.navbar-claro .btn-claro:hover {
-    background-color: #3a79cc !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-/* Estilo para el botón de configuración */
-.sidebar-footer .btn-outline-primary {
-    border-color: #4a89dc;
-    color: #4a89dc;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-}
-
-.sidebar-footer .btn-outline-primary:hover {
-    background-color: #4a89dc;
-    color: white;
-}
-
-/* Estilos generales */
-body {
-    font-family: 'Comic Neue', cursive;
-    background-color: #f8f9fa;
-    padding-top: 60px;
-}
-
-/* Barra de navegación */
-.navbar-claro {
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.navbar-brand img {
-    height: 40px;
-}
-
-.btn-claro {
-    background-color: #e9ecef;
-    border-color: #dee2e6;
-    color: #212529;
-}
-
-.btn-claro:hover {
-    background-color: #d6d8db;
-    border-color: #c8cbcf;
-}
-
-/* Estilos del calendario */
+/* ============ COMPONENTES ESPECÍFICOS ============ */
+/* ----- Calendario ----- */
 #calendar {
-    font-family: 'Comic Neue', cursive;
+  font-family: 'Comic Neue', cursive;
 }
 
 .fc-event {
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9em;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.9em;
 }
 
 .fc-daygrid-event {
-    white-space: normal;
-    padding: 2px 4px;
+  white-space: normal;
+  padding: 2px 4px;
 }
 
 /* Tipos de eventos */
-.event-clase {
-    background-color: #4e73df;
-    border-color: #4e73df;
+.event-clase { background-color: #4e73df; border-color: #4e73df; }
+.event-examen { background-color: #e74a3b; border-color: #e74a3b; }
+.event-reunion { background-color: #f6c23e; border-color: #f6c23e; }
+.event-actividad { background-color: #1cc88a; border-color: #1cc88a; }
+.event-feriado { background-color: #858796; border-color: #858796; }
+
+/* ============ UTILIDADES ============ */
+.btn-claro {
+  background-color: var(--azul-primario) !important;
+  color: white !important;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  transition: all 0.2s;
 }
 
-.event-examen {
-    background-color: #e74a3b;
-    border-color: #e74a3b;
+.btn-claro:hover {
+  background-color: var(--azul-oscuro) !important;
+  transform: translateY(-2px);
 }
 
-.event-reunion {
-    background-color: #f6c23e;
-    border-color: #f6c23e;
-}
-
-.event-actividad {
-    background-color: #1cc88a;
-    border-color: #1cc88a;
-}
-
-.event-feriado {
-    background-color: #858796;
-    border-color: #858796;
-}
-
-/* Tarjetas y contenedores */
-.card {
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    border: none;
-}
-
-.card-header {
-    background-color: white;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    font-weight: 600;
-}
-
-/* Responsive */
+/* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
-    .fc-toolbar-title {
-        font-size: 1.2em;
-    }
+  body {
+    padding-top: 60px;
+  }
 
-    .fc-button {
-        padding: 0.3em 0.6em;
-        font-size: 0.8em;
-    }
+  .navbar-claro {
+    padding: 5px 0;
+  }
+
+  .nav-link {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+  }
+
+  .btn-claro {
+    padding: 5px 15px;
+    font-size: 0.85rem;
+  }
+  
+  .fc-toolbar-title {
+    font-size: 1.2em;
+  }
+
+  .fc-button {
+    padding: 0.3em 0.6em;
+    font-size: 0.8em;
+  }
 }

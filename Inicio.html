@@ -11,17 +11,16 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Google Fonts - Fuente infantil -->
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <!-- CSS Personalizado -->
-    <link rel="stylesheet" href="./conex/Styledash.css">
+    <link rel="stylesheet" href="./routers/Vista_Profesor_io_Desarrollador/conex/Styledash.css">
 </head>
 <body>
 <!-- Menú estilo Claro -->
-<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+<nav class="navbar navbar-expand-lg navbar-claro ">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <img src="./Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+            <img src="./routers/Vista_Profesor_io_Desarrollador/Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
@@ -47,33 +46,33 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./Pag/Dashb.html">
+                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Dashb.html">
                         <i class="fas fa-user-graduate me-2"></i> Alumnos
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./Pag/Prof.html">
+                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Prof.html">
                         <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./Nots.html">
+                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Nots.html">
                         <i class="fas fa-book me-2"></i> Notas
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./Matri.html">
+                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Matri.html">
                         <i class="fas fa-clipboard-list me-2"></i> Matrículas
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./Pag/Cal.html">
+                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Cal.html">
                         <i class="fas fa-calendar-alt me-2"></i> Calendario
                     </a>
                 </li>
             </ul>
             <div class="d-flex">
-                <a href="./Pag/E.O.html" class="btn btn-claro">
+                <a href="./routers/Vista_Profesor_io_Desarrollador/Pag/E.O.html" class="btn btn-claro">
                     <i class="fas fa-chalkboard-teacher me-1"></i> EduOptima
                 </a>
             </div>
@@ -86,255 +85,306 @@
     </div>
 </nav>
 
-<div class="container-fluid">
-    <div class="row">
+
+<div class="container-fluid px-0">
+    <div class="row mx-0">
         <!-- Contenido principal -->
-        <main class="col-md-12 px-md-4">
-            <div class="accordion" id="Menu">
-                <!-- Sección Inicio -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button bg-light" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            <i class="bi bi-house-door-fill me-2"></i><strong>Inicio</strong>
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="C" data-bs-parent="#Menu">
-                        <div class="accordion-body p-4">
-                            <div class="mb-4 p-3 bg-light rounded">
-                                <h6>Informacion De La Escuela:</h6>
-                                <p class="mb-3">La Escuela Jesús el Buen Maestro está ubicada frente a la iglesia de San
-                                    Juan de Oriente, reconocida por el desempeño de docentes dedicados a la educación de
-                                    niños. Esta institución educativa está comprometida con:</p>
-                                <ul class="list-unstyled ps-4">
-                                    <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>La preparación
-                                        académica de calidad
-                                    </li>
-                                    <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>El desarrollo
-                                        del conocimiento
-                                    </li>
-                                    <li><i class="bi bi-check2-circle text-primary me-2"></i>La formación en valores
-                                        cristianos
-                                    </li>
-                                </ul>
-                                <p class="mt-3">Diseñada para ofrecer un ambiente de aprendizaje inclusivo, la escuela
-                                    se esfuerza por proporcionar un espacio acogedor y funcional para el estudio y la
-                                    colaboración, a pesar de las limitaciones en recursos tecnológicos.</p>
+        <main class="col-12 px-0">  
+            <div class="container-fluid px-4 py-5" id="Menu"> 
+                <!-- Contenido-->
+                <div class="row justify-content-center">
+                    <div class="col-12 col-xxl-10"> 
+                        
+                        <!-- Informacion de la escuela -->
+                        <div class="card shadow-lg mb-5">
+                            <div class="card-header bg-primary text-white">
+                                <!-- Titulo Escuela -->
+                                <h2 class="text-center mb-0">ESCUELA "JESÚS EL BUEN MAESTRO"</h2>
                             </div>
-
-                            <div class="mb-4 p-3 bg-light rounded">
-                                <h6>Infraestructura:</h6>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <ul class="list-unstyled">
-                                            <li class="mb-2"><i class="bi bi-book me-2 text-primary"></i>Pequeña
-                                                biblioteca con libros de texto
-                                            </li>
-                                            <li class="mb-2"><i class="bi bi-people me-2 text-primary"></i>Sala de
-                                                reuniones
-                                            </li>
-                                            <li><i class="bi bi-gear me-2 text-primary"></i>Dirección administrativa
-                                            </li>
-                                        </ul>
+                            
+                            <div class="card-body ">
+                                <!-- Introducción de la escuela -->
+                                <div class="location-section mb-4 p-3 border-bottom">
+                                    <h3 class="text-primary">📍 Ubicación estratégica</h3>
+                                    <p class="lead">Situada frente a la iglesia de San Juan de Oriente, en un entorno comunitario accesible.</p>
+                                </div>
+                                
+                                <!-- Oferta de Educacion -->
+                                <div class="education-section mb-4">
+                                    <h3 class="text-primary">🎓 Propuesta educativa</h3>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                <li><strong>Niveles:</strong> Educación primaria completa (1° a 6° grado)</li>
+                                                <li><strong>Modalidad:</strong> Turnos matutino y vespertino</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                <li><strong>Población:</strong> Estudiantes de 7 a 13 años</li>
+                                                <li><strong>Enfoque:</strong> Formación integral con énfasis en valores cristianos</li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <ul class="list-unstyled">
-                                        <li class="mb-2"><i class="bi bi-door-open me-2 text-primary"></i>Dos baños para
-                                            estudiantes
-                                        </li>
-                                        <li class="mb-2"><i class="bi bi-tree me-2 text-primary"></i>Pequeño campo
-                                            deportivo
-                                        </li>
-                                        <li><i class="bi bi-mic me-2 text-primary"></i>Auditorio para presentaciones
-                                        </li>
-                                    </ul>
                                 </div>
-                            </div>
-
-                            <div class="p-3 bg-light rounded-3 shadow-sm">
-                                <h5><i class="bi bi-mortarboard me-2"></i>Oferta Académica</h5>
-                                <p>Ofrece educación primaria completa de primer a sexto grado, en turnos matutino y
-                                    vespertino, con las materias básicas para el desarrollo integral de estudiantes
-                                    entre 7 y 13 años.</p>
-                                <div class="mt-3 p-3 bg-white">
-                                    <h6 class="fw-bold">Sistema de Evaluación:</h6>
-                                    <p class="mb-2"><i class="bi bi-check-square-fill text-primary me-2"></i>Evaluaciones
-                                        acumulativas con métodos cuantitativos</p>
-                                    <p class="mb-0"><i class="bi bi-check-square-fill text-primary me-2"></i>Calificaciones
-                                        numéricas</p>
+                                
+                                <!-- SECCIÓN DE COMPROMISOS -->
+                                <div class="commitments-section mb-4 p-3 bg-light rounded">
+                                    <h3 class="text-primary">🏆 Compromisos fundamentales</h3>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="p-2">
+                                                <i class="bi bi-check-circle-fill text-success"></i> Excelencia académica certificada
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-2">
+                                                <i class="bi bi-check-circle-fill text-success"></i> Desarrollo cognitivo y humano
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-2">
+                                                <i class="bi bi-check-circle-fill text-success"></i> Formación en principios bíblicos
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mt-3 p-3 bg-white rounded-2 border">
-                                    <h6 class="fw-bold">Estructura Organizacional:</h6>
-                                    <p class="mb-0">Director → Supervisor → Secretaria → Docentes</p>
+                                
+                                <!-- TABLA DE INFRAESTRUCTURA -->
+                                <div class="infrastructure-section mb-4">
+                                    <h3 class="text-primary">🏫 Infraestructura disponible</h3>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 25%;">Área</th>
+                                                    <th style="width: 75%;">Detalles</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>Académica</strong></td>
+                                                    <td>Biblioteca básica, auditorio, laboratorio de computación, aulas equipadas con proyectores</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Administrativa</strong></td>
+                                                    <td>Dirección, sala de reuniones, oficinas administrativas, archivo documental</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Recreativa</strong></td>
+                                                    <td>Campo deportivo multiusos, áreas verdes con jardines, patio central techado, zona de juegos infantiles</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Servicios</strong></td>
+                                                    <td>Baños estudiantiles separados por género, área de cafetería, enfermería básica, estacionamiento para bicicletas</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Mision y Vision -->
+                                <div class="mission-vision-section row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="p-3 h-100 border rounded">
+                                            <h3 class="text-primary">✨ Misión</h3>
+                                            <p class="mb-0">Formar líderes juveniles con sólidos principios morales y capacidad crítica, mediante una educación humanista y tecnológicamente actualizada que combine excelencia académica con formación en valores cristianos, preparando a los estudiantes para los desafíos del siglo XXI.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="p-3 h-100 border rounded">
+                                            <h3 class="text-primary">🌅 Visión </h3>
+                                            <p class="mb-0">Consolidarse como institución referente en educación primaria a nivel regional, combinando pedagogía innovadora, valores cristianos y tecnología educativa de vanguardia, siendo reconocida por su contribución al desarrollo integral de la niñez y su impacto positivo en la comunidad.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Sección Objetivos -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Objetivo General y Específicos
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse show" data-bs-parent="#Menu">
-                        <div class="accordion-body p-4">
-                            <h5><i class="bi bi-star-fill me-2"></i>Objetivo General</h5>
-                            <p class="lead">La Escuelita Jesús el Buen Maestro tiene como objetivo principal ofrecer un
-                                ambiente de aprendizaje inclusivo que:</p>
-                            <div class="ps-4">
-                                <p class="mb-2"><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>Refuerce
-                                    los valores católicos</p>
-                                <p class="mb-2"><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>Proporcione
-                                    espacios funcionales para el estudio</p>
-                                <p><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>Fomente la
-                                    colaboración mutua en la enseñanza</p>
+                        
+                        <!-- Systema Edu Optima -->
+                        <div class="card shadow-lg">
+                            <div class="card-header bg-info text-white">
+                                <h2 class="text-center mb-0">SISTEMA EDUOPTIMA</h2>
                             </div>
-
-                            <div class="mb-4 p-3 bg-light rounded-3 shadow-sm">
-                                <h5><i class="bi bi-stars me-2"></i>Objetivos Específicos</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <ul class="list-unstyled">
-                                            <li class="mb-3 d-flex">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1">Enseñanza bíblica</h6>
-                                                    <p class="small mb-0">Formación en principios y valores
-                                                        cristianos</p>
-                                                </div>
-                                            </li>
-                                            <li class="mb-3 d-flex">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1">Aprendizaje integral</h6>
-                                                    <p class="small mb-0">Desarrollo académico con base en la integridad
-                                                        bíblica</p>
-                                                </div>
-                                            </li>
-                                            <li class="d-flex">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1">Valores sociales</h6>
-                                                    <p class="small mb-0">Formación en valores para la convivencia en
-                                                        sociedad</p>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <ul class="list-unstyled">
-                                            <li class="mb-3 d-flex">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1">Comunicación educativa</h6>
-                                                    <p class="small mb-0">Diálogo constante entre escuela, estudiantes y
-                                                        familias</p>
-                                                </div>
-                                            </li>
-                                            <li class="mb-3 d-flex">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1">Desarrollo personal</h6>
-                                                    <p class="small mb-0">Crecimiento individual dentro de la
-                                                        comunidad</p>
-                                                </div>
-                                            </li>
-                                            <li class="d-flex">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1">Aprendizaje cotidiano</h6>
-                                                    <p class="small mb-0">Aplicación práctica del conocimiento en la
-                                                        vida diaria</p>
-                                                </div>
-                                            </li>
-                                        </ul>
+                            <div class="card-body">
+                                
+                                <!-- Introducción del sistema -->
+                                <div class="system-intro mb-4 text-center">
+                                    <h3 class="text-info">💻 Revolución digital educativa</h3>
+                                    <p class="lead">Plataforma integrada para la administración académica inteligente que optimiza todos los procesos educativos</p>
+                                </div>
+                                
+                                <!-- CARACTERÍSTICAS CLAVE -->
+                                <div class="features-section mb-4">
+                                    <h3 class="text-info">🔧 Funcionalidades clave</h3>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-person-plus me-3 text-info"></i>
+                                                    <span>Gestión digital completa de matrículas y registros</span>
+                                                </li>
+                                                <li class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-journal-check me-3 text-info"></i>
+                                                    <span>Registro electrónico detallado de calificaciones y evaluaciones</span>
+                                                </li>
+                                                <li class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-chat-left-text me-3 text-info"></i>
+                                                    <span>Sistema integrado de comunicación escuela-familia</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-calendar-event me-3 text-info"></i>
+                                                    <span>Agenda académica digital con planificación de lecciones</span>
+                                                </li>
+                                                <li class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-shield-lock me-3 text-info"></i>
+                                                    <span>Seguridad de datos certificada con encriptación</span>
+                                                </li>
+                                                <li class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-graph-up me-3 text-info"></i>
+                                                    <span>Reportes automatizados y análisis estadísticos</span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="text-center">
-                                <img src="Pag/Imagenes/buenjesus.jpg" class="img-fluid rounded-3 shadow"
-                                     alt="Vida estudiantil en la escuela Jesús el Buen Maestro">
-                                <p class="text-muted mt-2">Ambiente educativo en la Escuela Jesús el Buen Maestro</p>
-                            </div>
-
-                            <!-- Carrusel automático -->
-                            <div class="carousel-container">
-                                <div class="carousel-auto">
-                                    <img src="Pag/Imagenes/buenjesus.jpg" alt="Imagen 1">
-                                    <img src="Pag/Imagenes/escuela1.jpg" alt="Imagen 2">
-                                    <img src="Pag/Imagenes/escuela2.jpg" alt="Imagen 3">
+                                
+                                <!-- Tabla de Beneficios  -->
+                                <div class="benefits-section mb-4">
+                                    <h3 class="text-info">🎯 Beneficios tangibles</h3>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="table-info">
+                                                <tr>
+                                                    <th style="width: 33%;">Para la institución</th>
+                                                    <th style="width: 33%;">Para docentes</th>
+                                                    <th style="width: 33%;">Para familias</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <ul class="mb-0">
+                                                            <li>Reducción de errores administrativos en un 90%</li>
+                                                            <li>Ahorro de tiempo en procesos repetitivos</li>
+                                                            <li>Procesos completamente auditables y transparentes</li>
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <ul class="mb-0">
+                                                            <li>Acceso rápido desde cualquier dispositivo</li>
+                                                            <li>Organización centralizada de toda la información</li>
+                                                            <li>Reportes automáticos para seguimiento estudiantil</li>
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <ul class="mb-0">
+                                                            <li>Transparencia total en el proceso educativo</li>
+                                                            <li>Información académica en tiempo real</li>
+                                                            <li>Comunicación directa con docentes y administración</li>
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- GARANTÍAS DEL SISTEMA -->
+                                <div class="guarantees-section mb-4 p-3 bg-light rounded">
+                                    <h3 class="text-info">🛡️ Garantías del sistema</h3>
+                                    <div class="row text-center">
+                                        <div class="col-md-4">
+                                            <div class="p-3">
+                                                <i class="bi bi-shield-lock fs-1 text-info mb-2"></i>
+                                                <h5>Protección de datos</h5>
+                                                <p class="mb-0">Cumplimiento con normativas de protección de datos personales y encriptación de toda la información sensible</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3">
+                                                <i class="bi bi-file-earmark-check fs-1 text-info mb-2"></i>
+                                                <h5>Cumplimiento normativo</h5>
+                                                <p class="mb-0">Diseñado para cumplir con todos los requerimientos del Ministerio de Educación y normativas locales</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3">
+                                                <i class="bi bi-headset fs-1 text-info mb-2"></i>
+                                                <h5>Soporte permanente</h5>
+                                                <p class="mb-0">Asistencia técnica 24/7 con tiempos de respuesta garantizados para cualquier incidencia</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Objetivo Estrategico -->
+                                <div class="objective-section p-4 bg-info text-white rounded">
+                                    <h3 class="text-center mb-3">🚀 Objetivo estratégico</h3>
+                                    <p class="text-center mb-0 lead">"Transformar radicalmente la gestión educativa mediante soluciones tecnológicas innovadoras que aseguren máxima eficiencia operativa, completa transparencia administrativa y excelencia pedagógica medible, posicionando a nuestra institución como referente en educación primaria digital"</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Misión-Visión -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                            Misión - Visión
-                        </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse show" data-bs-parent="#Menu">
-                        <div class="accordion-body bg-white p-4">
-                            <div class="bg-light rounded">
-                                <h5 class="fw-bold text-dark mb-3">Misión</h5>
-                                <p class="mb-2">Es hacer que la institución Educativa "Jesús el buen Maestro", sea
-                                    grande y que ocupe un lugar de prestigio dentro de la sociedad, forjando niños de
-                                    valores y principios, exaltando el nombre de DIOS.</p>
-                                <p>Nuestra formación Educativa es con proyección al futuro buscando formar niños
-                                    íntegros en valores sociales, en valores morales y espirituales que le permitan
-                                    aportar el gran cambio de una sociedad carente de principios.</p>
-                                <p>Nuestro propósito es orientar, instruir, formar al niño que en el futuro nos permita
-                                    crear un individuo que pueda ser eficiente y eficaz en el impulso del desarrollo de
-                                    nuestro país teniendo como modelo a Jesús en la gran transformación de una nueva
-                                    vida.</p>
-                            </div>
-
-                            <div class="p-3 bg-light rounded mt-3">
-                                <h5 class="fw-bold text-dark mb-3">Visión</h5>
-                                <div class="ps-2">
-                                    <p class="mb-2">Es educar a los niños dándoles una formación integral, basada en un
-                                        proceso permanente en forma ordenada y sistemática, promoviendo la
-                                        transformación del conocimiento y ejerciendo una educación pensante, creativa y
-                                        crítica forjando niños con visión de futuro.</p>
-                                    <p>Impulsando su desarrollo personal como fuente de riqueza para la sociedad,
-                                        siguiendo los principios basados en el amor de DIOS.</p>
-                                    <p>La escuela "Jesus El Buen Maesrto" siendo su estructura un lugar para la
-                                        educuacion primaria se esta ejerciendo para desarrollarse en la tecnologia y
-                                        adentrarse en la tecnologia actual</p>
+                        
+                        <!-- DECLARACIÓN DE IMPACTO -->
+                        <div class="impact-statement mt-5 p-4 bg-dark text-white rounded">
+                            <h3 class="text-center text-warning mb-4">📌 IMPACTO INSTITUCIONAL</h3>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3 h-100 border border-warning rounded">
+                                        <h4 class="text-warning">Ventaja competitiva</h4>
+                                        <p class="mb-0">Combinación única de educación tradicional de calidad con innovación tecnológica de vanguardia</p>
+                                    </div>
                                 </div>
-                                <div class="text-center mt-3">
-                                    <a href="Pag/E.O.html" class="btn btn-primary px-4 py-2">
-                                        <i class="bi bi-arrow-right-circle me-2"></i>Saber más
-                                    </a>
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3 h-100 border border-warning rounded">
+                                        <h4 class="text-warning">Comunidad educativa</h4>
+                                        <p class="mb-0">Conexión permanente entre padres, docentes y alumnos mediante plataforma integrada</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="p-3 h-100 border border-warning rounded">
+                                        <h4 class="text-warning">Futuro garantizado</h4>
+                                        <p class="mb-0">Preparación académica y humana para los desafíos de la era digital</p>
+                                    </div>
                                 </div>
                             </div>
+                            <p class="text-center mt-4 fst-italic fs-5">"Jesús el Buen Maestro: Formando mentes brillantes con corazón humano y herramientas digitales para transformar el mundo"</p>
+                            <p class="text-center small mt-2">[Resumen institucional completo para padres, estudiantes y autoridades educativas - Versión 2025]</p>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="#" class="btn btn-primary btn-lg px-5 py-3">
+                                <i class="bi bi-arrow-right-circle me-2"></i>Conocer más sobre nuestra institución
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+        </main>
+    </div>
+</div>
 
-            <!-- Contacto -->
-            <section id="contacto" class="my-4 p-4 bg-light rounded">
-                <h2>Contacto de Recomendacion</h2>
-                <form action="#" method="post">
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre:</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Correo electrónico:</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="mensaje" class="form-label">Mensaje:</label>
-                        <textarea class="form-control" id="mensaje" name="mensaje" rows="4" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                </form>
-            </section>
-            </section>
+                <!-- Contacto -->
+                <section id="contacto" class="my-4 p-4 bg-light rounded">
+                    <h2>Contacto de Emergencia</h2>
+                    <form action="#" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Ingesar Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mensaje" class="form-label">Mensaje:</label>
+                            <textarea class="form-control" id="mensaje" name="mensaje" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </form>
+                </section>
+            </div>
         </main>
     </div>
 </div>
@@ -349,6 +399,6 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- JS Personalizado -->
-<script src="./conex/scriptdash.js"></script>
 </body>
+<script src="./routers/Vista_Profesor_io_Desarrollador/conex/scriptdash.js"> </script>
 </html>
