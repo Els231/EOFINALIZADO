@@ -1010,11 +1010,17 @@ class ProfessorDashboard {
         }
     }
 }
-
-// Función global para logout
 function logout() {
     if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-        window.location.href = 'login.html';
+        // Limpiar datos de sesión (localStorage, cookies, etc.)
+        localStorage.removeItem('token'); // Ejemplo: Elimina un token guardado
+        sessionStorage.clear(); // Limpia toda la sessionStorage
+        document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; // Borra cookies
+
+        // Redirigir al login (con retraso opcional para mejor experiencia)
+        setTimeout(() => {
+            window.location.href = './login.html'; // Cambia a la URL de tu página de login
+        }, 500); // Medio segundo antes de redirigir (opcional)
     }
 }
 

@@ -364,9 +364,9 @@
             
             // Redirigir según el rol
             if (user.role === 'profesor') {
-                window.location.href = 'professor-new.html';
+                window.location.href = 'pro.html';
             } else {
-                window.location.href = 'developer-new.html';
+                window.location.href = 'dev.html';
             }
             
             return true;
@@ -400,9 +400,9 @@
                     // Si la sesión es válida (menos de 8 horas)
                     if (hoursDiff < 8) {
                         if (userData.role === 'profesor') {
-                            window.location.href = 'professor-new.html';
+                            window.location.href = 'pro.html';
                         } else {
-                            window.location.href = 'developer-new.html';
+                            window.location.href = 'dev.html';
                         }
                         return;
                     } else {
