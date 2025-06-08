@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Educativo - Dashboard Completo Tutor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --background-color: #f5f7fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, var(--secondary-color), #34495e);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            text-decoration: none;
+            color: white;
+        }
+
+        .menu-item i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary-color);
+        }
+
+        .menu-item.active {
+            background: rgba(52, 152, 219, 0.2);
+            border-left-color: var(--primary-color);
+        }
+
+        .menu-item.danger {
+            color: var(--danger-color);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            background-color: #f9f9f9;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            margin: -25px -25px 20px -25px;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 15px;
+        }
+
+        .stat-icon.primary { background: var(--primary-color); }
+        .stat-icon.success { background: var(--success-color); }
+        .stat-icon.warning { background: var(--warning-color); }
+        .stat-icon.danger { background: var(--danger-color); }
+
+        .stat-details h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--secondary-color);
+        }
+
+        .stat-details p {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+
+        /* ===== FORMS ===== */
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 8px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-control:invalid {
+            border-color: var(--danger-color);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn i {
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--dark-gray);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #6c7a7d;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: var(--success-color);
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left-color: var(--warning-color);
+        }
+
+        .alert-info {
+            background: #cce7ff;
+            color: #004085;
+            border-left-color: var(--primary-color);
+        }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* ===== PROFILE SECTION ===== */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border-radius: var(--border-radius);
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-right: 30px;
+        }
+
+        .profile-info h2 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge.warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .badge.danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .badge.primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* ===== MENSAJES Y COMUNICADOS ===== */
+        .mensaje-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mensaje-item:hover {
+            background: #f8f9fa;
+        }
+
+        .mensaje-item.unread {
+            background: #e3f2fd;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .mensaje-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .mensaje-from {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .mensaje-date {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+
+        .mensaje-preview {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+
+        /* ===== NOTAS Y ASISTENCIA ===== */
+        .nota-excelente { color: var(--success-color); font-weight: bold; }
+        .nota-buena { color: var(--primary-color); font-weight: bold; }
+        .nota-regular { color: var(--warning-color); font-weight: bold; }
+        .nota-mala { color: var(--danger-color); font-weight: bold; }
+
+        .asistencia-presente { 
+            background: var(--success-color); 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+        }
+        .asistencia-ausente { 
+            background: var(--danger-color); 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+        }
+        .asistencia-tarde { 
+            background: var(--warning-color); 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+        }
+        .asistencia-justificado { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+        }
+
+        /* ===== UTILITIES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mt-2 { margin-top: 10px; }
+        .mt-3 { margin-top: 15px; }
+        .mb-2 { margin-bottom: 10px; }
+        .mb-3 { margin-bottom: 15px; }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- ===== SIDEBAR ===== -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2>Portal Educativo</h2>
+                <p>Jesús El Buen Maestro</p>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-home"></i> Dashboard
+                </div>
+                <div class="menu-item" onclick="showSection('mis-hijos')">
+                    <i class="fas fa-child"></i> Mis Hijos
+                </div>
+                <div class="menu-item" onclick="showSection('notas')">
+                    <i class="fas fa-book"></i> Notas
+                </div>
+                <div class="menu-item" onclick="showSection('asistencia')">
+                    <i class="fas fa-calendar-check"></i> Asistencia
+                </div>
+                <div class="menu-item" onclick="showSection('comunicados')">
+                    <i class="fas fa-bullhorn"></i> Comunicados
+                </div>
+                <div class="menu-item" onclick="showSection('mensajes')">
+                    <i class="fas fa-envelope"></i> Mensajes
+                </div>
+                <div class="menu-item" onclick="showSection('calendario')">
+                    <i class="fas fa-calendar-alt"></i> Calendario
+                </div>
+                <div class="menu-item" onclick="showSection('perfil')">
+                    <i class="fas fa-user"></i> Mi Perfil
+                </div>
+                <div class="menu-item" onclick="showSection('info-escuela')">
+                    <i class="fas fa-school"></i> Información Escuela
+                </div>
+                <div class="menu-item" onclick="showSection('configuracion')">
+                    <i class="fas fa-cog"></i> Configuración
+                </div>
+                <div class="menu-item danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content">
+            <div class="header">
+                <h1 id="page-title">Dashboard Principal</h1>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Jorge+Lopez&background=3498db&color=fff" alt="Usuario" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Jorge López</span>
+                        <span class="user-role">Tutor/Padre de Familia</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ALERT SECTION ===== -->
+            <div id="alert-container"></div>
+
+            <!-- ===== DASHBOARD SECTION ===== -->
+            <div id="dashboard-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-child"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>2</h3>
+                            <p>Hijos Matriculados</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>8.7</h3>
+                            <p>Promedio General</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>95%</h3>
+                            <p>Asistencia Promedio</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>3</h3>
+                            <p>Mensajes No Leídos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-bell"></i>
+                        Notificaciones Recientes
+                    </h3>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Entrega de boletines programada para el 27 de marzo a las 14:00</span>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Recordatorio: Suspensión de clases el 25 de marzo</span>
+                    </div>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>María ha mejorado su promedio en matemáticas</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        Mis Hijos - Rendimiento
+                    </h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Grado</th>
+                                    <th>Promedio</th>
+                                    <th>Asistencia</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>María López Pérez</td>
+                                    <td>3°A</td>
+                                    <td><span class="nota-excelente">9.2</span></td>
+                                    <td>96%</td>
+                                    <td><span class="badge success">Activo</span></td>
+                                    <td>
+                                        <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;" onclick="showSection('notas')">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Juan López Pérez</td>
+                                    <td>1°B</td>
+                                    <td><span class="nota-buena">8.5</span></td>
+                                    <td>94%</td>
+                                    <td><span class="badge success">Activo</span></td>
+                                    <td>
+                                        <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;" onclick="showSection('notas')">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MIS HIJOS SECTION ===== -->
+            <div id="mis-hijos-section" class="hidden">
+                <div class="stats-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="margin: 0;">María López Pérez</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Grado</label>
+                                    <p>3° Grado A</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Edad</label>
+                                    <p>8 años</p>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Docente</label>
+                                    <p>Maestra Laura González</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Promedio</label>
+                                    <p><span class="nota-excelente">9.2</span></p>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Asistencia</label>
+                                    <p>96% (48 presente, 2 ausente)</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Estado</label>
+                                    <p><span class="badge success">Activo</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="margin: 0;">Juan López Pérez</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Grado</label>
+                                    <p>1° Grado B</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Edad</label>
+                                    <p>6 años</p>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Docente</label>
+                                    <p>Prof. Gabriela Mendoza</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Promedio</label>
+                                    <p><span class="nota-buena">8.5</span></p>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Asistencia</label>
+                                    <p>94% (47 presente, 3 ausente)</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Estado</label>
+                                    <p><span class="badge success">Activo</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== NOTAS SECTION ===== -->
+            <div id="notas-section" class="hidden">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-book"></i>
+                        Calificaciones de mis Hijos
+                    </h3>
+                    
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hijo-select" class="form-label">Seleccionar Hijo</label>
+                                <select id="hijo-select" class="form-control">
+                                    <option value="todos">Todos mis hijos</option>
+                                    <option value="maria">María López Pérez (3°A)</option>
+                                    <option value="juan">Juan López Pérez (1°B)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="periodo-select" class="form-label">Periodo</label>
+                                <select id="periodo-select" class="form-control">
+                                    <option value="actual">Periodo Actual</option>
+                                    <option value="1">Primer Trimestre</option>
+                                    <option value="2">Segundo Trimestre</option>
+                                    <option value="3">Tercer Trimestre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" style="margin-top: 32px;">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Materia</th>
+                                    <th>Calificación</th>
+                                    <th>Periodo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>María López</td>
+                                    <td>Matemáticas</td>
+                                    <td><span class="nota-excelente">9.5</span></td>
+                                    <td>2do Trimestre</td>
+                                    <td><span class="badge success">Aprobado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>María López</td>
+                                    <td>Lengua</td>
+                                    <td><span class="nota-excelente">9.0</span></td>
+                                    <td>2do Trimestre</td>
+                                    <td><span class="badge success">Aprobado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>María López</td>
+                                    <td>Ciencias</td>
+                                    <td><span class="nota-excelente">9.3</span></td>
+                                    <td>2do Trimestre</td>
+                                    <td><span class="badge success">Aprobado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Juan López</td>
+                                    <td>Matemáticas</td>
+                                    <td><span class="nota-buena">8.2</span></td>
+                                    <td>2do Trimestre</td>
+                                    <td><span class="badge success">Aprobado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Juan López</td>
+                                    <td>Lengua</td>
+                                    <td><span class="nota-buena">8.8</span></td>
+                                    <td>2do Trimestre</td>
+                                    <td><span class="badge success">Aprobado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ASISTENCIA SECTION ===== -->
+            <div id="asistencia-section" class="hidden">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Control de Asistencia
+                    </h3>
+                    
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hijo-asistencia" class="form-label">Seleccionar Hijo</label>
+                                <select id="hijo-asistencia" class="form-control">
+                                    <option value="todos">Todos mis hijos</option>
+                                    <option value="maria">María López Pérez (3°A)</option>
+                                    <option value="juan">Juan López Pérez (1°B)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mes-asistencia" class="form-label">Mes</label>
+                                <select id="mes-asistencia" class="form-control">
+                                    <option value="actual">Mes Actual</option>
+                                    <option value="marzo">Marzo</option>
+                                    <option value="febrero">Febrero</option>
+                                    <option value="enero">Enero</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" style="margin-top: 32px;">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Estudiante</th>
+                                    <th>Estado</th>
+                                    <th>Hora</th>
+                                    <th>Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Lun, 20 Mar 2023</td>
+                                    <td>María López</td>
+                                    <td><span class="asistencia-presente">Presente</span></td>
+                                    <td>08:05</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Lun, 20 Mar 2023</td>
+                                    <td>Juan López</td>
+                                    <td><span class="asistencia-presente">Presente</span></td>
+                                    <td>08:08</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Vie, 17 Mar 2023</td>
+                                    <td>María López</td>
+                                    <td><span class="asistencia-presente">Presente</span></td>
+                                    <td>08:02</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Vie, 17 Mar 2023</td>
+                                    <td>Juan López</td>
+                                    <td><span class="asistencia-tarde">Tarde</span></td>
+                                    <td>08:25</td>
+                                    <td>Tráfico</td>
+                                </tr>
+                                <tr>
+                                    <td>Mar, 14 Mar 2023</td>
+                                    <td>Juan López</td>
+                                    <td><span class="asistencia-ausente">Ausente</span></td>
+                                    <td>-</td>
+                                    <td>Cita médica</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== COMUNICADOS SECTION ===== -->
+            <div id="comunicados-section" class="hidden">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-bullhorn"></i>
+                        Comunicados Escolares
+                    </h3>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Suspensión de clases - 25 de Marzo</strong><br>
+                            Se informa que el día viernes 25 de marzo no habrá clases debido a una reunión de capacitación docente.
+                            <small style="display: block; margin-top: 5px;">Publicado: 20/03/2023</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Entrega de boletines</strong><br>
+                            El próximo lunes 27 de marzo se entregarán los boletines del segundo trimestre entre las 14:00 y 16:00 horas.
+                            <small style="display: block; margin-top: 5px;">Publicado: 18/03/2023</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Día del Libro - 2 de Abril</strong><br>
+                            Celebraremos con actividades especiales. Los estudiantes pueden venir disfrazados de su personaje favorito.
+                            <small style="display: block; margin-top: 5px;">Publicado: 15/03/2023</small>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Cambio de uniforme</strong><br>
+                            A partir del 1 de abril se usará el uniforme de verano (playera blanca y pantalón azul marino).
+                            <small style="display: block; margin-top: 5px;">Publicado: 10/03/2023</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MENSAJES SECTION ===== -->
+            <div id="mensajes-section" class="hidden">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-envelope"></i>
+                        Mensajes
+                    </h3>
+                    
+                    <div class="mensaje-item unread">
+                        <div class="mensaje-header">
+                            <span class="mensaje-from">Maestra Laura - 3°A</span>
+                            <span class="mensaje-date">Hoy</span>
+                        </div>
+                        <div class="mensaje-preview">
+                            Sobre la tarea de matemáticas que María no entregó...
+                        </div>
+                    </div>
+
+                    <div class="mensaje-item unread">
+                        <div class="mensaje-header">
+                            <span class="mensaje-from">Dirección Primaria</span>
+                            <span class="mensaje-date">Ayer</span>
+                        </div>
+                        <div class="mensaje-preview">
+                            Recordatorio: Reunión de padres el próximo viernes...
+                        </div>
+                    </div>
+
+                    <div class="mensaje-item unread">
+                        <div class="mensaje-header">
+                            <span class="mensaje-from">Prof. Gabriela - 1°B</span>
+                            <span class="mensaje-date">18 Mar</span>
+                        </div>
+                        <div class="mensaje-preview">
+                            Juan ha mejorado mucho en lectura, felicitaciones...
+                        </div>
+                    </div>
+
+                    <div class="mensaje-item">
+                        <div class="mensaje-header">
+                            <span class="mensaje-from">Coordinación Deportes</span>
+                            <span class="mensaje-date">15 Mar</span>
+                        </div>
+                        <div class="mensaje-preview">
+                            Invitación al torneo intercolegial de fútbol...
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nuevo Mensaje
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== CALENDARIO SECTION ===== -->
+            <div id="calendario-section" class="hidden">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Calendario Escolar
+                    </h3>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-calendar-day"></i>
+                        <strong>Próximos Eventos:</strong>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Evento</th>
+                                    <th>Hora</th>
+                                    <th>Tipo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>27 Mar 2023</td>
+                                    <td>Entrega de boletines</td>
+                                    <td>14:00 - 16:00</td>
+                                    <td><span class="badge warning">Importante</span></td>
+                                </tr>
+                                <tr>
+                                    <td>25 Mar 2023</td>
+                                    <td>Suspensión de clases</td>
+                                    <td>Todo el día</td>
+                                    <td><span class="badge danger">Urgente</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2 Abr 2023</td>
+                                    <td>Día del Libro</td>
+                                    <td>08:00 - 16:00</td>
+                                    <td><span class="badge primary">Escolar</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10 Abr 2023</td>
+                                    <td>Reunión de padres 3°A</td>
+                                    <td>16:00 - 17:30</td>
+                                    <td><span class="badge primary">Escolar</span></td>
+                                </tr>
+                                <tr>
+                                    <td>1 Abr 2023</td>
+                                    <td>Cambio de uniforme</td>
+                                    <td>-</td>
+                                    <td><span class="badge primary">General</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PERFIL SECTION ===== -->
+            <div id="perfil-section" class="hidden">
+                <div class="profile-header">
+                    <img src="https://ui-avatars.com/api/?name=Jorge+Lopez&background=3498db&color=fff&size=120" alt="Profile" class="profile-avatar">
+                    <div class="profile-info">
+                        <h2>Jorge López</h2>
+                        <p>Tutor/Padre de Familia</p>
+                        <p>jorge.lopez@email.com</p>
+                        <p>+54 11 1234 5678</p>
+                        <div class="profile-badge">Miembro desde Enero 2023</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i>
+                        Información Personal
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo</label>
+                            <p>Jorge López Mendoza</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <p>jorge.lopez@email.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <p>+54 11 1234 5678</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Género</label>
+                            <p>Masculino</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dirección</label>
+                        <p>Calle Principal 123, Ciudad, País</p>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Ocupación</label>
+                            <p>Ingeniero</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lugar de Trabajo</label>
+                            <p>Empresa Tech S.A.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar Información
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== INFORMACIÓN ESCUELA SECTION ===== -->
+            <div id="info-escuela-section" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 style="margin: 0; text-align: center; font-size: 1.8rem; font-weight: 700;">ESCUELA "JESÚS EL BUEN MAESTRO"</h2>
+                    </div>
+                    
+                    <!-- Ubicación estratégica -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Ubicación estratégica
+                        </h3>
+                        <p style="font-size: 1.1rem; color: var(--dark-gray);">Situada frente a la iglesia de San Juan de Oriente, en un entorno comunitario accesible.</p>
+                    </div>
+                    
+                    <!-- Propuesta educativa -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-graduation-cap"></i>
+                            Propuesta educativa
+                        </h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="card" style="border-left: 4px solid var(--primary-color); margin-bottom: 0;">
+                                    <div style="padding: 15px;">
+                                        <p><strong>Niveles:</strong> Educación primaria completa (1° a 6° grado)</p>
+                                        <p><strong>Modalidad:</strong> Turnos matutino y vespertino</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="card" style="border-left: 4px solid var(--success-color); margin-bottom: 0;">
+                                    <div style="padding: 15px;">
+                                        <p><strong>Población:</strong> Estudiantes de 7 a 13 años</p>
+                                        <p><strong>Enfoque:</strong> Formación integral con énfasis en valores cristianos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compromisos fundamentales -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-trophy"></i>
+                            Compromisos fundamentales
+                        </h3>
+                        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            <div class="card" style="border-left: 4px solid var(--success-color); margin-bottom: 0;">
+                                <div style="padding: 20px; display: flex; align-items: center;">
+                                    <i class="fas fa-check-circle" style="color: var(--success-color); font-size: 2rem; margin-right: 15px;"></i>
+                                    <span><strong>Excelencia académica certificada</strong></span>
+                                </div>
+                            </div>
+                            <div class="card" style="border-left: 4px solid var(--primary-color); margin-bottom: 0;">
+                                <div style="padding: 20px; display: flex; align-items: center;">
+                                    <i class="fas fa-brain" style="color: var(--primary-color); font-size: 2rem; margin-right: 15px;"></i>
+                                    <span><strong>Desarrollo cognitivo y humano</strong></span>
+                                </div>
+                            </div>
+                            <div class="card" style="border-left: 4px solid var(--warning-color); margin-bottom: 0;">
+                                <div style="padding: 20px; display: flex; align-items: center;">
+                                    <i class="fas fa-heart" style="color: var(--warning-color); font-size: 2rem; margin-right: 15px;"></i>
+                                    <span><strong>Formación en principios bíblicos</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Infraestructura disponible -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-building"></i>
+                            Infraestructura disponible
+                        </h3>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Área</th>
+                                        <th style="width: 75%;">Detalles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Académica</strong></td>
+                                        <td>Biblioteca básica, auditorio, laboratorio de computación, aulas equipadas con proyectores</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Administrativa</strong></td>
+                                        <td>Dirección, sala de reuniones, oficinas administrativas, archivo documental</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Recreativa</strong></td>
+                                        <td>Campo deportivo multiusos, áreas verdes con jardines, patio central techado, zona de juegos infantiles</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Servicios</strong></td>
+                                        <td>Baños estudiantiles separados por género, área de cafetería, enfermería básica, estacionamiento para bicicletas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Misión y Visión -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-star"></i>
+                            Misión y Visión
+                        </h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="card" style="height: 100%; border-left: 4px solid var(--primary-color);">
+                                    <div style="padding: 20px;">
+                                        <h4 style="color: var(--primary-color); display: flex; align-items: center;">
+                                            <i class="fas fa-bullseye" style="margin-right: 10px;"></i>
+                                            Misión
+                                        </h4>
+                                        <p>Formar líderes juveniles con sólidos principios morales y capacidad crítica, mediante una educación humanista y tecnológicamente actualizada que combine excelencia académica con formación en valores cristianos, preparando a los estudiantes para los desafíos del siglo XXI.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="card" style="height: 100%; border-left: 4px solid var(--success-color);">
+                                    <div style="padding: 20px;">
+                                        <h4 style="color: var(--success-color); display: flex; align-items: center;">
+                                            <i class="fas fa-eye" style="margin-right: 10px;"></i>
+                                            Visión
+                                        </h4>
+                                        <p>Consolidarse como institución referente en educación primaria a nivel regional, combinando pedagogía innovadora, valores cristianos y tecnología educativa de vanguardia, siendo reconocida por su contribución al desarrollo integral de la niñez y su impacto positivo en la comunidad.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sistema EduOptima -->
+                <div class="card">
+                    <div style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; padding: 20px; border-radius: var(--border-radius) var(--border-radius) 0 0; margin: -25px -25px 20px -25px;">
+                        <h2 style="margin: 0; text-align: center; font-size: 1.8rem; font-weight: 700;">SISTEMA EDUOPTIMA</h2>
+                    </div>
+                    
+                    <!-- Introducción del sistema -->
+                    <div class="form-section text-center">
+                        <h3 class="section-title" style="justify-content: center;">
+                            <i class="fas fa-laptop-code"></i>
+                            Revolución digital educativa
+                        </h3>
+                        <p style="font-size: 1.1rem; color: var(--dark-gray);">Plataforma integrada para la administración académica inteligente que optimiza todos los procesos educativos</p>
+                    </div>
+                    
+                    <!-- Funcionalidades clave -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-cogs"></i>
+                            Funcionalidades clave
+                        </h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <i class="fas fa-user-plus" style="color: #17a2b8; font-size: 1.5rem; margin-right: 15px;"></i>
+                                    <span>Gestión digital completa de matrículas y registros</span>
+                                </div>
+                                <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <i class="fas fa-clipboard-check" style="color: #17a2b8; font-size: 1.5rem; margin-right: 15px;"></i>
+                                    <span>Registro electrónico detallado de calificaciones y evaluaciones</span>
+                                </div>
+                                <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <i class="fas fa-comments" style="color: #17a2b8; font-size: 1.5rem; margin-right: 15px;"></i>
+                                    <span>Sistema integrado de comunicación escuela-familia</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <i class="fas fa-chart-line" style="color: #17a2b8; font-size: 1.5rem; margin-right: 15px;"></i>
+                                    <span>Análisis estadístico avanzado del rendimiento académico</span>
+                                </div>
+                                <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <i class="fas fa-calendar-check" style="color: #17a2b8; font-size: 1.5rem; margin-right: 15px;"></i>
+                                    <span>Control automatizado de asistencia con notificaciones</span>
+                                </div>
+                                <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <i class="fas fa-mobile-alt" style="color: #17a2b8; font-size: 1.5rem; margin-right: 15px;"></i>
+                                    <span>Acceso móvil multiplataforma para padres y docentes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== CONFIGURACIÓN SECTION ===== -->
+            <div id="configuracion-section" class="hidden">
+                <div class="card">
+                    <h3 class="card-title">
+                        <i class="fas fa-cog"></i>
+                        Configuración de la Cuenta
+                    </h3>
+                    
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-user-cog"></i>
+                            Información Personal
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="config-nombre" class="form-label">Nombre</label>
+                                <input type="text" id="config-nombre" class="form-control" value="Jorge">
+                            </div>
+                            <div class="form-group">
+                                <label for="config-apellido" class="form-label">Apellido</label>
+                                <input type="text" id="config-apellido" class="form-control" value="López">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="config-email" class="form-label">Email</label>
+                                <input type="email" id="config-email" class="form-control" value="jorge.lopez@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="config-telefono" class="form-label">Teléfono</label>
+                                <input type="tel" id="config-telefono" class="form-control" value="+54 11 1234 5678">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-bell"></i>
+                            Notificaciones
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" checked> Recibir notificaciones por email
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" checked> Notificar nuevas calificaciones
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" checked> Notificar ausencias
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" checked> Recibir comunicados escolares
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-lock"></i>
+                            Seguridad
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="config-password" class="form-label">Nueva Contraseña</label>
+                                <input type="password" id="config-password" class="form-control" placeholder="Dejar en blanco para mantener actual">
+                            </div>
+                            <div class="form-group">
+                                <label for="config-confirm-password" class="form-label">Confirmar Contraseña</label>
+                                <input type="password" id="config-confirm-password" class="form-control" placeholder="Confirmar nueva contraseña">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button class="btn btn-success">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== NAVEGACIÓN ENTRE SECCIONES =====
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('[id$="-section"]');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Mostrar la sección seleccionada
+            const targetSection = document.getElementById(`${sectionId}-section`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+            
+            // Actualizar título de página
+            const titles = {
+                'dashboard': 'Dashboard Principal',
+                'mis-hijos': 'Mis Hijos',
+                'notas': 'Calificaciones',
+                'asistencia': 'Control de Asistencia',
+                'comunicados': 'Comunicados Escolares',
+                'mensajes': 'Mensajes',
+                'calendario': 'Calendario Escolar',
+                'perfil': 'Mi Perfil',
+                'info-escuela': 'Información de la Escuela',
+                'configuracion': 'Configuración'
+            };
+            
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle && titles[sectionId]) {
+                pageTitle.textContent = titles[sectionId];
+            }
+            
+            // Actualizar menú activo
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeMenuItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeMenuItem) {
+                activeMenuItem.classList.add('active');
+            }
+        }
+
+        // ===== FUNCIONES AUXILIARES =====
+        function logout() {
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                alert('Sesión cerrada correctamente');
+                // Aquí se implementaría la lógica de logout
+            }
+        }
+
+        function mostrarAlerta(tipo, mensaje) {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${tipo}`;
+            alert.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'times-circle' : tipo === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                <span>${mensaje}</span>
+            `;
+            alertContainer.appendChild(alert);
+            
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // ===== INICIALIZACIÓN =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar dashboard por defecto
+            showSection('dashboard');
+            
+            // Ejemplo de notificación de bienvenida
+            setTimeout(() => {
+                mostrarAlerta('info', 'Bienvenido al Portal Educativo de Jesús El Buen Maestro');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

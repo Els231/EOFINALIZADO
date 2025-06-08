@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal del Desarrollador - Escuela Jesús El Buen Maestro</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-claro {
+            background: linear-gradient(135deg, var(--secondary-color), #34495e);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-claro .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .navbar-claro .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-claro .navbar-nav .nav-link:hover,
+        .navbar-claro .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-claro {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-claro:hover {
+            background-color: white;
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== EDITOR DE CÓDIGO ===== */
+        .code-editor {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        .code-output {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* ===== NOTAS Y ASISTENCIA ===== */
+        .badge-asistencia {
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-asistencia.presente {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge-asistencia.ausente {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .badge-asistencia.tarde {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .badge-asistencia.justificado {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .nota-excelente { color: var(--success-color); font-weight: bold; }
+        .nota-buena { color: var(--primary-color); font-weight: bold; }
+        .nota-regular { color: var(--warning-color); font-weight: bold; }
+        .nota-mala { color: var(--danger-color); font-weight: bold; }
+
+        /* ===== AVATAR ===== */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* ===== FILTROS ===== */
+        .filtros-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            border: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #138496);
+            border: none;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .section-content {
+            padding-top: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                background: rgba(0,0,0,0.1);
+                border-radius: 10px;
+                margin-top: 10px;
+                padding: 10px;
+            }
+
+            .card-number {
+                font-size: 2rem;
+            }
+
+            .icon-circle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-code fa-2x text-white"></i>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('estudiantes')">
+                            <i class="fas fa-user-graduate me-2"></i> Estudiantes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('profesores')">
+                            <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('notas')">
+                            <i class="fas fa-book me-2"></i> Sistema de Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('matriculas')">
+                            <i class="fas fa-clipboard-list me-2"></i> Matrículas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('calendario')">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('codigo')">
+                            <i class="fas fa-code me-2"></i> Editor de Código
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex flex-column flex-lg-row align-items-center">
+                    <a href="#" onclick="showSection('analytics')" class="btn btn-claro mb-2 mb-lg-0 me-lg-2">
+                        <i class="fas fa-chart-line me-1"></i> Analytics
+                    </a>
+                    <a href="#" onclick="showSection('sistema')" class="btn btn-claro mb-2 mb-lg-0 me-lg-2">
+                        <i class="fas fa-cogs me-1"></i> Sistema
+                    </a>
+                    <a href="#" onclick="logout()" class="btn btn-claro btn-outline-light">
+                        <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <!-- ===== DASHBOARD PRINCIPAL ===== -->
+        <div id="dashboard-section" class="section-content">
+            <div class="page-header">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <h1 class="h2">Panel del Desarrollador</h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="exportData('sistema')">
+                                <i class="fas fa-download me-1"></i> Backup Sistema
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm">
+                            <i class="fas fa-server me-1"></i> Estado Sistema 
+                            <span class="badge bg-success">Online</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjetas de estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card card-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Estudiantes</h5>
+                                    <h2 class="card-number" id="totalEstudiantes">125</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                            </div>
+                            <p class="card-text"><small>Total en el sistema</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Profesores</h5>
+                                    <h2 class="card-number" id="totalProfesores">12</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                            </div>
+                            <p class="card-text"><small>Activos este año</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Grados</h5>
+                                    <h2 class="card-number" id="totalGrados">6</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-school"></i>
+                                </div>
+                            </div>
+                            <p class="card-text"><small>1° a 6° grado</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-danger">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Matrículas</h5>
+                                    <h2 class="card-number" id="totalMatriculas">118</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                            </div>
+                            <p class="card-text"><small>Activas 2024</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del sistema -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Actividad Reciente</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Nuevo estudiante registrado</h6>
+                                        <small class="text-muted">Ana Pérez - 3°A</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">2 min</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Backup automático completado</h6>
+                                        <small class="text-muted">Sistema completo</small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">1 hora</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Actualización de notas</h6>
+                                        <small class="text-muted">Prof. García - Matemáticas</small>
+                                    </div>
+                                    <span class="badge bg-info rounded-pill">3 horas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Estado del Sistema</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <i class="fas fa-database fa-2x text-success"></i>
+                                        <h6 class="mt-2">Base de Datos</h6>
+                                        <span class="badge bg-success">Operativa</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <i class="fas fa-server fa-2x text-success"></i>
+                                        <h6 class="mt-2">Servidor</h6>
+                                        <span class="badge bg-success">Online</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <i class="fas fa-shield-alt fa-2x text-success"></i>
+                                        <h6 class="mt-2">Seguridad</h6>
+                                        <span class="badge bg-success">Activa</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud fa-2x text-warning"></i>
+                                        <h6 class="mt-2">Backup</h6>
+                                        <span class="badge bg-warning">Programado</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN ESTUDIANTES ===== -->
+        <div id="estudiantes-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between flex-wrap align-items-center">
+                    <h1 class="h2">Gestión de Estudiantes</h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportData('estudiantes')">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printData('estudiantes')">
+                                <i class="fas fa-print me-1"></i> Imprimir
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="importData('estudiantes')">
+                                <i class="fas fa-upload me-1"></i> Importar
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showModalNuevoEstudiante()">
+                            <i class="fas fa-plus me-1"></i> Nuevo Estudiante
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filtros-section">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="filtroGradoEstudiante" class="form-label">Grado</label>
+                        <select class="form-select" id="filtroGradoEstudiante" onchange="filtrarEstudiantes()">
+                            <option value="">Todos</option>
+                            <option value="1A">1°A</option>
+                            <option value="1B">1°B</option>
+                            <option value="2A">2°A</option>
+                            <option value="2B">2°B</option>
+                            <option value="3A">3°A</option>
+                            <option value="3B">3°B</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="filtroEstadoEstudiante" class="form-label">Estado</label>
+                        <select class="form-select" id="filtroEstadoEstudiante" onchange="filtrarEstudiantes()">
+                            <option value="">Todos</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="filtroEdadEstudiante" class="form-label">Edad</label>
+                        <select class="form-select" id="filtroEdadEstudiante" onchange="filtrarEstudiantes()">
+                            <option value="">Todas</option>
+                            <option value="6">6 años</option>
+                            <option value="7">7 años</option>
+                            <option value="8">8 años</option>
+                            <option value="9">9 años</option>
+                            <option value="10">10 años</option>
+                            <option value="11">11 años</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="buscarEstudianteDev" class="form-label">Buscar</label>
+                        <input type="text" class="form-control" id="buscarEstudianteDev" placeholder="Nombre, apellido o ID..." onkeyup="filtrarEstudiantes()">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-secondary w-100" onclick="limpiarFiltrosEstudiantes()">
+                            <i class="fas fa-times me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" class="form-check-input" id="selectAllEstudiantes" onchange="toggleSelectAllEstudiantes()">
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Grado</th>
+                                    <th>Edad</th>
+                                    <th>Promedio</th>
+                                    <th>Asistencia</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaEstudiantesDev">
+                                <!-- Los datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-warning btn-sm me-2" onclick="editarSeleccionados('estudiantes')">
+                            <i class="fas fa-edit me-1"></i> Editar Seleccionados
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarSeleccionados('estudiantes')">
+                            <i class="fas fa-trash me-1"></i> Eliminar Seleccionados
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN PROFESORES ===== -->
+        <div id="profesores-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between flex-wrap align-items-center">
+                    <h1 class="h2">Gestión de Profesores</h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportData('profesores')">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printData('profesores')">
+                                <i class="fas fa-print me-1"></i> Imprimir
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showModalNuevoProfesor()">
+                            <i class="fas fa-plus me-1"></i> Nuevo Profesor
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filtros-section">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="filtroEspecialidad" class="form-label">Especialidad</label>
+                        <select class="form-select" id="filtroEspecialidad" onchange="filtrarProfesores()">
+                            <option value="">Todas</option>
+                            <option value="matematicas">Matemáticas</option>
+                            <option value="lengua">Lengua</option>
+                            <option value="ciencias">Ciencias</option>
+                            <option value="sociales">Sociales</option>
+                            <option value="educacion-fisica">Educación Física</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filtroEstadoProfesor" class="form-label">Estado</label>
+                        <select class="form-select" id="filtroEstadoProfesor" onchange="filtrarProfesores()">
+                            <option value="">Todos</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="buscarProfesor" class="form-label">Buscar</label>
+                        <input type="text" class="form-control" id="buscarProfesor" placeholder="Nombre o especialidad..." onkeyup="filtrarProfesores()">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-secondary w-100" onclick="limpiarFiltrosProfesores()">
+                            <i class="fas fa-times me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Especialidad</th>
+                                    <th>Grados a Cargo</th>
+                                    <th>Estudiantes</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaProfesores">
+                                <!-- Los datos se cargarán dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN EDITOR DE CÓDIGO ===== -->
+        <div id="codigo-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between flex-wrap align-items-center">
+                    <h1 class="h2">Editor de Código</h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="guardarCodigo()">
+                                <i class="fas fa-save me-1"></i> Guardar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cargarCodigo()">
+                                <i class="fas fa-folder-open me-1"></i> Cargar
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="ejecutarCodigo()">
+                            <i class="fas fa-play me-1"></i> Ejecutar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Editor</h5>
+                                <select class="form-select w-auto" id="tipoLenguaje">
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="html">HTML</option>
+                                    <option value="css">CSS</option>
+                                    <option value="sql">SQL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <textarea class="form-control code-editor" id="codeEditor" rows="20" placeholder="Escribe tu código aquí..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Resultado</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="code-output" id="codeOutput">Presiona "Ejecutar" para ver el resultado...</div>
+                        </div>
+                    </div>
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Códigos Guardados</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group" id="codigosGuardados">
+                                <!-- Lista de códigos guardados -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODALES ===== -->
+    <!-- Modal Nuevo Estudiante -->
+    <div class="modal fade" id="modalNuevoEstudianteDev" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Estudiante</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevoEstudianteDev">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="nombreEstudianteDev" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombreEstudianteDev" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apellidoEstudianteDev" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellidoEstudianteDev" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="edadEstudianteDev" class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="edadEstudianteDev" min="5" max="12" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="gradoEstudianteDev" class="form-label">Grado</label>
+                                <select class="form-select" id="gradoEstudianteDev" required>
+                                    <option value="">Seleccionar grado</option>
+                                    <option value="1A">1°A</option>
+                                    <option value="1B">1°B</option>
+                                    <option value="2A">2°A</option>
+                                    <option value="2B">2°B</option>
+                                    <option value="3A">3°A</option>
+                                    <option value="3B">3°B</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fechaNacimientoDev" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimientoDev" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="direccionEstudianteDev" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="direccionEstudianteDev" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="nombreTutorDev" class="form-label">Nombre del Tutor</label>
+                                <input type="text" class="form-control" id="nombreTutorDev" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefonoTutorDev" class="form-label">Teléfono del Tutor</label>
+                                <input type="tel" class="form-control" id="telefonoTutorDev" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="emailTutorDev" class="form-label">Email del Tutor</label>
+                                <input type="email" class="form-control" id="emailTutorDev">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="estadoEstudianteDev" class="form-label">Estado</label>
+                                <select class="form-select" id="estadoEstudianteDev" required>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarEstudianteDev()">Guardar Estudiante</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Profesor -->
+    <div class="modal fade" id="modalNuevoProfesor" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Profesor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevoProfesor">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="nombreProfesor" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombreProfesor" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apellidoProfesor" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellidoProfesor" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="especialidadProfesor" class="form-label">Especialidad</label>
+                                <select class="form-select" id="especialidadProfesor" required>
+                                    <option value="">Seleccionar especialidad</option>
+                                    <option value="matematicas">Matemáticas</option>
+                                    <option value="lengua">Lengua</option>
+                                    <option value="ciencias">Ciencias</option>
+                                    <option value="sociales">Sociales</option>
+                                    <option value="educacion-fisica">Educación Física</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gradosAsignados" class="form-label">Grados Asignados</label>
+                                <select class="form-select" id="gradosAsignados" multiple>
+                                    <option value="1A">1°A</option>
+                                    <option value="1B">1°B</option>
+                                    <option value="2A">2°A</option>
+                                    <option value="2B">2°B</option>
+                                    <option value="3A">3°A</option>
+                                    <option value="3B">3°B</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="emailProfesor" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="emailProfesor" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefonoProfesor" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefonoProfesor" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="direccionProfesor" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="direccionProfesor" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarProfesor()">Guardar Profesor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="./dev.js"></script>
+</body>
+</html>
