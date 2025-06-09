@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal del Profesor - Escuela Jesús El Buen Maestro</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-claro {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-claro .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .navbar-claro .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-claro .navbar-nav .nav-link:hover,
+        .navbar-claro .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-claro {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-claro:hover {
+            background-color: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== NOTAS Y ASISTENCIA ===== */
+        .badge-asistencia {
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-asistencia.presente {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge-asistencia.ausente {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .badge-asistencia.tarde {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .badge-asistencia.justificado {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .nota-excelente { color: var(--success-color); font-weight: bold; }
+        .nota-buena { color: var(--primary-color); font-weight: bold; }
+        .nota-regular { color: var(--warning-color); font-weight: bold; }
+        .nota-mala { color: var(--danger-color); font-weight: bold; }
+
+        /* ===== AVATAR ===== */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* ===== FILTROS ===== */
+        .filtros-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            border: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #138496);
+            border: none;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .section-content {
+            padding-top: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                background: rgba(0,0,0,0.1);
+                border-radius: 10px;
+                margin-top: 10px;
+                padding: 10px;
+            }
+
+            .card-number {
+                font-size: 2rem;
+            }
+
+            .icon-circle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* ===== TABLAS ===== */
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .table-actions {
+            white-space: nowrap;
+        }
+
+        /* ===== FORMULARIOS ===== */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        /* ===== CALENDARIO ===== */
+        #calendar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .fc-event-main {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap fa-2x text-white"></i>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('mis-estudiantes')">
+                            <i class="fas fa-user-graduate me-2"></i> Mis Estudiantes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('notas')">
+                            <i class="fas fa-book me-2"></i> Registro de Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('asistencia')">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('matriculas')">
+                            <i class="fas fa-clipboard-list me-2"></i> Matrículas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('calendario')">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex flex-column flex-lg-row align-items-center">
+                    <a href="#" onclick="showSection('estadisticas')" class="btn btn-claro mb-2 mb-lg-0 me-lg-2">
+                        <i class="fas fa-chart-bar me-1"></i> Estadísticas
+                    </a>
+                    <a href="#" onclick="logout(); return false;" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <!-- ===== DASHBOARD PRINCIPAL ===== -->
+        <div id="dashboard-section" class="section-content">
+            <div class="page-header">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <h1 class="h2">Panel del Profesor</h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="exportData('general')">
+                                <i class="fas fa-download me-1"></i> Reportes
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm">
+                            <i class="fas fa-bell me-1"></i> Notificaciones 
+                            <span class="badge bg-danger" id="notificationCount">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjetas de estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card card-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Estudiantes</h5>
+                                    <h2 class="card-number" id="totalEstudiantes">0</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Presentes Hoy</h5>
+                                    <h2 class="card-number" id="presentesHoy">0</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Promedio General</h5>
+                                    <h2 class="card-number" id="promedioGeneral">0.0</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Matrículas Activas</h5>
+                                    <h2 class="card-number" id="matriculasActivas">0</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actividades recientes -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-clock me-2"></i>Actividades Recientes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="actividadesRecientes">
+                                <p class="text-muted text-center">No hay actividades recientes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN MIS ESTUDIANTES ===== -->
+        <div id="mis-estudiantes-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h2">Mis Estudiantes</h1>
+                    <button class="btn btn-primary" onclick="openStudentModal()">
+                        <i class="fas fa-plus me-1"></i> Agregar Estudiante
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-section">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchStudent" placeholder="Buscar estudiante...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="gradeFilter">
+                            <option value="">Todos los grados</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-info w-100" onclick="exportStudents()">
+                            <i class="fas fa-download me-1"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de estudiantes -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Avatar</th>
+                                    <th>Nombre</th>
+                                    <th>Grado</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No hay estudiantes registrados</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN NOTAS ===== -->
+        <div id="notas-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h2">Registro de Notas</h1>
+                    <button class="btn btn-primary" onclick="openGradeModal()">
+                        <i class="fas fa-plus me-1"></i> Agregar Nota
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-section">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select" id="gradeStudentFilter">
+                            <option value="">Todos los estudiantes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="gradeSubjectFilter">
+                            <option value="">Todas las materias</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="gradePeriodFilter">
+                            <option value="">Todos los períodos</option>
+                            <option value="1">Primer Período</option>
+                            <option value="2">Segundo Período</option>
+                            <option value="3">Tercer Período</option>
+                            <option value="4">Cuarto Período</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-info w-100" onclick="exportGrades()">
+                            <i class="fas fa-download me-1"></i> Exportar Notas
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de notas -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Materia</th>
+                                    <th>Período</th>
+                                    <th>Nota</th>
+                                    <th>Fecha</th>
+                                    <th>Observaciones</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradesTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No hay notas registradas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN ASISTENCIA ===== -->
+        <div id="asistencia-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h2">Control de Asistencia</h1>
+                    <div>
+                        <button class="btn btn-success me-2" onclick="markAllPresent()">
+                            <i class="fas fa-check-double me-1"></i> Marcar Todos Presentes
+                        </button>
+                        <button class="btn btn-primary" onclick="saveAttendance()">
+                            <i class="fas fa-save me-1"></i> Guardar Asistencia
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros de fecha -->
+            <div class="filtros-section">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="attendanceDate" class="form-label">Fecha:</label>
+                        <input type="date" class="form-control" id="attendanceDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="attendanceGrade" class="form-label">Grado:</label>
+                        <select class="form-select" id="attendanceGrade">
+                            <option value="">Todos los grados</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-info w-100" onclick="loadAttendanceForDate()">
+                            <i class="fas fa-search me-1"></i> Cargar Asistencia
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-secondary w-100" onclick="exportAttendance()">
+                            <i class="fas fa-download me-1"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de asistencia -->
+            <div class="card">
+                <div class="card-body">
+                    <div id="attendanceList">
+                        <p class="text-center text-muted">Selecciona una fecha para cargar la asistencia</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN MATRÍCULAS ===== -->
+        <div id="matriculas-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h2">Gestión de Matrículas</h1>
+                    <button class="btn btn-primary" onclick="openEnrollmentModal()">
+                        <i class="fas fa-plus me-1"></i> Nueva Matrícula
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-section">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="searchEnrollment" placeholder="Buscar matrícula...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="enrollmentStatusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="activa">Activa</option>
+                            <option value="inactiva">Inactiva</option>
+                            <option value="pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="enrollmentYearFilter">
+                            <option value="">Todos los años</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-info w-100" onclick="exportEnrollments()">
+                            <i class="fas fa-download me-1"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de matrículas -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Estudiante</th>
+                                    <th>Grado</th>
+                                    <th>Año Escolar</th>
+                                    <th>Fecha Matrícula</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="enrollmentsTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No hay matrículas registradas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECCIÓN CALENDARIO ===== -->
+        <div id="calendario-section" class="section-content hidden">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h2">Calendario Escolar</h1>
+                    <button class="btn btn-primary" onclick="openEventModal()">
+                        <i class="fas fa-plus me-1"></i> Agregar Evento
+                    </button>
+                </div>
+            </div>
+
+            <div id="calendar"></div>
+        </div>
+
+        <!-- ===== SECCIÓN ESTADÍSTICAS ===== -->
+        <div id="estadisticas-section" class="section-content hidden">
+            <div class="page-header">
+                <h1 class="h2">Estadísticas y Reportes</h1>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Rendimiento Académico por Materia</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="gradesBySubjectChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Asistencia Mensual</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Resumen Estadístico</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="statisticsSummary">
+                                <p class="text-muted text-center">Cargando estadísticas...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODALES ===== -->
+    
+    <!-- Modal Estudiante -->
+    <div class="modal fade" id="studentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="studentModalTitle">Agregar Estudiante</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="studentForm">
+                        <input type="hidden" id="studentId">
+                        <div class="mb-3">
+                            <label for="studentName" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="studentName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="studentEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentPhone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="studentPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentGrade" class="form-label">Grado</label>
+                            <select class="form-select" id="studentGrade" required>
+                                <option value="">Seleccionar grado</option>
+                                <option value="1">Primer Grado</option>
+                                <option value="2">Segundo Grado</option>
+                                <option value="3">Tercer Grado</option>
+                                <option value="4">Cuarto Grado</option>
+                                <option value="5">Quinto Grado</option>
+                                <option value="6">Sexto Grado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentBirthDate" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="studentBirthDate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentAddress" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="studentAddress" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentStatus" class="form-label">Estado</label>
+                            <select class="form-select" id="studentStatus">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveStudent()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nota -->
+    <div class="modal fade" id="gradeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gradeModalTitle">Agregar Nota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="gradeForm">
+                        <input type="hidden" id="gradeId">
+                        <div class="mb-3">
+                            <label for="gradeStudent" class="form-label">Estudiante</label>
+                            <select class="form-select" id="gradeStudent" required>
+                                <option value="">Seleccionar estudiante</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gradeSubject" class="form-label">Materia</label>
+                            <select class="form-select" id="gradeSubject" required>
+                                <option value="">Seleccionar materia</option>
+                                <option value="matematicas">Matemáticas</option>
+                                <option value="espanol">Español</option>
+                                <option value="ciencias">Ciencias Naturales</option>
+                                <option value="sociales">Ciencias Sociales</option>
+                                <option value="ingles">Inglés</option>
+                                <option value="educacion-fisica">Educación Física</option>
+                                <option value="arte">Arte</option>
+                                <option value="religion">Religión</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gradePeriod" class="form-label">Período</label>
+                            <select class="form-select" id="gradePeriod" required>
+                                <option value="">Seleccionar período</option>
+                                <option value="1">Primer Período</option>
+                                <option value="2">Segundo Período</option>
+                                <option value="3">Tercer Período</option>
+                                <option value="4">Cuarto Período</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gradeValue" class="form-label">Nota (0-10)</label>
+                            <input type="number" class="form-control" id="gradeValue" min="0" max="10" step="0.1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gradeDate" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="gradeDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gradeObservations" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="gradeObservations" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveGrade()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Matrícula -->
+    <div class="modal fade" id="enrollmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="enrollmentModalTitle">Nueva Matrícula</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="enrollmentForm">
+                        <input type="hidden" id="enrollmentId">
+                        <div class="mb-3">
+                            <label for="enrollmentStudent" class="form-label">Estudiante</label>
+                            <select class="form-select" id="enrollmentStudent" required>
+                                <option value="">Seleccionar estudiante</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="enrollmentGrade" class="form-label">Grado</label>
+                            <select class="form-select" id="enrollmentGrade" required>
+                                <option value="">Seleccionar grado</option>
+                                <option value="1">Primer Grado</option>
+                                <option value="2">Segundo Grado</option>
+                                <option value="3">Tercer Grado</option>
+                                <option value="4">Cuarto Grado</option>
+                                <option value="5">Quinto Grado</option>
+                                <option value="6">Sexto Grado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="enrollmentYear" class="form-label">Año Escolar</label>
+                            <input type="text" class="form-control" id="enrollmentYear" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="enrollmentDate" class="form-label">Fecha de Matrícula</label>
+                            <input type="date" class="form-control" id="enrollmentDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="enrollmentStatus" class="form-label">Estado</label>
+                            <select class="form-select" id="enrollmentStatus">
+                                <option value="activa">Activa</option>
+                                <option value="inactiva">Inactiva</option>
+                                <option value="pendiente">Pendiente</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="enrollmentNotes" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="enrollmentNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEnrollment()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Evento -->
+    <div class="modal fade" id="eventModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventModalTitle">Agregar Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <input type="hidden" id="eventId">
+                        <div class="mb-3">
+                            <label for="eventTitle" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="eventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDescription" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventStart" class="form-label">Fecha y Hora de Inicio</label>
+                            <input type="datetime-local" class="form-control" id="eventStart" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventEnd" class="form-label">Fecha y Hora de Fin</label>
+                            <input type="datetime-local" class="form-control" id="eventEnd">
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventType" class="form-label">Tipo de Evento</label>
+                            <select class="form-select" id="eventType">
+                                <option value="clase">Clase</option>
+                                <option value="examen">Examen</option>
+                                <option value="reunion">Reunión</option>
+                                <option value="evento">Evento Especial</option>
+                                <option value="feriado">Feriado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventColor" class="form-label">Color</label>
+                            <input type="color" class="form-control" id="eventColor" value="#3498db">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEvent()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Scripts personalizados -->
+    <script src="./storage.js"></script>
+    <script src="./main.js"></script>
+    <script src="./student.js"></script>
+    <script src="./grade.js"></script>
+    <script src="./attendance.js"></script>
+    <script src="./enrollments.js"></script>
+    <script src="./calendar.js"></script>
+    <script src="./static.js"></script>
+    <script src="./export.js"></script>
+</body>
+</html>

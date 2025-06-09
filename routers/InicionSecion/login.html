@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Escuela Jesús El Buen Maestro</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --tutor-color: #9b59b6;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 950px;
+            width: 100%;
+            margin: 20px;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--secondary-color), #34495e);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .login-header i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .school-name {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .login-body {
+            padding: 40px;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .role-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .role-card.selected {
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .role-card.profesor:hover,
+        .role-card.profesor.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2);
+        }
+
+        .role-card.tutor:hover,
+        .role-card.tutor.selected {
+            border-color: var(--tutor-color);
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.2);
+        }
+
+        .role-card.desarrollador:hover,
+        .role-card.desarrollador.selected {
+            border-color: var(--secondary-color);
+            box-shadow: 0 10px 25px rgba(44, 62, 80, 0.2);
+        }
+
+        .role-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .role-card.profesor i {
+            color: var(--primary-color);
+        }
+
+        .role-card.tutor i {
+            color: var(--tutor-color);
+        }
+
+        .role-card.desarrollador i {
+            color: var(--secondary-color);
+        }
+
+        .role-card h5 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .role-card p {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .login-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.3);
+        }
+
+        .credentials-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .credentials-section {
+            margin-bottom: 15px;
+        }
+
+        .credentials-section h6 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .credential-item {
+            background: white;
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .credential-item:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .auth-tabs {
+            margin-bottom: 20px;
+        }
+
+        .auth-tabs .nav-link {
+            border-radius: 10px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .auth-tabs .nav-link.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 992px) {
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-header {
+                padding: 30px 20px;
+            }
+            
+            .login-body {
+                padding: 30px 20px;
+            }
+            
+            .school-name {
+                font-size: 1.5rem;
+            }
+
+            .role-card {
+                padding: 20px 15px;
+            }
+
+            .role-card i {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-graduation-cap"></i>
+            <h1 class="school-name">Escuela Jesús El Buen Maestro</h1>
+            <p class="mb-0">Sistema de Gestión Escolar</p>
+        </div>
+        
+        <div class="login-body">
+            <h3 class="text-center mb-4 text-secondary">Selecciona tu Rol</h3>
+            
+            <div class="role-selector">
+                <div class="role-card profesor" id="profesorCard" onclick="selectRole('profesor')">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h5>Profesor</h5>
+                    <p>Gestión de estudiantes, notas y asistencia</p>
+                </div>
+                
+                <div class="role-card tutor" id="tutorCard" onclick="selectRole('tutor')">
+                    <i class="fas fa-user-friends"></i>
+                    <h5>Tutor</h5>
+                    <p>Seguimiento académico y apoyo estudiantil</p>
+                </div>
+                
+                <div class="role-card desarrollador" id="desarrolladorCard" onclick="selectRole('desarrollador')">
+                    <i class="fas fa-code"></i>
+                    <h5>Desarrollador</h5>
+                    <p>Acceso completo y administración</p>
+                </div>
+            </div>
+            
+            <div class="login-form">
+                <!-- Pestañas de autenticación -->
+                <ul class="nav nav-tabs auth-tabs" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">
+                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">
+                            <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="authTabContent">
+                    <!-- Panel de Login -->
+                    <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="loginUsername" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Usuario
+                                </label>
+                                <input type="text" class="form-control" id="loginUsername" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Contraseña
+                                </label>
+                                <input type="password" class="form-control" id="loginPassword" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-login">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Panel de Registro -->
+                    <div class="tab-pane fade" id="register-pane" role="tabpanel">
+                        <form id="registerForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="registerFirstName" class="form-label">
+                                        <i class="fas fa-user me-2"></i>Nombre
+                                    </label>
+                                    <input type="text" class="form-control" id="registerFirstName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="registerLastName" class="form-label">
+                                        <i class="fas fa-user me-2"></i>Apellido
+                                    </label>
+                                    <input type="text" class="form-control" id="registerLastName" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="registerEmail" class="form-label">
+                                    <i class="fas fa-envelope me-2"></i>Correo Electrónico
+                                </label>
+                                <input type="email" class="form-control" id="registerEmail" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="registerUsername" class="form-label">
+                                    <i class="fas fa-user-circle me-2"></i>Usuario
+                                </label>
+                                <input type="text" class="form-control" id="registerUsername" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="registerPassword" class="form-label">
+                                        <i class="fas fa-lock me-2"></i>Contraseña
+                                    </label>
+                                    <input type="password" class="form-control" id="registerPassword" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="registerConfirmPassword" class="form-label">
+                                        <i class="fas fa-lock me-2"></i>Confirmar
+                                    </label>
+                                    <input type="password" class="form-control" id="registerConfirmPassword" required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success btn-register">
+                                <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div id="alertContainer"></div>
+                
+                <div class="credentials-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Credenciales de Prueba</h6>
+                    
+                    <div class="credentials-section">
+                        <h6>👨‍🏫 Profesores:</h6>
+                        <div class="credential-item" onclick="fillCredentials('prof.martinez', 'escuela123')">
+                            <strong>prof.martinez</strong> / escuela123
+                        </div>
+                        <div class="credential-item" onclick="fillCredentials('prof.garcia', 'escuela123')">
+                            <strong>prof.garcia</strong> / escuela123
+                        </div>
+                    </div>
+                    
+                    <div class="credentials-section">
+                        <h6>👥 Tutores:</h6>
+                        <div class="credential-item" onclick="fillCredentials('tutor.lopez', 'tutor123')">
+                            <strong>tutor.lopez</strong> / tutor123
+                        </div>
+                        <div class="credential-item" onclick="fillCredentials('tutor.rivera', 'tutor123')">
+                            <strong>tutor.rivera</strong> / tutor123
+                        </div>
+                    </div>
+                    
+                    <div class="credentials-section">
+                        <h6>👨‍💻 Desarrolladores:</h6>
+                        <div class="credential-item" onclick="fillCredentials('dev.admin', 'dev123')">
+                            <strong>dev.admin</strong> / dev123
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sistema de autenticación mejorado con base de datos local
+        let users = JSON.parse(localStorage.getItem('schoolUsers')) || {
+            'prof.martinez': { password: 'escuela123', role: 'profesor', name: 'Prof. Martínez', email: 'martinez@escuela.edu', firstName: 'Carlos', lastName: 'Martínez' },
+            'prof.garcia': { password: 'escuela123', role: 'profesor', name: 'Prof. García', email: 'garcia@escuela.edu', firstName: 'María', lastName: 'García' },
+            'tutor.lopez': { password: 'tutor123', role: 'tutor', name: 'Tutor López', email: 'lopez@escuela.edu', firstName: 'Ana', lastName: 'López' },
+            'tutor.rivera': { password: 'tutor123', role: 'tutor', name: 'Tutor Rivera', email: 'rivera@escuela.edu', firstName: 'José', lastName: 'Rivera' },
+            'dev.admin': { password: 'dev123', role: 'desarrollador', name: 'Administrador', email: 'admin@escuela.edu', firstName: 'Admin', lastName: 'Sistema' }
+        };
+
+        let selectedRole = '';
+
+        // Guardar usuarios en localStorage
+        function saveUsers() {
+            localStorage.setItem('schoolUsers', JSON.stringify(users));
+        }
+
+        function selectRole(role) {
+            selectedRole = role;
+            
+            // Remover selección anterior
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Agregar selección actual
+            document.getElementById(role + 'Card').classList.add('selected');
+        }
+
+        function fillCredentials(username, password) {
+            document.getElementById('loginUsername').value = username;
+            document.getElementById('loginPassword').value = password;
+            
+            // Auto-seleccionar el rol apropiado
+            if (username.startsWith('prof')) {
+                selectRole('profesor');
+            } else if (username.startsWith('tutor')) {
+                selectRole('tutor');
+            } else {
+                selectRole('desarrollador');
+            }
+        }
+
+        function showAlert(message, type = 'danger') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show mt-3" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        function generateUsername(firstName, lastName, role) {
+            const rolePrefix = {
+                'profesor': 'prof',
+                'tutor': 'tutor',
+                'desarrollador': 'dev'
+            };
+            
+            const base = `${rolePrefix[role]}.${lastName.toLowerCase().replace(/\s+/g, '')}`;
+            let username = base;
+            let counter = 1;
+            
+            while (users[username]) {
+                username = `${base}${counter}`;
+                counter++;
+            }
+            
+            return username;
+        }
+
+        function validatePassword(password) {
+            if (password.length < 6) {
+                return 'La contraseña debe tener al menos 6 caracteres';
+            }
+            return null;
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return 'Formato de correo electrónico inválido';
+            }
+            
+            // Verificar si el email ya existe
+            for (let username in users) {
+                if (users[username].email === email) {
+                    return 'Este correo electrónico ya está registrado';
+                }
+            }
+            
+            return null;
+        }
+
+        function register(firstName, lastName, email, username, password, confirmPassword) {
+            // Validaciones
+            if (!selectedRole) {
+                showAlert('Por favor selecciona tu rol', 'warning');
+                return false;
+            }
+
+            if (!firstName.trim() || !lastName.trim()) {
+                showAlert('Nombre y apellido son requeridos');
+                return false;
+            }
+
+            const emailError = validateEmail(email);
+            if (emailError) {
+                showAlert(emailError);
+                return false;
+            }
+
+            if (users[username]) {
+                showAlert('El nombre de usuario ya existe');
+                return false;
+            }
+
+            const passwordError = validatePassword(password);
+            if (passwordError) {
+                showAlert(passwordError);
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('Las contraseñas no coinciden');
+                return false;
+            }
+
+            // Crear nuevo usuario
+            users[username] = {
+                password: password,
+                role: selectedRole,
+                name: `${firstName} ${lastName}`,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                createdAt: new Date().toISOString()
+            };
+
+            saveUsers();
+
+            showAlert(`Cuenta creada exitosamente. Usuario: ${username}`, 'success');
+            
+            // Limpiar formulario de registro
+            document.getElementById('registerForm').reset();
+            
+            // Cambiar a la pestaña de login y llenar credenciales
+            const loginTab = new bootstrap.Tab(document.getElementById('login-tab'));
+            loginTab.show();
+            
+            setTimeout(() => {
+                fillCredentials(username, password);
+            }, 500);
+
+            return true;
+        }
+
+        function login(username, password) {
+            const user = users[username];
+            
+            if (!user) {
+                showAlert('Usuario no encontrado');
+                return false;
+            }
+            
+            if (user.password !== password) {
+                showAlert('Contraseña incorrecta');
+                return false;
+            }
+            
+            if (!selectedRole) {
+                showAlert('Por favor selecciona tu rol', 'warning');
+                return false;
+            }
+            
+            if (user.role !== selectedRole) {
+                showAlert('El rol seleccionado no coincide con tu usuario', 'warning');
+                return false;
+            }
+            
+            // Guardar sesión
+            const session = {
+                username: username,
+                name: user.name,
+                role: user.role,
+                email: user.email,
+                loginTime: new Date().toISOString()
+            };
+            
+            localStorage.setItem('userSession', JSON.stringify(session));
+            
+            // Redirigir según el rol
+            if (user.role === 'profesor') {
+                window.location.href = 'index.html';
+            } else if (user.role === 'tutor') {
+                window.location.href = 'tutor.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+            
+            return true;
+        }
+
+        // Event listeners
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            login(username, password);
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('registerFirstName').value.trim();
+            const lastName = document.getElementById('registerLastName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            register(firstName, lastName, email, username, password, confirmPassword);
+        });
+
+        // Auto-generar nombre de usuario cuando se completan nombre y apellido
+        document.getElementById('registerLastName').addEventListener('blur', function() {
+            const firstName = document.getElementById('registerFirstName').value.trim();
+            const lastName = this.value.trim();
+            const usernameField = document.getElementById('registerUsername');
+            
+            if (firstName && lastName && selectedRole && !usernameField.value) {
+                const suggestedUsername = generateUsername(firstName, lastName, selectedRole);
+                usernameField.value = suggestedUsername;
+            }
+        });
+
+        // Auto-seleccionar rol al cambiar de pestaña
+        document.getElementById('register-tab').addEventListener('shown.bs.tab', function() {
+            if (!selectedRole) {
+                selectRole('profesor'); // Rol por defecto
+            }
+        });
+
+        // Verificar si hay sesión activa al cargar
+        window.addEventListener('load', function() {
+            const session = localStorage.getItem('userSession');
+            if (session) {
+                const userData = JSON.parse(session);
+                // Si hay sesión activa, podrías mostrar un mensaje o redirigir
+                console.log('Sesión activa encontrada:', userData.name);
+            }
+        });
+    </script>
+</body>
+</html>
