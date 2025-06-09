@@ -3,304 +3,959 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistencia de mis Hijos - Escuela Primaria</title>
+    <title>Asistencia - Portal del Tutor</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para exportar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
-    <link href="./Conex/asis.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9b59b6;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-tutor {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-tutor .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-tutor .navbar-nav .nav-link:hover,
+        .navbar-tutor .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== ASISTENCIA ESPECÍFICA ===== */
+        .asistencia-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--success-color);
+            transition: all 0.3s ease;
+        }
+
+        .asistencia-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .asistencia-presente { border-left-color: var(--success-color); }
+        .asistencia-tarde { border-left-color: var(--warning-color); }
+        .asistencia-ausente { border-left-color: var(--danger-color); }
+        .asistencia-justificado { border-left-color: var(--info-color); }
+
+        .badge-asistencia {
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .badge-presente { background-color: var(--success-color); color: white; }
+        .badge-tarde { background-color: var(--warning-color); color: white; }
+        .badge-ausente { background-color: var(--danger-color); color: white; }
+        .badge-justificado { background-color: var(--info-color); color: white; }
+
+        /* ===== FILTROS ===== */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== CHARTS ===== */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* ===== CALENDARIO MINI ===== */
+        .mini-calendar {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .calendar-day {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--light-gray);
+        }
+
+        .calendar-day.presente { background-color: var(--success-color); color: white; }
+        .calendar-day.tarde { background-color: var(--warning-color); color: white; }
+        .calendar-day.ausente { background-color: var(--danger-color); color: white; }
+        .calendar-day.justificado { background-color: var(--info-color); color: white; }
+        .calendar-day.today { border: 2px solid var(--primary-color); }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .card-number { font-size: 2rem; }
+            .icon-circle { width: 50px; height: 50px; font-size: 1.2rem; }
+            .calendar-day { width: 30px; height: 30px; font-size: 0.8rem; }
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
-                </a>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-tutor fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="tutor.html">
+                <i class="fas fa-user-friends fa-2x text-white"></i>
+            </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
 
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbTutor.html">
-                                <i class="fas fa-child me-2"></i> Mis Hijos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbNotTut.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbAsisTut.html">
-                                <i class="fas fa-calendar-check me-2"></i> Asistencia
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashComuTut.html">
-                                <i class="fas fa-bullhorn me-2"></i> Comunicados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbCalTut.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex">
-                        <a href="./DashbMensjTut.html" class="btn btn-claro">
-                            <i class="fas fa-envelope me-1"></i> Mensajes
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor.html">
+                            <i class="fas fa-home me-1"></i> Inicio
                         </a>
-                    </div>
-                    <div class="sidebar-footer mt-auto p-3 text-center">
-                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
-                            <i class="fas fa-cog me-1"></i> Configuración
-                            </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-informacion.html">
+                            <i class="fas fa-child me-2"></i> Mis Hijos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-notas.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tutor-asistencia.html">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-comunicados.html">
+                            <i class="fas fa-bullhorn me-2"></i> Comunicados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-calendario.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <div class="page-header">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h1 class="h2"><i class="fas fa-calendar-check me-2"></i>Asistencia de Mis Hijos</h1>
+                <div class="btn-toolbar">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-success btn-sm" onclick="exportarAsistencia()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar Excel
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="imprimirAsistencia()">
+                            <i class="fas fa-print me-1"></i> Imprimir
                         </button>
                     </div>
                 </div>
             </div>
-        </nav>
+        </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <main class="col-md-12 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Asistencia de mis Hijos</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i> Exportar</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print me-1"></i> Imprimir</button>
+        <!-- Estadísticas de asistencia -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Días Presente</h5>
+                                <h2 class="card-number" id="diasPresente">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="filtros-asistencia mb-4">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="selectHijoAsistencia" class="form-label">Seleccionar Hijo</label>
-                        <select class="form-select" id="selectHijoAsistencia">
-                            <option selected>Todos mis hijos</option>
-                            <option>María López Pérez (3°A)</option>
-                            <option>Juan López Pérez (1°B)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="selectMesAsistencia" class="form-label">Mes</label>
-                        <select class="form-select" id="selectMesAsistencia">
-                            <option selected>Todos los meses</option>
-                            <option>Enero</option>
-                            <option>Febrero</option>
-                            <option>Marzo</option>
-                            <option>Abril</option>
-                            <option>Mayo</option>
-                            <option>Junio</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="selectEstadoAsistencia" class="form-label">Estado</label>
-                        <select class="form-select" id="selectEstadoAsistencia">
-                            <option selected>Todos los estados</option>
-                            <option>Presente</option>
-                            <option>Ausente</option>
-                            <option>Justificado</option>
-                            <option>Tarde</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filtrar</button>
+            <div class="col-md-3">
+                <div class="card card-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Llegadas Tarde</h5>
+                                <h2 class="card-number" id="llegadasTarde">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="card card-danger">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Ausencias</h5>
+                                <h2 class="card-number" id="ausencias">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">% Asistencia</h5>
+                                <h2 class="card-number" id="porcentajeAsistencia">0%</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Filtros -->
+        <div class="filter-section">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">María López Pérez - 3°A</h5>
-                            <div>
-                                <span class="badge bg-primary">Asistencia: 96%</span>
-                                <span class="badge bg-success">Presente: 48</span>
-                                <span class="badge bg-danger">Ausente: 2</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Estado</th>
-                                            <th>Justificación</th>
-                                            <th>Hora</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Lun, 20 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:05</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Vie, 17 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:02</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Jue, 16 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Mié, 15 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:10</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Mar, 14 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:15</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Lun, 13 Mar 2023</td>
-                                            <td><span class="badge-asistencia ausente">Ausente</span></td>
-                                            <td>Enfermedad</td>
-                                            <td>-</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">Siguiente</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
+                <div class="col-md-4">
+                    <label for="selectHijoAsistencia" class="form-label">Hijo:</label>
+                    <select class="form-select" id="selectHijoAsistencia" onchange="filtrarAsistencia()">
+                        <option value="">Todos</option>
+                    </select>
                 </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Juan López Pérez - 1°B</h5>
-                            <div>
-                                <span class="badge bg-primary">Asistencia: 94%</span>
-                                <span class="badge bg-success">Presente: 47</span>
-                                <span class="badge bg-danger">Ausente: 3</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Estado</th>
-                                            <th>Justificación</th>
-                                            <th>Hora</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Lun, 20 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:10</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Vie, 17 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:05</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Jue, 16 Mar 2023</td>
-                                            <td><span class="badge-asistencia tardia">Tarde</span></td>
-                                            <td>Tráfico</td>
-                                            <td>08:45</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Mié, 15 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Mar, 14 Mar 2023</td>
-                                            <td><span class="badge-asistencia ausente">Ausente</span></td>
-                                            <td>Enfermedad</td>
-                                            <td>-</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Lun, 13 Mar 2023</td>
-                                            <td><span class="badge-asistencia presente">Presente</span></td>
-                                            <td>-</td>
-                                            <td>08:02</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">Siguiente</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
+                <div class="col-md-4">
+                    <label for="selectMesAsistencia" class="form-label">Mes:</label>
+                    <select class="form-select" id="selectMesAsistencia" onchange="filtrarAsistencia()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="selectEstadoAsistencia" class="form-label">Estado:</label>
+                    <select class="form-select" id="selectEstadoAsistencia" onchange="filtrarAsistencia()">
+                        <option value="">Todos</option>
+                        <option value="presente">Presente</option>
+                        <option value="tarde">Tarde</option>
+                        <option value="ausente">Ausente</option>
+                        <option value="justificado">Justificado</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Resumen de Asistencia</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-5 offset-md-1">
-                                    <h6 class="text-center">María López Pérez - 3°A</h6>
-                                    <canvas id="resumenAsistenciaMaria" height="150"></canvas>
-                                </div>
-                                <div class="col-md-5 offset-md-0">
-                                    <h6 class="text-center">Juan López Pérez - 1°B</h6>
-                                    <canvas id="resumenAsistenciaJuan" height="150"></canvas>
-                                </div>
-                            </div>
+        <!-- Contenido principal -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list me-2"></i>Registro de Asistencia</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="listaAsistencia">
+                            <!-- Asistencia se cargará aquí dinámicamente -->
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie me-2"></i>Resumen por Estudiante</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="resumenAsistencia">
+                            <!-- Resumen se cargará aquí -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar me-2"></i>Vista Calendario</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="miniCalendario">
+                            <!-- Calendario se cargará aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line me-2"></i>Tendencia de Asistencia</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chartTendencia"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-doughnut me-2"></i>Distribución de Estados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chartDistribucion"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="./Conex/asis.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let chartTendencia;
+        let chartDistribucion;
+        let hijosData = [];
+        let asistenciaData = [];
+        let asistenciaFiltrada = [];
+
+        // Datos de los hijos
+        function obtenerDatosHijos() {
+            return [
+                {
+                    id: 'hijo1',
+                    nombre: 'María González',
+                    edad: 9,
+                    grado: 3,
+                    seccion: 'A'
+                },
+                {
+                    id: 'hijo2',
+                    nombre: 'Juan López',
+                    edad: 7,
+                    grado: 1,
+                    seccion: 'B'
+                }
+            ];
+        }
+
+        // Generar datos de asistencia de ejemplo
+        function generarDatosAsistenciaEjemplo() {
+            const datos = [];
+            const justificaciones = [
+                'Enfermedad', 'Cita médica', 'Asuntos familiares', 'Emergencia familiar', 
+                'Consulta especialista', 'Fiebre', 'Gripe', 'Viaje familiar'
+            ];
+            
+            hijosData.forEach((hijo, hijoIndex) => {
+                // María tiene mejor asistencia que Juan
+                const factorAsistencia = hijoIndex === 0 ? 0.96 : 0.91;
+                
+                for (let i = 0; i < 45; i++) { // 45 días de historia
+                    const fecha = new Date();
+                    fecha.setDate(fecha.getDate() - i);
+                    
+                    // Solo días de semana
+                    if (fecha.getDay() !== 0 && fecha.getDay() !== 6) {
+                        let estado = 'presente';
+                        let hora = '08:' + (Math.floor(Math.random() * 10)).toString().padStart(2, '0');
+                        let justificacion = '-';
+                        
+                        const probabilidad = Math.random();
+                        
+                        // Determinar estado basado en factor de asistencia
+                        if (probabilidad > factorAsistencia) {
+                            if (probabilidad > factorAsistencia + 0.02) {
+                                estado = 'ausente';
+                                hora = '-';
+                                justificacion = justificaciones[Math.floor(Math.random() * justificaciones.length)];
+                            } else if (probabilidad > factorAsistencia + 0.01) {
+                                estado = 'justificado';
+                                hora = '-';
+                                justificacion = 'Cita médica programada';
+                            } else {
+                                estado = 'tarde';
+                                hora = '08:' + (Math.floor(Math.random() * 30) + 15);
+                                justificacion = 'Transporte';
+                            }
+                        }
+                        
+                        // Patrones estacionales - más ausencias en invierno
+                        const mes = fecha.getMonth();
+                        if (mes >= 5 && mes <= 7) { // Jun-Ago (invierno en hemisferio sur)
+                            if (Math.random() > 0.88) {
+                                estado = Math.random() > 0.7 ? 'ausente' : 'justificado';
+                                hora = '-';
+                                justificacion = Math.random() > 0.5 ? 'Gripe' : 'Resfriado';
+                            }
+                        }
+                        
+                        // Eventos especiales - menos ausencias cerca de fechas importantes
+                        const dia = fecha.getDate();
+                        if (dia >= 20 && dia <= 25) { // Fin de mes, más responsabilidad
+                            if (estado === 'ausente' && Math.random() > 0.3) {
+                                estado = 'presente';
+                                hora = '08:' + (Math.floor(Math.random() * 10)).toString().padStart(2, '0');
+                                justificacion = '-';
+                            }
+                        }
+                        
+                        datos.push({
+                            id: `${hijo.id}_${fecha.toISOString().split('T')[0]}`,
+                            hijoId: hijo.id,
+                            hijoNombre: hijo.nombre,
+                            fecha: fecha.toISOString().split('T')[0],
+                            estado: estado,
+                            hora: hora,
+                            justificacion: justificacion
+                        });
+                    }
+                }
+            });
+            
+            return datos;
+        }
+
+        // Poblar selectores
+        function poblarSelectores() {
+            const selectHijo = document.getElementById('selectHijoAsistencia');
+            const selectMes = document.getElementById('selectMesAsistencia');
+            
+            // Limpiar selectores
+            selectHijo.innerHTML = '<option value="">Todos</option>';
+            selectMes.innerHTML = '<option value="">Todos</option>';
+            
+            // Poblar selector de hijos
+            hijosData.forEach(hijo => {
+                const option = document.createElement('option');
+                option.value = hijo.id;
+                option.textContent = hijo.nombre;
+                selectHijo.appendChild(option);
+            });
+            
+            // Poblar selector de meses
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            meses.forEach((mes, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = mes;
+                selectMes.appendChild(option);
+            });
+        }
+
+        // Filtrar asistencia
+        function filtrarAsistencia() {
+            const hijoSeleccionado = document.getElementById('selectHijoAsistencia').value;
+            const mesSeleccionado = document.getElementById('selectMesAsistencia').value;
+            const estadoSeleccionado = document.getElementById('selectEstadoAsistencia').value;
+            
+            asistenciaFiltrada = asistenciaData.filter(asistencia => {
+                const fechaAsistencia = new Date(asistencia.fecha);
+                return (!hijoSeleccionado || asistencia.hijoId === hijoSeleccionado) &&
+                       (!mesSeleccionado || fechaAsistencia.getMonth().toString() === mesSeleccionado) &&
+                       (!estadoSeleccionado || asistencia.estado === estadoSeleccionado);
+            });
+            
+            mostrarAsistencia();
+            actualizarEstadisticas();
+            actualizarResumenAsistencia();
+        }
+
+        // Mostrar asistencia
+        function mostrarAsistencia() {
+            const container = document.getElementById('listaAsistencia');
+            
+            if (asistenciaFiltrada.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No hay registros de asistencia que coincidan con los filtros seleccionados.</p>';
+                return;
+            }
+            
+            // Ordenar por fecha (más reciente primero)
+            asistenciaFiltrada.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            let html = '';
+            asistenciaFiltrada.forEach(asistencia => {
+                const claseAsistencia = obtenerClaseAsistencia(asistencia.estado);
+                const badgeAsistencia = obtenerBadgeAsistencia(asistencia.estado);
+                const iconoEstado = obtenerIconoEstado(asistencia.estado);
+                
+                html += `
+                    <div class="asistencia-item ${claseAsistencia}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">${asistencia.hijoNombre}</h6>
+                                    <span class="badge ${badgeAsistencia} badge-asistencia">
+                                        <i class="${iconoEstado} me-1"></i>${obtenerTextoEstado(asistencia.estado)}
+                                    </span>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i> ${formatearFecha(asistencia.fecha)}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i> ${asistencia.hora}
+                                        </small>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        ${asistencia.justificacion !== '-' ? 
+                                            `<small class="text-muted">
+                                                <i class="fas fa-comment me-1"></i> ${asistencia.justificacion}
+                                            </small>` : ''
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Obtener clase CSS según el estado
+        function obtenerClaseAsistencia(estado) {
+            const clases = {
+                'presente': 'asistencia-presente',
+                'tarde': 'asistencia-tarde',
+                'ausente': 'asistencia-ausente',
+                'justificado': 'asistencia-justificado'
+            };
+            return clases[estado] || 'asistencia-presente';
+        }
+
+        // Obtener badge según el estado
+        function obtenerBadgeAsistencia(estado) {
+            const badges = {
+                'presente': 'badge-presente',
+                'tarde': 'badge-tarde',
+                'ausente': 'badge-ausente',
+                'justificado': 'badge-justificado'
+            };
+            return badges[estado] || 'badge-presente';
+        }
+
+        // Obtener icono según el estado
+        function obtenerIconoEstado(estado) {
+            const iconos = {
+                'presente': 'fas fa-check',
+                'tarde': 'fas fa-clock',
+                'ausente': 'fas fa-times',
+                'justificado': 'fas fa-info'
+            };
+            return iconos[estado] || 'fas fa-check';
+        }
+
+        // Obtener texto del estado
+        function obtenerTextoEstado(estado) {
+            const textos = {
+                'presente': 'Presente',
+                'tarde': 'Tarde',
+                'ausente': 'Ausente',
+                'justificado': 'Justificado'
+            };
+            return textos[estado] || 'Presente';
+        }
+
+        // Formatear fecha
+        function formatearFecha(fecha) {
+            const opciones = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' };
+            return new Date(fecha).toLocaleDateString('es-ES', opciones);
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas() {
+            const presente = asistenciaFiltrada.filter(a => a.estado === 'presente').length;
+            const tarde = asistenciaFiltrada.filter(a => a.estado === 'tarde').length;
+            const ausente = asistenciaFiltrada.filter(a => a.estado === 'ausente').length;
+            const justificado = asistenciaFiltrada.filter(a => a.estado === 'justificado').length;
+            
+            const total = asistenciaFiltrada.length;
+            const porcentaje = total > 0 ? Math.round(((presente + tarde + justificado) / total) * 100) : 0;
+            
+            document.getElementById('diasPresente').textContent = presente;
+            document.getElementById('llegadasTarde').textContent = tarde;
+            document.getElementById('ausencias').textContent = ausente;
+            document.getElementById('porcentajeAsistencia').textContent = porcentaje + '%';
+        }
+
+        // Actualizar resumen por estudiante
+        function actualizarResumenAsistencia() {
+            const container = document.getElementById('resumenAsistencia');
+            let html = '';
+            
+            hijosData.forEach(hijo => {
+                const asistenciaHijo = asistenciaFiltrada.filter(a => a.hijoId === hijo.id);
+                
+                if (asistenciaHijo.length > 0) {
+                    const presente = asistenciaHijo.filter(a => a.estado === 'presente').length;
+                    const tarde = asistenciaHijo.filter(a => a.estado === 'tarde').length;
+                    const justificado = asistenciaHijo.filter(a => a.estado === 'justificado').length;
+                    const ausente = asistenciaHijo.filter(a => a.estado === 'ausente').length;
+                    
+                    const total = asistenciaHijo.length;
+                    const porcentaje = Math.round(((presente + tarde + justificado) / total) * 100);
+                    
+                    const claseColor = porcentaje >= 95 ? 'text-success' : 
+                                     porcentaje >= 85 ? 'text-warning' : 'text-danger';
+                    
+                    html += `
+                        <div class="mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">${hijo.nombre}</h6>
+                                <span class="badge bg-primary">${porcentaje}%</span>
+                            </div>
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <small class="text-success d-block">${presente}</small>
+                                    <small class="text-muted">Presente</small>
+                                </div>
+                                <div class="col-3">
+                                    <small class="text-warning d-block">${tarde}</small>
+                                    <small class="text-muted">Tarde</small>
+                                </div>
+                                <div class="col-3">
+                                    <small class="text-info d-block">${justificado}</small>
+                                    <small class="text-muted">Justif.</small>
+                                </div>
+                                <div class="col-3">
+                                    <small class="text-danger d-block">${ausente}</small>
+                                    <small class="text-muted">Ausente</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (html === '') {
+                html = '<p class="text-muted text-center">No hay datos para mostrar</p>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Generar gráficos
+        function generarGraficos() {
+            generarGraficoTendencia();
+            generarGraficoDistribucion();
+        }
+
+        // Gráfico de tendencia
+        function generarGraficoTendencia() {
+            const ctx = document.getElementById('chartTendencia');
+            if (!ctx) return;
+
+            // Calcular asistencia semanal de los últimos 8 semanas
+            const semanas = [];
+            const hoy = new Date();
+            
+            for (let i = 7; i >= 0; i--) {
+                const inicioSemana = new Date(hoy);
+                inicioSemana.setDate(hoy.getDate() - (i * 7) - hoy.getDay());
+                
+                const finSemana = new Date(inicioSemana);
+                finSemana.setDate(inicioSemana.getDate() + 6);
+                
+                semanas.push({
+                    inicio: inicioSemana,
+                    fin: finSemana,
+                    label: `Sem ${8-i}`
+                });
+            }
+
+            const datasets = hijosData.map((hijo, index) => {
+                const colores = [
+                    { border: 'rgba(46, 204, 113, 1)', bg: 'rgba(46, 204, 113, 0.1)' },
+                    { border: 'rgba(155, 89, 182, 1)', bg: 'rgba(155, 89, 182, 0.1)' }
+                ];
+                
+                const datosSemanales = semanas.map(semana => {
+                    const asistenciaSemana = asistenciaData.filter(a => {
+                        const fechaAsist = new Date(a.fecha);
+                        return a.hijoId === hijo.id && 
+                               fechaAsist >= semana.inicio && 
+                               fechaAsist <= semana.fin;
+                    });
+                    
+                    if (asistenciaSemana.length === 0) return 100;
+                    
+                    const presente = asistenciaSemana.filter(a => 
+                        a.estado === 'presente' || a.estado === 'tarde' || a.estado === 'justificado'
+                    ).length;
+                    
+                    return Math.round((presente / asistenciaSemana.length) * 100);
+                });
+                
+                return {
+                    label: hijo.nombre,
+                    data: datosSemanales,
+                    borderColor: colores[index].border,
+                    backgroundColor: colores[index].bg,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                };
+            });
+
+            if (chartTendencia) {
+                chartTendencia.destroy();
+            }
+
+            chartTendencia = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: semanas.map(s => s.label),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de distribución
+        function generarGraficoDistribucion() {
+            const ctx = document.getElementById('chartDistribucion');
+            if (!ctx) return;
+
+            const presente = asistenciaFiltrada.filter(a => a.estado === 'presente').length;
+            const tarde = asistenciaFiltrada.filter(a => a.estado === 'tarde').length;
+            const ausente = asistenciaFiltrada.filter(a => a.estado === 'ausente').length;
+            const justificado = asistenciaFiltrada.filter(a => a.estado === 'justificado').length;
+
+            if (chartDistribucion) {
+                chartDistribucion.destroy();
+            }
+
+            chartDistribucion = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Presente', 'Tarde', 'Ausente', 'Justificado'],
+                    datasets: [{
+                        data: [presente, tarde, ausente, justificado],
+                        backgroundColor: [
+                            '#2ecc71',
+                            '#f39c12',
+                            '#e74c3c',
+                            '#17a2b8'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Exportar asistencia
+        function exportarAsistencia() {
+            const datosExport = asistenciaFiltrada.map(asistencia => ({
+                'Estudiante': asistencia.hijoNombre,
+                'Fecha': asistencia.fecha,
+                'Estado': obtenerTextoEstado(asistencia.estado),
+                'Hora': asistencia.hora,
+                'Justificación': asistencia.justificacion
+            }));
+            
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(datosExport);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Asistencia');
+            
+            XLSX.writeFile(workbook, 'asistencia_estudiantes.xlsx');
+            alert('Asistencia exportada exitosamente');
+        }
+
+        // Imprimir asistencia
+        function imprimirAsistencia() {
+            window.print();
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            hijosData = obtenerDatosHijos();
+            asistenciaData = generarDatosAsistenciaEjemplo();
+            asistenciaFiltrada = [...asistenciaData];
+            
+            poblarSelectores();
+            mostrarAsistencia();
+            actualizarEstadisticas();
+            actualizarResumenAsistencia();
+            generarGraficos();
+        });
+    </script>
 </body>
 </html>

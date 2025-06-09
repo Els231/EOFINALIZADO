@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información de Mis Hijos - Portal del Tutor</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para exportar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF para exportar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9b59b6;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-tutor {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-tutor .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-tutor .navbar-nav .nav-link:hover,
+        .navbar-tutor .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== PERFIL DE ESTUDIANTE ===== */
+        .student-profile {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .student-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .grade-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .grade-excellent { background-color: var(--success-color); color: white; }
+        .grade-good { background-color: var(--info-color); color: white; }
+        .grade-regular { background-color: var(--warning-color); color: white; }
+        .grade-poor { background-color: var(--danger-color); color: white; }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        /* ===== CHARTS ===== */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .card-number { font-size: 2rem; }
+            .icon-circle { width: 50px; height: 50px; font-size: 1.2rem; }
+            .student-avatar { width: 60px; height: 60px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-tutor fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="tutor.html">
+                <i class="fas fa-user-friends fa-2x text-white"></i>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor.html">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tutor-informacion.html">
+                            <i class="fas fa-child me-2"></i> Mis Hijos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-notas.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-asistencia.html">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-comunicados.html">
+                            <i class="fas fa-bullhorn me-2"></i> Comunicados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-calendario.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <div class="page-header">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h1 class="h2"><i class="fas fa-child me-2"></i>Información de Mis Hijos</h1>
+                <div class="btn-toolbar">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-success btn-sm" onclick="exportarInformacion()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar Excel
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="imprimirInformacion()">
+                            <i class="fas fa-print me-1"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen general -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Total Hijos</h5>
+                                <h2 class="card-number" id="totalHijos">2</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Promedio General</h5>
+                                <h2 class="card-number" id="promedioGeneral">8.2</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Asistencia Promedio</h5>
+                                <h2 class="card-number" id="asistenciaPromedio">93%</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Materias Críticas</h5>
+                                <h2 class="card-number" id="materiasCriticas">1</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información detallada de cada hijo -->
+        <div class="row">
+            <div class="col-md-6" id="perfilHijo1">
+                <div class="student-profile">
+                    <div class="text-center">
+                        <div class="student-avatar mx-auto">MG</div>
+                        <h4>María González</h4>
+                        <p class="text-muted">3° Grado A - 9 años</p>
+                        <span class="grade-badge grade-excellent">Excelente rendimiento</span>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <h6><i class="fas fa-star text-warning me-1"></i>Promedio:</h6>
+                            <p class="mb-2">8.7/10</p>
+                            <h6><i class="fas fa-calendar-check text-success me-1"></i>Asistencia:</h6>
+                            <p class="mb-2">96%</p>
+                        </div>
+                        <div class="col-6">
+                            <h6><i class="fas fa-phone text-info me-1"></i>Teléfono:</h6>
+                            <p class="mb-2">555-0123</p>
+                            <h6><i class="fas fa-home text-primary me-1"></i>Dirección:</h6>
+                            <p class="mb-2">Calle Principal 123</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary btn-sm me-2" onclick="verDetallesEstudiante('hijo1')">
+                            <i class="fas fa-eye me-1"></i> Ver Detalles
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="generarReporteEstudiante('hijo1')">
+                            <i class="fas fa-file-alt me-1"></i> Generar Reporte
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6" id="perfilHijo2">
+                <div class="student-profile">
+                    <div class="text-center">
+                        <div class="student-avatar mx-auto">JL</div>
+                        <h4>Juan López</h4>
+                        <p class="text-muted">1° Grado B - 7 años</p>
+                        <span class="grade-badge grade-good">Buen rendimiento</span>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <h6><i class="fas fa-star text-warning me-1"></i>Promedio:</h6>
+                            <p class="mb-2">7.8/10</p>
+                            <h6><i class="fas fa-calendar-check text-success me-1"></i>Asistencia:</h6>
+                            <p class="mb-2">91%</p>
+                        </div>
+                        <div class="col-6">
+                            <h6><i class="fas fa-phone text-info me-1"></i>Teléfono:</h6>
+                            <p class="mb-2">555-0125</p>
+                            <h6><i class="fas fa-home text-primary me-1"></i>Dirección:</h6>
+                            <p class="mb-2">Av. Secundaria 456</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary btn-sm me-2" onclick="verDetallesEstudiante('hijo2')">
+                            <i class="fas fa-eye me-1"></i> Ver Detalles
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="generarReporteEstudiante('hijo2')">
+                            <i class="fas fa-file-alt me-1"></i> Generar Reporte
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos comparativos -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-radar me-2"></i>Rendimiento por Materia</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chartRendimiento"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line me-2"></i>Asistencia Mensual</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chartAsistencia"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles del estudiante -->
+    <div class="modal fade" id="modalDetalles" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetallesTitle">Detalles del Estudiante</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalDetallesBody">
+                    <!-- Contenido dinámico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let chartRendimiento;
+        let chartAsistencia;
+        let hijosData = [];
+        let notasData = [];
+        let asistenciaData = [];
+
+        // Datos de los hijos
+        function obtenerDatosHijos() {
+            return [
+                {
+                    id: 'hijo1',
+                    nombre: 'María González',
+                    edad: 9,
+                    grado: 3,
+                    seccion: 'A',
+                    telefono: '555-0123',
+                    direccion: 'Calle Principal 123',
+                    nombreAcudiente: 'Carmen González',
+                    telefonoAcudiente: '555-0124',
+                    email: 'carmen.gonzalez@email.com',
+                    fechaNacimiento: '2014-03-15',
+                    estado: 'activo'
+                },
+                {
+                    id: 'hijo2',
+                    nombre: 'Juan López',
+                    edad: 7,
+                    grado: 1,
+                    seccion: 'B',
+                    telefono: '555-0125',
+                    direccion: 'Avenida Secundaria 456',
+                    nombreAcudiente: 'Pedro López',
+                    telefonoAcudiente: '555-0126',
+                    email: 'pedro.lopez@email.com',
+                    fechaNacimiento: '2016-08-22',
+                    estado: 'activo'
+                }
+            ];
+        }
+
+        // Generar datos de ejemplo para notas y asistencia
+        function generarNotasEjemplo() {
+            const materiasData = {
+                'matematicas': { nombre: 'Matemáticas', dificultad: 0.8, profesor: 'Prof. Ana García' },
+                'lengua': { nombre: 'Lengua', dificultad: 0.5, profesor: 'Prof. Carmen López' },
+                'ciencias': { nombre: 'Ciencias', dificultad: 0.7, profesor: 'Prof. Luis Martín' },
+                'historia': { nombre: 'Historia', dificultad: 0.4, profesor: 'Prof. Elena Ruiz' },
+                'arte': { nombre: 'Arte', dificultad: 0.2, profesor: 'Prof. Miguel Torres' },
+                'educacion_fisica': { nombre: 'Educación Física', dificultad: 0.1, profesor: 'Prof. Carlos Vega' },
+                'ingles': { nombre: 'Inglés', dificultad: 0.6, profesor: 'Prof. Sara Johnson' }
+            };
+            
+            const tiposEvaluacion = [
+                { tipo: 'Examen', peso: 1.0 },
+                { tipo: 'Tarea', peso: 0.7 },
+                { tipo: 'Proyecto', peso: 1.2 },
+                { tipo: 'Participación', peso: 0.8 },
+                { tipo: 'Prueba Oral', peso: 0.9 },
+                { tipo: 'Trabajo Práctico', peso: 1.0 },
+                { tipo: 'Evaluación Continua', peso: 0.6 }
+            ];
+            
+            const notas = [];
+            
+            hijosData.forEach((hijo, hijoIndex) => {
+                // María es mejor estudiante que Juan
+                const factorRendimiento = hijoIndex === 0 ? 1.15 : 0.95;
+                
+                Object.keys(materiasData).forEach(materia => {
+                    const materiaInfo = materiasData[materia];
+                    
+                    for (let trimestre = 1; trimestre <= 3; trimestre++) {
+                        const cantidadNotas = Math.floor(Math.random() * 4) + 4; // 4-7 notas por trimestre
+                        
+                        for (let i = 0; i < cantidadNotas; i++) {
+                            const fechaBase = new Date();
+                            fechaBase.setMonth(fechaBase.getMonth() - (4 - trimestre));
+                            fechaBase.setDate(Math.floor(Math.random() * 25) + 1);
+                            
+                            // Generar nota basada en múltiples factores
+                            let baseNota = 8.2 - (materiaInfo.dificultad * 1.8);
+                            baseNota *= factorRendimiento;
+                            
+                            // Tipo de evaluación influye en la nota
+                            const tipoEval = tiposEvaluacion[Math.floor(Math.random() * tiposEvaluacion.length)];
+                            baseNota *= tipoEval.peso;
+                            
+                            // Progresión a lo largo del año
+                            if (trimestre === 2) baseNota += 0.2;
+                            if (trimestre === 3) baseNota += 0.4;
+                            
+                            // Variabilidad natural
+                            const variacion = (Math.random() - 0.5) * 1.5;
+                            let nota = baseNota + variacion;
+                            
+                            // Asegurar rango válido
+                            nota = Math.max(5.5, Math.min(10, nota));
+                            nota = Math.round(nota * 10) / 10;
+                            
+                            // Determinar observaciones basadas en el rendimiento
+                            let observaciones = '';
+                            if (nota >= 9.5) observaciones = 'Excelente trabajo, sigue así';
+                            else if (nota >= 8.5) observaciones = 'Muy buen desempeño';
+                            else if (nota >= 7.0) observaciones = 'Buen trabajo';
+                            else if (nota >= 6.0) observaciones = 'Puede mejorar con más práctica';
+                            else observaciones = 'Necesita refuerzo urgente';
+                            
+                            notas.push({
+                                id: `nota_${hijo.id}_${materia}_${trimestre}_${i}`,
+                                hijoId: hijo.id,
+                                hijoNombre: hijo.nombre,
+                                materia: materia,
+                                materiaNombre: materiaInfo.nombre,
+                                nota: nota,
+                                trimestre: trimestre,
+                                tipoEvaluacion: tipoEval.tipo,
+                                fecha: fechaBase.toISOString().split('T')[0],
+                                observaciones: observaciones,
+                                profesor: materiaInfo.profesor
+                            });
+                        }
+                    }
+                });
+            });
+            
+            return notas;
+        }
+
+        function generarAsistenciaEjemplo() {
+            const datos = [];
+            
+            hijosData.forEach((hijo, hijoIndex) => {
+                // María tiene mejor asistencia que Juan
+                const factorAsistencia = hijoIndex === 0 ? 0.95 : 0.88;
+                
+                for (let i = 0; i < 60; i++) { // 60 días de historia
+                    const fecha = new Date();
+                    fecha.setDate(fecha.getDate() - i);
+                    
+                    // Solo días de semana
+                    if (fecha.getDay() !== 0 && fecha.getDay() !== 6) {
+                        let estado = 'presente';
+                        
+                        const probabilidad = Math.random();
+                        
+                        if (probabilidad > factorAsistencia) {
+                            if (probabilidad > factorAsistencia + 0.03) {
+                                estado = 'ausente';
+                            } else {
+                                estado = Math.random() > 0.5 ? 'justificado' : 'tarde';
+                            }
+                        }
+                        
+                        // Simular patrones realistas (más ausencias en invierno)
+                        const mes = fecha.getMonth();
+                        if (mes >= 5 && mes <= 7) { // Jun-Ago (invierno)
+                            if (Math.random() > 0.85) {
+                                estado = Math.random() > 0.6 ? 'ausente' : 'justificado';
+                            }
+                        }
+                        
+                        datos.push({
+                            id: `${hijo.id}_${fecha.toISOString().split('T')[0]}`,
+                            hijoId: hijo.id,
+                            hijoNombre: hijo.nombre,
+                            fecha: fecha.toISOString().split('T')[0],
+                            estado: estado,
+                            hora: estado === 'tarde' ? '08:' + (Math.floor(Math.random() * 30) + 20) : 
+                                  estado === 'presente' ? '08:' + (Math.floor(Math.random() * 15)).toString().padStart(2, '0') : 
+                                  '-',
+                            justificacion: estado === 'ausente' ? (Math.random() > 0.5 ? 'Enfermedad' : 'Asuntos familiares') :
+                                         estado === 'justificado' ? 'Cita médica' : '-'
+                        });
+                    }
+                }
+            });
+            return datos;
+        }
+
+        // Actualizar resumen general
+        function actualizarResumenGeneral() {
+            document.getElementById('totalHijos').textContent = hijosData.length;
+            
+            // Calcular promedios
+            const promedios = hijosData.map(hijo => {
+                const notasHijo = notasData.filter(n => n.hijoId === hijo.id);
+                if (notasHijo.length === 0) return 0;
+                return notasHijo.reduce((sum, n) => sum + n.nota, 0) / notasHijo.length;
+            });
+            
+            const promedioGeneral = promedios.reduce((sum, p) => sum + p, 0) / promedios.length;
+            document.getElementById('promedioGeneral').textContent = promedioGeneral.toFixed(1);
+            
+            // Calcular asistencia promedio
+            const asistencias = hijosData.map(hijo => {
+                const asistenciaHijo = asistenciaData.filter(a => a.hijoId === hijo.id);
+                if (asistenciaHijo.length === 0) return 0;
+                const presente = asistenciaHijo.filter(a => a.estado === 'presente' || a.estado === 'tarde' || a.estado === 'justificado').length;
+                return (presente / asistenciaHijo.length) * 100;
+            });
+            
+            const asistenciaPromedio = asistencias.reduce((sum, a) => sum + a, 0) / asistencias.length;
+            document.getElementById('asistenciaPromedio').textContent = Math.round(asistenciaPromedio) + '%';
+            
+            // Calcular materias críticas (promedio < 7)
+            let materiasCriticas = 0;
+            hijosData.forEach(hijo => {
+                const estadisticas = calcularEstadisticasPorMateria(notasData.filter(n => n.hijoId === hijo.id));
+                Object.values(estadisticas).forEach(est => {
+                    if (est.promedio < 7) materiasCriticas++;
+                });
+            });
+            
+            document.getElementById('materiasCriticas').textContent = materiasCriticas;
+        }
+
+        // Calcular estadísticas por materia
+        function calcularEstadisticasPorMateria(notas) {
+            const materias = {};
+            
+            notas.forEach(nota => {
+                if (!materias[nota.materia]) {
+                    materias[nota.materia] = {
+                        materiaNombre: nota.materiaNombre,
+                        notas: [],
+                        promedio: 0,
+                        min: 10,
+                        max: 0
+                    };
+                }
+                
+                materias[nota.materia].notas.push(nota.nota);
+                materias[nota.materia].min = Math.min(materias[nota.materia].min, nota.nota);
+                materias[nota.materia].max = Math.max(materias[nota.materia].max, nota.nota);
+            });
+            
+            // Calcular promedios
+            Object.keys(materias).forEach(materia => {
+                const notas = materias[materia].notas;
+                materias[materia].promedio = notas.reduce((sum, nota) => sum + nota, 0) / notas.length;
+            });
+            
+            return materias;
+        }
+
+        // Ver detalles del estudiante
+        function verDetallesEstudiante(hijoId) {
+            const hijo = hijosData.find(h => h.id === hijoId);
+            if (!hijo) return;
+            
+            const notasHijo = notasData.filter(n => n.hijoId === hijoId);
+            const asistenciaHijo = asistenciaData.filter(a => a.hijoId === hijoId);
+            const estadisticas = calcularEstadisticasPorMateria(notasHijo);
+            
+            // Calcular asistencia
+            const presente = asistenciaHijo.filter(a => a.estado === 'presente' || a.estado === 'tarde' || a.estado === 'justificado').length;
+            const porcentajeAsistencia = asistenciaHijo.length > 0 ? (presente / asistenciaHijo.length) * 100 : 0;
+            
+            let contenido = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user text-primary me-2"></i>Información Personal</h6>
+                        <p><strong>Nombre:</strong> ${hijo.nombre}</p>
+                        <p><strong>Edad:</strong> ${hijo.edad} años</p>
+                        <p><strong>Grado:</strong> ${hijo.grado}° ${hijo.seccion}</p>
+                        <p><strong>Teléfono:</strong> ${hijo.telefono}</p>
+                        <p><strong>Dirección:</strong> ${hijo.direccion}</p>
+                        <p><strong>Acudiente:</strong> ${hijo.nombreAcudiente}</p>
+                        <p><strong>Teléfono Acudiente:</strong> ${hijo.telefonoAcudiente}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-bar text-success me-2"></i>Estadísticas Académicas</h6>
+                        <p><strong>Asistencia:</strong> ${Math.round(porcentajeAsistencia)}%</p>
+                        <p><strong>Total Notas:</strong> ${notasHijo.length}</p>
+                        <h6 class="mt-3">Promedios por Materia:</h6>
+            `;
+            
+            Object.keys(estadisticas).forEach(materia => {
+                const est = estadisticas[materia];
+                const clasePromedio = est.promedio >= 9 ? 'text-success' : 
+                                    est.promedio >= 7 ? 'text-info' : 
+                                    est.promedio >= 6 ? 'text-warning' : 'text-danger';
+                contenido += `<p><strong>${est.materiaNombre}:</strong> <span class="${clasePromedio}">${est.promedio.toFixed(1)}</span></p>`;
+            });
+            
+            contenido += `
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalDetallesTitle').textContent = `Detalles de ${hijo.nombre}`;
+            document.getElementById('modalDetallesBody').innerHTML = contenido;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
+            modal.show();
+        }
+
+        // Generar gráficos
+        function generarGraficos() {
+            generarGraficoRendimiento();
+            generarGraficoAsistencia();
+        }
+
+        function generarGraficoRendimiento() {
+            const ctx = document.getElementById('chartRendimiento');
+            if (!ctx) return;
+
+            const colores = [
+                { bg: 'rgba(52, 152, 219, 0.6)', border: 'rgba(52, 152, 219, 1)' },
+                { bg: 'rgba(231, 76, 60, 0.6)', border: 'rgba(231, 76, 60, 1)' }
+            ];
+
+            const datasets = hijosData.map((hijo, index) => {
+                const notasHijo = notasData.filter(n => n.hijoId === hijo.id);
+                const estadisticas = calcularEstadisticasPorMateria(notasHijo);
+                
+                // Ordenar materias consistentemente
+                const materiasOrdenadas = ['matematicas', 'lengua', 'ciencias', 'historia', 'arte', 'educacion_fisica', 'ingles'];
+                const promedios = materiasOrdenadas.map(materia => 
+                    estadisticas[materia] ? estadisticas[materia].promedio : 0
+                );
+                
+                return {
+                    label: hijo.nombre,
+                    data: promedios,
+                    backgroundColor: colores[index].bg,
+                    borderColor: colores[index].border,
+                    borderWidth: 2,
+                    pointBackgroundColor: colores[index].border,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: colores[index].border
+                };
+            });
+
+            if (chartRendimiento) {
+                chartRendimiento.destroy();
+            }
+
+            const materiasLabels = ['Matemáticas', 'Lengua', 'Ciencias', 'Historia', 'Arte', 'Ed. Física', 'Inglés'];
+
+            chartRendimiento = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: materiasLabels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            min: 0,
+                            ticks: {
+                                stepSize: 2
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generarGraficoAsistencia() {
+            const ctx = document.getElementById('chartAsistencia');
+            if (!ctx) return;
+
+            const meses = ['Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
+            
+            const datasets = hijosData.map((hijo, index) => {
+                const asistenciaHijo = asistenciaData.filter(a => a.hijoId === hijo.id);
+                
+                // Calcular asistencia mensual real basada en datos
+                const datosMensuales = meses.map((mes, mesIndex) => {
+                    const fechaInicio = new Date();
+                    fechaInicio.setMonth(fechaInicio.getMonth() - (meses.length - mesIndex - 1));
+                    fechaInicio.setDate(1);
+                    
+                    const fechaFin = new Date(fechaInicio);
+                    fechaFin.setMonth(fechaFin.getMonth() + 1);
+                    fechaFin.setDate(0);
+                    
+                    const asistenciaMes = asistenciaHijo.filter(a => {
+                        const fechaAsist = new Date(a.fecha);
+                        return fechaAsist >= fechaInicio && fechaAsist <= fechaFin;
+                    });
+                    
+                    if (asistenciaMes.length === 0) return 0;
+                    
+                    const presente = asistenciaMes.filter(a => 
+                        a.estado === 'presente' || a.estado === 'justificado' || a.estado === 'tarde'
+                    ).length;
+                    
+                    return Math.round((presente / asistenciaMes.length) * 100);
+                });
+                
+                const colores = [
+                    { border: 'rgba(46, 204, 113, 1)', bg: 'rgba(46, 204, 113, 0.1)' },
+                    { border: 'rgba(155, 89, 182, 1)', bg: 'rgba(155, 89, 182, 0.1)' }
+                ];
+                
+                return {
+                    label: hijo.nombre,
+                    data: datosMensuales,
+                    borderColor: colores[index].border,
+                    backgroundColor: colores[index].bg,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                };
+            });
+
+            if (chartAsistencia) {
+                chartAsistencia.destroy();
+            }
+
+            chartAsistencia = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Funciones de exportación
+        function exportarInformacion() {
+            const datosExport = hijosData.map(hijo => {
+                const notasHijo = notasData.filter(n => n.hijoId === hijo.id);
+                const asistenciaHijo = asistenciaData.filter(a => a.hijoId === hijo.id);
+                const estadisticas = calcularEstadisticasPorMateria(notasHijo);
+                
+                const presente = asistenciaHijo.filter(a => a.estado === 'presente' || a.estado === 'tarde' || a.estado === 'justificado').length;
+                const porcentajeAsistencia = asistenciaHijo.length > 0 ? (presente / asistenciaHijo.length) * 100 : 0;
+                
+                const promedioGeneral = Object.values(estadisticas).length > 0 ? 
+                    Object.values(estadisticas).reduce((sum, est) => sum + est.promedio, 0) / Object.values(estadisticas).length : 0;
+                
+                return {
+                    'Nombre': hijo.nombre,
+                    'Edad': hijo.edad,
+                    'Grado': `${hijo.grado}° ${hijo.seccion}`,
+                    'Promedio General': promedioGeneral.toFixed(1),
+                    'Asistencia': `${Math.round(porcentajeAsistencia)}%`,
+                    'Teléfono': hijo.telefono,
+                    'Dirección': hijo.direccion,
+                    'Acudiente': hijo.nombreAcudiente,
+                    'Teléfono Acudiente': hijo.telefonoAcudiente
+                };
+            });
+            
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(datosExport);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Información Hijos');
+            
+            XLSX.writeFile(workbook, 'informacion_hijos.xlsx');
+            alert('Información exportada exitosamente');
+        }
+
+        function imprimirInformacion() {
+            window.print();
+        }
+
+        function generarReporteEstudiante(hijoId) {
+            const hijo = hijosData.find(h => h.id === hijoId);
+            if (!hijo) return;
+            
+            alert(`Generando reporte detallado para ${hijo.nombre}...`);
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            hijosData = obtenerDatosHijos();
+            notasData = generarNotasEjemplo();
+            asistenciaData = generarAsistenciaEjemplo();
+            
+            actualizarResumenGeneral();
+            generarGraficos();
+        });
+    </script>
+</body>
+</html>

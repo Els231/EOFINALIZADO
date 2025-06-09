@@ -3,323 +3,956 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notas de mis Hijos - Escuela Primaria</title>
+    <title>Notas - Portal del Tutor</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para exportar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
-    <link href="./Conex/TurtDash.Css" rel="stylesheet">
-    <link href="./Conex/Not.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9b59b6;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-tutor {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-tutor .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-tutor .navbar-nav .nav-link:hover,
+        .navbar-tutor .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== NOTAS ESPECÍFICAS ===== */
+        .nota-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--info-color);
+            transition: all 0.3s ease;
+        }
+
+        .nota-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .nota-excelente { border-left-color: var(--success-color); }
+        .nota-buena { border-left-color: var(--info-color); }
+        .nota-regular { border-left-color: var(--warning-color); }
+        .nota-mala { border-left-color: var(--danger-color); }
+
+        .badge-nota {
+            font-size: 1rem;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .badge-excelente { background-color: var(--success-color); }
+        .badge-buena { background-color: var(--info-color); }
+        .badge-regular { background-color: var(--warning-color); }
+        .badge-mala { background-color: var(--danger-color); }
+
+        /* ===== FILTROS ===== */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== CHARTS ===== */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .card-number { font-size: 2rem; }
+            .icon-circle { width: 50px; height: 50px; font-size: 1.2rem; }
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="../Vista_Profesor_io_Desarrollador/Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
-                </a>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-tutor fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="tutor.html">
+                <i class="fas fa-user-friends fa-2x text-white"></i>
+            </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
 
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbTutor.html">
-                                <i class="fas fa-child me-2"></i> Mis Hijos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbNotTut.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbAsisTut.html">
-                                <i class="fas fa-calendar-check me-2"></i> Asistencia
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashComuTut.html">
-                                <i class="fas fa-bullhorn me-2"></i> Comunicados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbCalTut.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex">
-                        <a href="./DashbMensjTut.html" class="btn btn-claro">
-                            <i class="fas fa-envelope me-1"></i> Mensajes
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor.html">
+                            <i class="fas fa-home me-1"></i> Inicio
                         </a>
-                    </div>
-                    <div class="sidebar-footer mt-auto p-3 text-center">
-                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
-                            <i class="fas fa-cog me-1"></i> Configuración
-                            </a>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav><nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
-                </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <i class="fas fa-bars"></i>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbTutor.html">
-                                <i class="fas fa-child me-2"></i> Mis Hijos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbNotTut.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbAsisTut.html">
-                                <i class="fas fa-calendar-check me-2"></i> Asistencia
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashComuTut.html">
-                                <i class="fas fa-bullhorn me-2"></i> Comunicados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbCalTut.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex">
-                        <a href="./DashbMensjTut.html" class="btn btn-claro">
-                            <i class="fas fa-envelope me-1"></i> Mensajes
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-informacion.html">
+                            <i class="fas fa-child me-2"></i> Mis Hijos
                         </a>
-                    </div>
-                    <div class="sidebar-footer mt-auto p-3 text-center">
-                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
-                            <i class="fas fa-cog me-1"></i> Configuración
-                            </a>
-                        </button>
-                    </div>
-                </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tutor-notas.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-asistencia.html">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-comunicados.html">
+                            <i class="fas fa-bullhorn me-2"></i> Comunicados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-calendario.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
             </div>
-        </nav>
-<div class="container-fluid">
-    <div class="row">
-        <main class="col-md-12 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Notas de mis Hijos</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
+        </div>
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <div class="page-header">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h1 class="h2"><i class="fas fa-book me-2"></i>Notas de Mis Hijos</h1>
+                <div class="btn-toolbar">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i> Exportar</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-print me-1"></i> Imprimir</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="exportarNotas()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar Excel
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="imprimirNotas()">
+                            <i class="fas fa-print me-1"></i> Imprimir
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="filtros-notas mb-4">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="selectHijo" class="form-label">Seleccionar Hijo</label>
-                        <select class="form-select" id="selectHijo">
-                            <option selected>Todos mis hijos</option>
-                            <option>María López Pérez (3°A)</option>
-                            <option>Juan López Pérez (1°B)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="selectPeriodo" class="form-label">Periodo</label>
-                        <select class="form-select" id="selectPeriodo">
-                            <option selected>Todos los periodos</option>
-                            <option>Primer Trimestre</option>
-                            <option>Segundo Trimestre</option>
-                            <option>Tercer Trimestre</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="selectMateria" class="form-label">Materia</label>
-                        <select class="form-select" id="selectMateria">
-                            <option selected>Todas las materias</option>
-                            <option>Matemáticas</option>
-                            <option>Lengua</option>
-                            <option>Ciencias</option>
-                            <option>Historia</option>
-                            <option>Arte</option>
-                            <option>Educación Física</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filtrar</button>
+        <!-- Estadísticas de notas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Total Notas</h5>
+                                <h2 class="card-number" id="totalNotas">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-list-ol"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="card card-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Promedio General</h5>
+                                <h2 class="card-number" id="promedioGeneral">0.0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Nota Más Alta</h5>
+                                <h2 class="card-number" id="notaMasAlta">0.0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Materias Evaluadas</h5>
+                                <h2 class="card-number" id="materiasEvaluadas">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Filtros -->
+        <div class="filter-section">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">María López Pérez - 3°A</h5>
-                            <span class="badge bg-primary">Promedio: 8.7</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Materia</th>
-                                            <th>Nota</th>
-                                            <th>Periodo</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Matemáticas</td>
-                                            <td><span class="badge-nota nota-alta">9.0</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Lengua</td>
-                                            <td><span class="badge-nota nota-alta">8.5</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Ciencias</td>
-                                            <td><span class="badge-nota nota-alta">8.8</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Historia</td>
-                                            <td><span class="badge-nota nota-media">7.2</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Arte</td>
-                                            <td><span class="badge-nota nota-alta">9.5</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Educación Física</td>
-                                            <td><span class="badge-nota nota-alta">10.0</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-3">
+                    <label for="selectHijo" class="form-label">Hijo:</label>
+                    <select class="form-select" id="selectHijo" onchange="filtrarNotas()">
+                        <option value="">Todos</option>
+                    </select>
                 </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Juan López Pérez - 1°B</h5>
-                            <span class="badge bg-primary">Promedio: 7.8</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Materia</th>
-                                            <th>Nota</th>
-                                            <th>Periodo</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Matemáticas</td>
-                                            <td><span class="badge-nota nota-media">7.5</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Lengua</td>
-                                            <td><span class="badge-nota nota-media">8.0</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Ciencias</td>
-                                            <td><span class="badge-nota nota-media">7.8</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Historia</td>
-                                            <td><span class="badge-nota nota-media">8.0</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Arte</td>
-                                            <td><span class="badge-nota nota-alta">9.0</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Educación Física</td>
-                                            <td><span class="badge-nota nota-alta">9.5</span></td>
-                                            <td>2° Trimestre</td>
-                                            <td><span class="badge bg-success">Aprobado</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-3">
+                    <label for="selectMateria" class="form-label">Materia:</label>
+                    <select class="form-select" id="selectMateria" onchange="filtrarNotas()">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="selectTrimestre" class="form-label">Trimestre:</label>
+                    <select class="form-select" id="selectTrimestre" onchange="filtrarNotas()">
+                        <option value="">Todos</option>
+                        <option value="1">1° Trimestre</option>
+                        <option value="2">2° Trimestre</option>
+                        <option value="3">3° Trimestre</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="selectTipo" class="form-label">Tipo de Evaluación:</label>
+                    <select class="form-select" id="selectTipo" onchange="filtrarNotas()">
+                        <option value="">Todos</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Evolución de Notas</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="text-center">María López Pérez - 3°A</h6>
-                                    <canvas id="evolucionNotasMaria" height="200"></canvas>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-center">Juan López Pérez - 1°B</h6>
-                                    <canvas id="evolucionNotasJuan" height="200"></canvas>
-                                </div>
-                            </div>
+        <!-- Contenido principal -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list me-2"></i>Lista de Notas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="listaNotas">
+                            <!-- Notas se cargarán aquí dinámicamente -->
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle me-2"></i>Resumen por Estudiante</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="resumenEstudiantes">
+                            <!-- Resumen se cargará aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Promedios por Materia</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chartMaterias"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line me-2"></i>Evolución Trimestral</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chartEvolucion"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="./Conex/Not.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let chartMaterias;
+        let chartEvolucion;
+        let hijosData = [];
+        let notasData = [];
+        let notasFiltradas = [];
+
+        // Datos de los hijos
+        function obtenerDatosHijos() {
+            return [
+                {
+                    id: 'hijo1',
+                    nombre: 'María González',
+                    edad: 9,
+                    grado: 3,
+                    seccion: 'A'
+                },
+                {
+                    id: 'hijo2',
+                    nombre: 'Juan López',
+                    edad: 7,
+                    grado: 1,
+                    seccion: 'B'
+                }
+            ];
+        }
+
+        // Generar notas de ejemplo
+        function generarNotasEjemplo() {
+            const materiasData = {
+                'matematicas': { nombre: 'Matemáticas', dificultad: 0.8, profesor: 'Prof. Ana García' },
+                'lengua': { nombre: 'Lengua', dificultad: 0.5, profesor: 'Prof. Carmen López' },
+                'ciencias': { nombre: 'Ciencias', dificultad: 0.7, profesor: 'Prof. Luis Martín' },
+                'historia': { nombre: 'Historia', dificultad: 0.4, profesor: 'Prof. Elena Ruiz' },
+                'arte': { nombre: 'Arte', dificultad: 0.2, profesor: 'Prof. Miguel Torres' },
+                'educacion_fisica': { nombre: 'Educación Física', dificultad: 0.1, profesor: 'Prof. Carlos Vega' },
+                'ingles': { nombre: 'Inglés', dificultad: 0.6, profesor: 'Prof. Sara Johnson' }
+            };
+            
+            const tiposEvaluacion = [
+                { tipo: 'Examen', peso: 1.0 },
+                { tipo: 'Tarea', peso: 0.7 },
+                { tipo: 'Proyecto', peso: 1.2 },
+                { tipo: 'Participación', peso: 0.8 },
+                { tipo: 'Prueba Oral', peso: 0.9 },
+                { tipo: 'Trabajo Práctico', peso: 1.0 },
+                { tipo: 'Evaluación Continua', peso: 0.6 }
+            ];
+            
+            const notas = [];
+            
+            hijosData.forEach((hijo, hijoIndex) => {
+                // María es mejor estudiante que Juan
+                const factorRendimiento = hijoIndex === 0 ? 1.15 : 0.95;
+                
+                Object.keys(materiasData).forEach(materia => {
+                    const materiaInfo = materiasData[materia];
+                    
+                    for (let trimestre = 1; trimestre <= 3; trimestre++) {
+                        const cantidadNotas = Math.floor(Math.random() * 4) + 4; // 4-7 notas por trimestre
+                        
+                        for (let i = 0; i < cantidadNotas; i++) {
+                            const fechaBase = new Date();
+                            fechaBase.setMonth(fechaBase.getMonth() - (4 - trimestre));
+                            fechaBase.setDate(Math.floor(Math.random() * 25) + 1);
+                            
+                            // Generar nota basada en múltiples factores
+                            let baseNota = 8.2 - (materiaInfo.dificultad * 1.8);
+                            baseNota *= factorRendimiento;
+                            
+                            // Tipo de evaluación influye en la nota
+                            const tipoEval = tiposEvaluacion[Math.floor(Math.random() * tiposEvaluacion.length)];
+                            baseNota *= tipoEval.peso;
+                            
+                            // Progresión a lo largo del año
+                            if (trimestre === 2) baseNota += 0.2;
+                            if (trimestre === 3) baseNota += 0.4;
+                            
+                            // Variabilidad natural
+                            const variacion = (Math.random() - 0.5) * 1.5;
+                            let nota = baseNota + variacion;
+                            
+                            // Asegurar rango válido
+                            nota = Math.max(5.5, Math.min(10, nota));
+                            nota = Math.round(nota * 10) / 10;
+                            
+                            // Determinar observaciones basadas en el rendimiento
+                            let observaciones = '';
+                            if (nota >= 9.5) observaciones = 'Excelente trabajo, sigue así';
+                            else if (nota >= 8.5) observaciones = 'Muy buen desempeño';
+                            else if (nota >= 7.0) observaciones = 'Buen trabajo';
+                            else if (nota >= 6.0) observaciones = 'Puede mejorar con más práctica';
+                            else observaciones = 'Necesita refuerzo urgente';
+                            
+                            notas.push({
+                                id: `nota_${hijo.id}_${materia}_${trimestre}_${i}`,
+                                hijoId: hijo.id,
+                                hijoNombre: hijo.nombre,
+                                materia: materia,
+                                materiaNombre: materiaInfo.nombre,
+                                nota: nota,
+                                trimestre: trimestre,
+                                tipoEvaluacion: tipoEval.tipo,
+                                fecha: fechaBase.toISOString().split('T')[0],
+                                observaciones: observaciones,
+                                profesor: materiaInfo.profesor
+                            });
+                        }
+                    }
+                });
+            });
+            
+            return notas;
+        }
+
+        // Poblar selectores
+        function poblarSelectores() {
+            const selectHijo = document.getElementById('selectHijo');
+            const selectMateria = document.getElementById('selectMateria');
+            const selectTipo = document.getElementById('selectTipo');
+            
+            // Limpiar selectores
+            selectHijo.innerHTML = '<option value="">Todos</option>';
+            selectMateria.innerHTML = '<option value="">Todas</option>';
+            selectTipo.innerHTML = '<option value="">Todos</option>';
+            
+            // Poblar selector de hijos
+            hijosData.forEach(hijo => {
+                const option = document.createElement('option');
+                option.value = hijo.id;
+                option.textContent = hijo.nombre;
+                selectHijo.appendChild(option);
+            });
+            
+            // Poblar selector de materias
+            const materias = [...new Set(notasData.map(n => n.materiaNombre))];
+            materias.forEach(materia => {
+                const option = document.createElement('option');
+                option.value = materia;
+                option.textContent = materia;
+                selectMateria.appendChild(option);
+            });
+            
+            // Poblar selector de tipos
+            const tipos = [...new Set(notasData.map(n => n.tipoEvaluacion))];
+            tipos.forEach(tipo => {
+                const option = document.createElement('option');
+                option.value = tipo;
+                option.textContent = tipo;
+                selectTipo.appendChild(option);
+            });
+        }
+
+        // Filtrar notas
+        function filtrarNotas() {
+            const hijoSeleccionado = document.getElementById('selectHijo').value;
+            const materiaSeleccionada = document.getElementById('selectMateria').value;
+            const trimestreSeleccionado = document.getElementById('selectTrimestre').value;
+            const tipoSeleccionado = document.getElementById('selectTipo').value;
+            
+            notasFiltradas = notasData.filter(nota => {
+                return (!hijoSeleccionado || nota.hijoId === hijoSeleccionado) &&
+                       (!materiaSeleccionada || nota.materiaNombre === materiaSeleccionada) &&
+                       (!trimestreSeleccionado || nota.trimestre.toString() === trimestreSeleccionado) &&
+                       (!tipoSeleccionado || nota.tipoEvaluacion === tipoSeleccionado);
+            });
+            
+            mostrarNotas();
+            actualizarEstadisticas();
+            actualizarResumenEstudiantes();
+        }
+
+        // Mostrar notas
+        function mostrarNotas() {
+            const container = document.getElementById('listaNotas');
+            
+            if (notasFiltradas.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No hay notas que coincidan con los filtros seleccionados.</p>';
+                return;
+            }
+            
+            let html = '';
+            notasFiltradas.forEach(nota => {
+                const claseNota = obtenerClaseNota(nota.nota);
+                const badgeNota = obtenerBadgeNota(nota.nota);
+                
+                html += `
+                    <div class="nota-item ${claseNota}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0">${nota.hijoNombre} - ${nota.materiaNombre}</h6>
+                                    <span class="badge ${badgeNota} badge-nota">${nota.nota}</span>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i> ${formatearFecha(nota.fecha)}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clipboard-list me-1"></i> ${nota.tipoEvaluacion}
+                                        </small>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user-tie me-1"></i> ${nota.profesor}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-bookmark me-1"></i> ${nota.trimestre}° Trimestre
+                                        </small>
+                                    </div>
+                                </div>
+                                ${nota.observaciones ? `<div class="mt-2"><small class="text-info"><i class="fas fa-comment me-1"></i> ${nota.observaciones}</small></div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Obtener clase CSS según la nota
+        function obtenerClaseNota(nota) {
+            if (nota >= 9) return 'nota-excelente';
+            if (nota >= 7) return 'nota-buena';
+            if (nota >= 6) return 'nota-regular';
+            return 'nota-mala';
+        }
+
+        // Obtener badge según la nota
+        function obtenerBadgeNota(nota) {
+            if (nota >= 9) return 'badge-excelente';
+            if (nota >= 7) return 'badge-buena';
+            if (nota >= 6) return 'badge-regular';
+            return 'badge-mala';
+        }
+
+        // Formatear fecha
+        function formatearFecha(fecha) {
+            const opciones = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(fecha).toLocaleDateString('es-ES', opciones);
+        }
+
+        // Obtener nombre de materia
+        function obtenerNombreMateria(codigo) {
+            const nombres = {
+                'matematicas': 'Matemáticas',
+                'lengua': 'Lengua',
+                'ciencias': 'Ciencias',
+                'historia': 'Historia',
+                'arte': 'Arte',
+                'educacion_fisica': 'Educación Física',
+                'ingles': 'Inglés'
+            };
+            return nombres[codigo] || codigo;
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas() {
+            const totalNotas = notasFiltradas.length;
+            const promedio = totalNotas > 0 ? 
+                notasFiltradas.reduce((sum, n) => sum + n.nota, 0) / totalNotas : 0;
+            const notaMasAlta = totalNotas > 0 ? 
+                Math.max(...notasFiltradas.map(n => n.nota)) : 0;
+            const materiasUnicas = new Set(notasFiltradas.map(n => n.materiaNombre));
+            
+            document.getElementById('totalNotas').textContent = totalNotas;
+            document.getElementById('promedioGeneral').textContent = promedio.toFixed(1);
+            document.getElementById('notaMasAlta').textContent = notaMasAlta.toFixed(1);
+            document.getElementById('materiasEvaluadas').textContent = materiasUnicas.size;
+        }
+
+        // Actualizar resumen por estudiantes
+        function actualizarResumenEstudiantes() {
+            const container = document.getElementById('resumenEstudiantes');
+            let html = '';
+            
+            hijosData.forEach(hijo => {
+                const notasHijo = notasFiltradas.filter(n => n.hijoId === hijo.id);
+                
+                if (notasHijo.length > 0) {
+                    const promedio = notasHijo.reduce((sum, n) => sum + n.nota, 0) / notasHijo.length;
+                    const clasePromedio = obtenerBadgeNota(promedio);
+                    
+                    html += `
+                        <div class="mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-1">${hijo.nombre}</h6>
+                                <span class="badge ${clasePromedio}">${promedio.toFixed(1)}</span>
+                            </div>
+                            <small class="text-muted">${notasHijo.length} evaluaciones</small>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (html === '') {
+                html = '<p class="text-muted text-center">No hay datos para mostrar</p>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Generar gráficos
+        function generarGraficos() {
+            generarGraficoMaterias();
+            generarGraficoEvolucion();
+        }
+
+        // Gráfico por materias
+        function generarGraficoMaterias() {
+            const ctx = document.getElementById('chartMaterias');
+            if (!ctx) return;
+
+            const materiasStats = {};
+            const coloresMaterias = {
+                'matematicas': '#e74c3c',
+                'lengua': '#3498db', 
+                'ciencias': '#2ecc71',
+                'historia': '#f39c12',
+                'arte': '#9b59b6',
+                'educacion_fisica': '#1abc9c',
+                'ingles': '#34495e'
+            };
+            
+            // Calcular promedios por materia para ambos hijos
+            hijosData.forEach(hijo => {
+                Object.keys(coloresMaterias).forEach(materia => {
+                    const notasMateria = notasData.filter(n => 
+                        n.hijoId === hijo.id && n.materia === materia
+                    );
+                    
+                    if (notasMateria.length > 0) {
+                        const promedio = notasMateria.reduce((sum, n) => sum + n.nota, 0) / notasMateria.length;
+                        
+                        if (!materiasStats[materia]) {
+                            materiasStats[materia] = [];
+                        }
+                        materiasStats[materia].push({
+                            hijo: hijo.nombre,
+                            promedio: promedio
+                        });
+                    }
+                });
+            });
+
+            const labels = Object.keys(materiasStats).map(materia => obtenerNombreMateria(materia));
+            
+            // Crear datasets para cada hijo
+            const datasets = hijosData.map((hijo, index) => {
+                const colores = [
+                    { bg: 'rgba(52, 152, 219, 0.7)', border: 'rgba(52, 152, 219, 1)' },
+                    { bg: 'rgba(231, 76, 60, 0.7)', border: 'rgba(231, 76, 60, 1)' }
+                ];
+                
+                const data = Object.keys(materiasStats).map(materia => {
+                    const estatHijo = materiasStats[materia].find(e => e.hijo === hijo.nombre);
+                    return estatHijo ? estatHijo.promedio.toFixed(1) : 0;
+                });
+                
+                return {
+                    label: hijo.nombre,
+                    data: data,
+                    backgroundColor: colores[index].bg,
+                    borderColor: colores[index].border,
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    borderSkipped: false,
+                };
+            });
+
+            if (chartMaterias) {
+                chartMaterias.destroy();
+            }
+
+            chartMaterias = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Gráfico de evolución trimestral
+        function generarGraficoEvolucion() {
+            const ctx = document.getElementById('chartEvolucion');
+            if (!ctx) return;
+
+            const evolucionPorHijo = {};
+            
+            hijosData.forEach(hijo => {
+                evolucionPorHijo[hijo.nombre] = [0, 0, 0]; // 3 trimestres
+                
+                for (let trimestre = 1; trimestre <= 3; trimestre++) {
+                    const notasTrimestre = notasData.filter(n => 
+                        n.hijoId === hijo.id && n.trimestre === trimestre
+                    );
+                    
+                    if (notasTrimestre.length > 0) {
+                        const promedio = notasTrimestre.reduce((sum, n) => sum + n.nota, 0) / notasTrimestre.length;
+                        evolucionPorHijo[hijo.nombre][trimestre - 1] = Math.round(promedio * 10) / 10;
+                    }
+                }
+            });
+
+            const colores = [
+                { border: 'rgba(46, 204, 113, 1)', bg: 'rgba(46, 204, 113, 0.1)' },
+                { border: 'rgba(155, 89, 182, 1)', bg: 'rgba(155, 89, 182, 0.1)' }
+            ];
+
+            const datasets = Object.keys(evolucionPorHijo).map((nombre, index) => ({
+                label: nombre,
+                data: evolucionPorHijo[nombre],
+                borderColor: colores[index].border,
+                backgroundColor: colores[index].bg,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: colores[index].border,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }));
+
+            if (chartEvolucion) {
+                chartEvolucion.destroy();
+            }
+
+            chartEvolucion = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1° Trimestre', '2° Trimestre', '3° Trimestre'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Exportar notas
+        function exportarNotas() {
+            const datosExport = notasFiltradas.map(nota => ({
+                'Estudiante': nota.hijoNombre,
+                'Materia': nota.materiaNombre,
+                'Nota': nota.nota,
+                'Trimestre': nota.trimestre,
+                'Tipo Evaluación': nota.tipoEvaluacion,
+                'Fecha': nota.fecha,
+                'Profesor': nota.profesor,
+                'Observaciones': nota.observaciones
+            }));
+            
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(datosExport);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Notas');
+            
+            XLSX.writeFile(workbook, 'notas_estudiantes.xlsx');
+            alert('Notas exportadas exitosamente');
+        }
+
+        // Imprimir notas
+        function imprimirNotas() {
+            window.print();
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            hijosData = obtenerDatosHijos();
+            notasData = generarNotasEjemplo();
+            notasFiltradas = [...notasData];
+            
+            poblarSelectores();
+            mostrarNotas();
+            actualizarEstadisticas();
+            actualizarResumenEstudiantes();
+            generarGraficos();
+        });
+    </script>
 </body>
 </html>

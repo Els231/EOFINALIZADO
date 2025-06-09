@@ -3,228 +3,1133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comunicados - Escuela Primaria</title>
+    <title>Mensajes - Escuela Jesús El Buen Maestro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
-    <link href= "./Conex/TurtDash.Css"rel="stylesheet">
-    <link href= "./Conex/Comu.Css"rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        .navbar-claro {
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-claro {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-claro:hover {
+            background-color: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .message-list {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .message-item:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .message-item.active {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .message-item.unread {
+            background-color: rgba(52, 152, 219, 0.02);
+            font-weight: 600;
+        }
+
+        .message-item.unread::before {
+            content: "●";
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .message-preview {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .message-content {
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-header {
+            background: linear-gradient(135deg, var(--light-gray), #e9ecef);
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .message-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .message-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+            background: #f8f9fa;
+        }
+
+        .conversation-bubble {
+            max-width: 70%;
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .conversation-bubble.sent {
+            background: var(--primary-color);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .conversation-bubble.received {
+            background: #e9ecef;
+            color: var(--secondary-color);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .conversation-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .compose-area {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .compose-input {
+            flex: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            padding: 10px 15px;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .compose-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
+
+        .send-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .search-box {
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+            padding: 8px 15px;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .online-status {
+            width: 12px;
+            height: 12px;
+            background: var(--success-color);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            border: 2px solid white;
+        }
+
+        .message-attachment {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px dashed var(--primary-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .message-attachment:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                padding-top: 0;
+                background: white;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .message-list {
+                height: 400px;
+            }
+            
+            .message-content {
+                height: 400px;
+            }
+            
+            .conversation-bubble {
+                max-width: 85%;
+            }
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
-                </a>
+    <nav class="navbar navbar-expand-lg navbar-claro fixed-top no-print">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap fa-2x text-white"></i>
+            </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
 
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbTutor.html">
-                                <i class="fas fa-child me-2"></i> Mis Hijos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbNotTut.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbAsisTut.html">
-                                <i class="fas fa-calendar-check me-2"></i> Asistencia
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashComuTut.html">
-                                <i class="fas fa-bullhorn me-2"></i> Comunicados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbCalTut.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex">
-                        <a href="./DashbMensjTut.html" class="btn btn-claro">
-                            <i class="fas fa-envelope me-1"></i> Mensajes
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor.html"><i class="fas fa-home me-1"></i> Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-informacion.html">
+                            <i class="fas fa-child me-2"></i> Mis Hijos
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-notas.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-asistencia.html">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-comunicados.html">
+                            <i class="fas fa-bullhorn me-2"></i> Comunicados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-calendario.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="tutor-mensajes.html" class="btn btn-claro me-2 active">
+                        <i class="fas fa-envelope me-1"></i> Mensajes
+                    </a>
+                    <a href="tutor-configuracion.html" class="btn btn-claro btn-outline-primary">
+                        <i class="fas fa-cog me-1"></i> Configuración
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <main class="col-md-12 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Mensajes</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0 no-print">
+                        <div class="btn-group me-2">
+                            <button class="btn btn-sm btn-primary" onclick="nuevoMensaje()">
+                                <i class="fas fa-plus me-1"></i> Nuevo mensaje
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="exportarMensajes()">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="imprimirMensajes()">
+                                <i class="fas fa-print me-1"></i> Imprimir
+                            </button>
+                        </div>
                     </div>
-                    <div class="sidebar-footer mt-auto p-3 text-center">
-                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
-                            <i class="fas fa-cog me-1"></i> Configuración
-                            </a>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Conversaciones</h5>
+                                <span class="badge bg-primary" id="unreadCount">0</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="p-3">
+                                    <input type="text" class="form-control search-box" placeholder="Buscar conversaciones..." 
+                                           id="searchMessages" onkeyup="buscarMensajes()">
+                                </div>
+                                <div class="message-list" id="messageList">
+                                    <!-- Las conversaciones se cargarán dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="message-content" id="messageContent">
+                            <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                <div class="text-center">
+                                    <i class="fas fa-comments fa-3x mb-3"></i>
+                                    <p>Selecciona una conversación para ver los mensajes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo mensaje -->
+    <div class="modal fade" id="modalNuevoMensaje" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Mensaje</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevoMensaje">
+                        <div class="mb-3">
+                            <label for="destinatario" class="form-label">Para:</label>
+                            <select class="form-select" id="destinatario" required>
+                                <option value="">Seleccionar destinatario</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="asunto" class="form-label">Asunto:</label>
+                            <input type="text" class="form-control" id="asunto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mensaje" class="form-label">Mensaje:</label>
+                            <textarea class="form-control" id="mensaje" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prioridad" class="form-label">Prioridad:</label>
+                            <select class="form-select" id="prioridad">
+                                <option value="normal">Normal</option>
+                                <option value="alta">Alta</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="enviarMensaje()">
+                        <i class="fas fa-paper-plane me-1"></i> Enviar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/storage.js"></script>
+    <script>
+        // Variables globales
+        let conversaciones = [];
+        let mensajes = [];
+        let conversacionActual = null;
+        let contactos = [];
+
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDatos();
+            cargarContactos();
+            mostrarConversaciones();
+            verificarParametrosURL();
+        });
+
+        // Cargar datos
+        function cargarDatos() {
+            // Cargar mensajes existentes o generar ejemplos
+            let mensajesGuardados = JSON.parse(localStorage.getItem('tutorMensajes') || '[]');
+            if (mensajesGuardados.length === 0) {
+                mensajesGuardados = generarMensajesEjemplo();
+                localStorage.setItem('tutorMensajes', JSON.stringify(mensajesGuardados));
+            }
+            mensajes = mensajesGuardados;
+            
+            // Generar lista de conversaciones
+            generarConversaciones();
+        }
+
+        // Cargar contactos disponibles
+        function cargarContactos() {
+            contactos = [
+                {
+                    id: 'maestra_laura',
+                    nombre: 'Maestra Laura',
+                    cargo: '3°A - Matemáticas',
+                    avatar: 'ML',
+                    online: true
+                },
+                {
+                    id: 'prof_gabriela',
+                    nombre: 'Prof. Gabriela',
+                    cargo: '1°B - Lengua',
+                    avatar: 'PG',
+                    online: false
+                },
+                {
+                    id: 'direccion_primaria',
+                    nombre: 'Dirección Primaria',
+                    cargo: 'Administración',
+                    avatar: 'DP',
+                    online: true
+                },
+                {
+                    id: 'coord_deportes',
+                    nombre: 'Coordinación Deportes',
+                    cargo: 'Actividades',
+                    avatar: 'CD',
+                    online: false
+                },
+                {
+                    id: 'secretaria',
+                    nombre: 'Secretaría',
+                    cargo: 'Información General',
+                    avatar: 'SE',
+                    online: true
+                },
+                {
+                    id: 'psicologo',
+                    nombre: 'Psicólogo Escolar',
+                    cargo: 'Apoyo Estudiantil',
+                    avatar: 'PS',
+                    online: false
+                }
+            ];
+            
+            // Poblar selector de destinatarios
+            const selector = document.getElementById('destinatario');
+            selector.innerHTML = '<option value="">Seleccionar destinatario</option>';
+            
+            contactos.forEach(contacto => {
+                const option = document.createElement('option');
+                option.value = contacto.id;
+                option.textContent = `${contacto.nombre} - ${contacto.cargo}`;
+                selector.appendChild(option);
+            });
+        }
+
+        // Generar mensajes de ejemplo
+        function generarMensajesEjemplo() {
+            const session = JSON.parse(localStorage.getItem('userSession') || '{}');
+            const tutorNombre = session.name || 'Jorge López';
+            
+            return [
+                {
+                    id: 'msg1',
+                    conversacionId: 'conv_maestra_laura',
+                    remitente: 'maestra_laura',
+                    remitenteNombre: 'Maestra Laura',
+                    destinatario: 'tutor',
+                    destinatarioNombre: tutorNombre,
+                    asunto: 'Sobre la tarea de matemáticas de María',
+                    mensaje: 'Buenos días, Sr. López. Le escribo para informarle que María no entregó la tarea de matemáticas que debía presentar ayer. ¿Podríamos conversar sobre esto?',
+                    fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    leido: false,
+                    prioridad: 'alta',
+                    tipo: 'recibido'
+                },
+                {
+                    id: 'msg2',
+                    conversacionId: 'conv_maestra_laura',
+                    remitente: 'tutor',
+                    remitenteNombre: tutorNombre,
+                    destinatario: 'maestra_laura',
+                    destinatarioNombre: 'Maestra Laura',
+                    asunto: 'Re: Sobre la tarea de matemáticas de María',
+                    mensaje: 'Buenos días, Maestra Laura. Gracias por informarme. María estuvo enferma estos días, pero ya se encuentra mejor. ¿Podría entregarla mañana?',
+                    fecha: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                    leido: true,
+                    prioridad: 'normal',
+                    tipo: 'enviado'
+                },
+                {
+                    id: 'msg3',
+                    conversacionId: 'conv_direccion',
+                    remitente: 'direccion_primaria',
+                    remitenteNombre: 'Dirección Primaria',
+                    destinatario: 'tutor',
+                    destinatarioNombre: tutorNombre,
+                    asunto: 'Recordatorio: Reunión de padres el próximo viernes',
+                    mensaje: 'Estimado padre de familia, le recordamos que el próximo viernes 31 de marzo tendremos la reunión trimestral de padres. Su asistencia es muy importante.',
+                    fecha: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                    leido: true,
+                    prioridad: 'normal',
+                    tipo: 'recibido'
+                },
+                {
+                    id: 'msg4',
+                    conversacionId: 'conv_prof_gabriela',
+                    remitente: 'prof_gabriela',
+                    remitenteNombre: 'Prof. Gabriela',
+                    destinatario: 'tutor',
+                    destinatarioNombre: tutorNombre,
+                    asunto: 'Juan ha mejorado mucho en lectura',
+                    mensaje: 'Buenos días! Me complace informarle que Juan ha mostrado una mejora significativa en sus habilidades de lectura. ¡Felicitaciones por el apoyo en casa!',
+                    fecha: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    leido: true,
+                    prioridad: 'normal',
+                    tipo: 'recibido'
+                },
+                {
+                    id: 'msg5',
+                    conversacionId: 'conv_coord_deportes',
+                    remitente: 'coord_deportes',
+                    remitenteNombre: 'Coordinación Deportes',
+                    destinatario: 'tutor',
+                    destinatarioNombre: tutorNombre,
+                    asunto: 'Invitación al torneo intercolegial de fútbol',
+                    mensaje: '¡Saludos! Queremos invitarlos a participar en nuestro torneo intercolegial de fútbol. María puede participar en la categoría de su edad. ¡Esperamos su participación!',
+                    fecha: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    leido: true,
+                    prioridad: 'normal',
+                    tipo: 'recibido'
+                }
+            ];
+        }
+
+        // Generar conversaciones agrupadas
+        function generarConversaciones() {
+            const conversacionesMap = {};
+            
+            mensajes.forEach(mensaje => {
+                if (!conversacionesMap[mensaje.conversacionId]) {
+                    const contacto = obtenerContactoPorMensaje(mensaje);
+                    conversacionesMap[mensaje.conversacionId] = {
+                        id: mensaje.conversacionId,
+                        contacto: contacto,
+                        ultimoMensaje: mensaje,
+                        mensajesNoLeidos: 0,
+                        ultimaActividad: new Date(mensaje.fecha)
+                    };
+                }
+                
+                // Actualizar último mensaje si es más reciente
+                if (new Date(mensaje.fecha) > conversacionesMap[mensaje.conversacionId].ultimaActividad) {
+                    conversacionesMap[mensaje.conversacionId].ultimoMensaje = mensaje;
+                    conversacionesMap[mensaje.conversacionId].ultimaActividad = new Date(mensaje.fecha);
+                }
+                
+                // Contar mensajes no leídos
+                if (!mensaje.leido && mensaje.tipo === 'recibido') {
+                    conversacionesMap[mensaje.conversacionId].mensajesNoLeidos++;
+                }
+            });
+            
+            conversaciones = Object.values(conversacionesMap)
+                .sort((a, b) => b.ultimaActividad - a.ultimaActividad);
+        }
+
+        // Obtener contacto por mensaje
+        function obtenerContactoPorMensaje(mensaje) {
+            const contactoId = mensaje.tipo === 'recibido' ? mensaje.remitente : mensaje.destinatario;
+            return contactos.find(c => c.id === contactoId) || {
+                id: contactoId,
+                nombre: mensaje.tipo === 'recibido' ? mensaje.remitenteNombre : mensaje.destinatarioNombre,
+                cargo: 'Personal Escolar',
+                avatar: mensaje.remitenteNombre ? mensaje.remitenteNombre.charAt(0) + mensaje.remitenteNombre.split(' ')[1]?.charAt(0) || '' : 'XX',
+                online: false
+            };
+        }
+
+        // Mostrar conversaciones
+        function mostrarConversaciones() {
+            const contenedor = document.getElementById('messageList');
+            const totalNoLeidos = conversaciones.reduce((sum, conv) => sum + conv.mensajesNoLeidos, 0);
+            
+            document.getElementById('unreadCount').textContent = totalNoLeidos;
+            
+            if (conversaciones.length === 0) {
+                contenedor.innerHTML = '<div class="p-3 text-center text-muted">No hay conversaciones</div>';
+                return;
+            }
+            
+            const html = conversaciones.map(conversacion => {
+                const ultimoMensaje = conversacion.ultimoMensaje;
+                const fechaFormateada = formatearFecha(ultimoMensaje.fecha);
+                
+                return `
+                    <div class="message-item ${conversacion.mensajesNoLeidos > 0 ? 'unread' : ''} p-3 position-relative" 
+                         onclick="abrirConversacion('${conversacion.id}')">
+                        <div class="d-flex align-items-center">
+                            <div class="position-relative me-3">
+                                <div class="avatar">${conversacion.contacto.avatar}</div>
+                                ${conversacion.contacto.online ? '<div class="online-status"></div>' : ''}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="mb-0">${conversacion.contacto.nombre}</h6>
+                                    <small class="text-muted">${fechaFormateada}</small>
+                                </div>
+                                <small class="text-muted d-block mb-1">${conversacion.contacto.cargo}</small>
+                                <p class="message-preview mb-0">${ultimoMensaje.mensaje}</p>
+                                ${conversacion.mensajesNoLeidos > 0 ? 
+                                    `<span class="badge bg-primary mt-1">${conversacion.mensajesNoLeidos}</span>` : ''
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            contenedor.innerHTML = html;
+        }
+
+        // Abrir conversación
+        function abrirConversacion(conversacionId) {
+            conversacionActual = conversacionId;
+            
+            // Marcar elementos activos
+            document.querySelectorAll('.message-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Obtener mensajes de la conversación
+            const mensajesConversacion = mensajes
+                .filter(m => m.conversacionId === conversacionId)
+                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            
+            // Marcar mensajes como leídos
+            mensajes.forEach(mensaje => {
+                if (mensaje.conversacionId === conversacionId && mensaje.tipo === 'recibido') {
+                    mensaje.leido = true;
+                }
+            });
+            localStorage.setItem('tutorMensajes', JSON.stringify(mensajes));
+            
+            // Mostrar conversación
+            mostrarMensajesConversacion(mensajesConversacion);
+            
+            // Actualizar lista de conversaciones
+            generarConversaciones();
+            mostrarConversaciones();
+        }
+
+        // Mostrar mensajes de la conversación
+        function mostrarMensajesConversacion(mensajesConversacion) {
+            const conversacion = conversaciones.find(c => c.id === conversacionActual);
+            if (!conversacion) return;
+            
+            const contenedor = document.getElementById('messageContent');
+            
+            const headerHtml = `
+                <div class="message-header">
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative me-3">
+                            <div class="avatar">${conversacion.contacto.avatar}</div>
+                            ${conversacion.contacto.online ? '<div class="online-status"></div>' : ''}
+                        </div>
+                        <div>
+                            <h5 class="mb-0">${conversacion.contacto.nombre}</h5>
+                            <small class="text-muted">${conversacion.contacto.cargo}</small>
+                        </div>
+                        <div class="ms-auto">
+                            <button class="btn btn-outline-secondary btn-sm me-2" onclick="exportarConversacion('${conversacionActual}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="responderMensaje('${conversacion.contacto.id}')">
+                                <i class="fas fa-reply"></i> Responder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const bodyHtml = `
+                <div class="message-body">
+                    ${mensajesConversacion.map(mensaje => {
+                        const fecha = new Date(mensaje.fecha);
+                        const fechaFormateada = fecha.toLocaleDateString('es-ES') + ' ' + 
+                                              fecha.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+                        
+                        return `
+                            <div class="conversation-bubble ${mensaje.tipo === 'enviado' ? 'sent' : 'received'}">
+                                <div class="mb-1">${mensaje.mensaje}</div>
+                                <div class="conversation-time">${fechaFormateada}</div>
+                                ${mensaje.prioridad === 'alta' || mensaje.prioridad === 'urgente' ? 
+                                    `<div class="mt-1">
+                                        <span class="badge ${mensaje.prioridad === 'urgente' ? 'bg-danger' : 'bg-warning'}">
+                                            ${mensaje.prioridad === 'urgente' ? 'Urgente' : 'Alta Prioridad'}
+                                        </span>
+                                    </div>` : ''
+                                }
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            const footerHtml = `
+                <div class="message-footer">
+                    <div class="compose-area">
+                        <textarea class="compose-input" placeholder="Escribe tu respuesta..." 
+                                  id="quickReply" onkeydown="enviarRespidaRapida(event)"></textarea>
+                        <button class="send-button" onclick="enviarRespuestaRapida()">
+                            <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </div>
-            </div>
-        </nav>
+            `;
+            
+            contenedor.innerHTML = headerHtml + bodyHtml + footerHtml;
+            
+            // Scroll al final de la conversación
+            const messageBody = contenedor.querySelector('.message-body');
+            messageBody.scrollTop = messageBody.scrollHeight;
+        }
 
-<div class="container-fluid">
-    <div class="row">
-        <main class="col-md-12 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Comunicados Escolares</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fas fa-bell-slash me-1"></i> Silenciar</button>
-                    </div>
-                </div>
-            </div>
+        // Verificar parámetros URL para contacto directo
+        function verificarParametrosURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const contactar = urlParams.get('contactar');
+            const estudiante = urlParams.get('estudiante');
+            
+            if (contactar) {
+                // Buscar contacto y abrir modal para nuevo mensaje
+                setTimeout(() => {
+                    nuevoMensaje();
+                    if (estudiante) {
+                        document.getElementById('asunto').value = `Consulta sobre ${estudiante}`;
+                    }
+                }, 500);
+            }
+        }
 
-            <div class="filtros-comunicados mb-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <label for="selectTipoComunicado" class="form-label">Tipo de Comunicado</label>
-                        <select class="form-select" id="selectTipoComunicado">
-                            <option selected>Todos los tipos</option>
-                            <option>Importante</option>
-                            <option>General</option>
-                            <option>Urgente</option>
-                            <option>Informativo</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="selectGradoComunicado" class="form-label">Dirigido a</label>
-                        <select class="form-select" id="selectGradoComunicado">
-                            <option selected>Todos los grados</option>
-                            <option>1° Grado</option>
-                            <option>2° Grado</option>
-                            <option>3° Grado</option>
-                            <option>Todos los grados</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filtrar</button>
-                    </div>
-                </div>
-            </div>
+        // Nuevo mensaje
+        function nuevoMensaje() {
+            document.getElementById('formNuevoMensaje').reset();
+            const modal = new bootstrap.Modal(document.getElementById('modalNuevoMensaje'));
+            modal.show();
+        }
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card comunicado-card comunicado-urgente mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Suspensión de clases - 25 de Marzo</h5>
-                            <span class="badge-comunicado urgente">Urgente</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">Se informa que el día viernes 25 de marzo no habrá clases debido a una reunión de capacitación docente. Las clases se reanudarán normalmente el lunes 28 de marzo.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Publicado: 20/03/2023</small>
-                                <small class="text-muted">Dirigido a: Todos los grados</small>
+        // Responder mensaje
+        function responderMensaje(destinatarioId) {
+            const contacto = contactos.find(c => c.id === destinatarioId);
+            if (!contacto) return;
+            
+            document.getElementById('formNuevoMensaje').reset();
+            document.getElementById('destinatario').value = destinatarioId;
+            document.getElementById('asunto').value = 'Re: ';
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalNuevoMensaje'));
+            modal.show();
+        }
+
+        // Enviar mensaje
+        function enviarMensaje() {
+            const form = document.getElementById('formNuevoMensaje');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const session = JSON.parse(localStorage.getItem('userSession') || '{}');
+            const destinatarioId = document.getElementById('destinatario').value;
+            const contacto = contactos.find(c => c.id === destinatarioId);
+            
+            const nuevoMensaje = {
+                id: 'msg_' + Date.now(),
+                conversacionId: 'conv_' + destinatarioId,
+                remitente: 'tutor',
+                remitenteNombre: session.name || 'Jorge López',
+                destinatario: destinatarioId,
+                destinatarioNombre: contacto.nombre,
+                asunto: document.getElementById('asunto').value,
+                mensaje: document.getElementById('mensaje').value,
+                fecha: new Date().toISOString(),
+                leido: true,
+                prioridad: document.getElementById('prioridad').value,
+                tipo: 'enviado'
+            };
+            
+            mensajes.push(nuevoMensaje);
+            localStorage.setItem('tutorMensajes', JSON.stringify(mensajes));
+            
+            // Simular respuesta automática después de un tiempo
+            setTimeout(() => {
+                simularRespuestaAutomatica(destinatarioId, nuevoMensaje);
+            }, 2000 + Math.random() * 3000);
+            
+            generarConversaciones();
+            mostrarConversaciones();
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoMensaje'));
+            modal.hide();
+            
+            mostrarNotificacion('Mensaje enviado correctamente', 'success');
+        }
+
+        // Enviar respuesta rápida
+        function enviarRespuestaRapida() {
+            const input = document.getElementById('quickReply');
+            const mensaje = input.value.trim();
+            
+            if (!mensaje || !conversacionActual) return;
+            
+            const session = JSON.parse(localStorage.getItem('userSession') || '{}');
+            const conversacion = conversaciones.find(c => c.id === conversacionActual);
+            
+            const nuevoMensaje = {
+                id: 'msg_' + Date.now(),
+                conversacionId: conversacionActual,
+                remitente: 'tutor',
+                remitenteNombre: session.name || 'Jorge López',
+                destinatario: conversacion.contacto.id,
+                destinatarioNombre: conversacion.contacto.nombre,
+                asunto: 'Re: ' + conversacion.ultimoMensaje.asunto,
+                mensaje: mensaje,
+                fecha: new Date().toISOString(),
+                leido: true,
+                prioridad: 'normal',
+                tipo: 'enviado'
+            };
+            
+            mensajes.push(nuevoMensaje);
+            localStorage.setItem('tutorMensajes', JSON.stringify(mensajes));
+            
+            input.value = '';
+            
+            // Actualizar vista
+            const mensajesConversacion = mensajes
+                .filter(m => m.conversacionId === conversacionActual)
+                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            
+            mostrarMensajesConversacion(mensajesConversacion);
+            generarConversaciones();
+            mostrarConversaciones();
+            
+            // Simular respuesta automática
+            setTimeout(() => {
+                simularRespuestaAutomatica(conversacion.contacto.id, nuevoMensaje);
+            }, 3000 + Math.random() * 5000);
+        }
+
+        // Enviar respuesta rápida con Enter
+        function enviarRespidaRapida(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                enviarRespuestaRapida();
+            }
+        }
+
+        // Simular respuesta automática
+        function simularRespuestaAutomatica(destinatarioId, mensajeOriginal) {
+            const contacto = contactos.find(c => c.id === destinatarioId);
+            if (!contacto) return;
+            
+            const respuestasAleatorias = [
+                "Gracias por su mensaje. Lo revisaremos y le responderemos pronto.",
+                "Mensaje recibido. Nos pondremos en contacto con usted.",
+                "Hemos recibido su consulta. Le daremos una respuesta lo antes posible.",
+                "Gracias por contactarnos. Su mensaje es importante para nosotros."
+            ];
+            
+            const respuestaAutomatica = {
+                id: 'msg_auto_' + Date.now(),
+                conversacionId: mensajeOriginal.conversacionId,
+                remitente: destinatarioId,
+                remitenteNombre: contacto.nombre,
+                destinatario: 'tutor',
+                destinatarioNombre: mensajeOriginal.remitenteNombre,
+                asunto: 'Re: ' + mensajeOriginal.asunto,
+                mensaje: respuestasAleatorias[Math.floor(Math.random() * respuestasAleatorias.length)],
+                fecha: new Date().toISOString(),
+                leido: false,
+                prioridad: 'normal',
+                tipo: 'recibido'
+            };
+            
+            mensajes.push(respuestaAutomatica);
+            localStorage.setItem('tutorMensajes', JSON.stringify(mensajes));
+            
+            generarConversaciones();
+            mostrarConversaciones();
+            
+            // Si la conversación está abierta, actualizar vista
+            if (conversacionActual === mensajeOriginal.conversacionId) {
+                const mensajesConversacion = mensajes
+                    .filter(m => m.conversacionId === conversacionActual)
+                    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                
+                mostrarMensajesConversacion(mensajesConversacion);
+            }
+            
+            mostrarNotificacion('Nuevo mensaje recibido', 'info');
+        }
+
+        // Buscar mensajes
+        function buscarMensajes() {
+            const termino = document.getElementById('searchMessages').value.toLowerCase();
+            
+            if (!termino) {
+                mostrarConversaciones();
+                return;
+            }
+            
+            const conversacionesFiltradas = conversaciones.filter(conv =>
+                conv.contacto.nombre.toLowerCase().includes(termino) ||
+                conv.ultimoMensaje.mensaje.toLowerCase().includes(termino) ||
+                conv.ultimoMensaje.asunto.toLowerCase().includes(termino)
+            );
+            
+            const contenedor = document.getElementById('messageList');
+            
+            if (conversacionesFiltradas.length === 0) {
+                contenedor.innerHTML = '<div class="p-3 text-center text-muted">No se encontraron conversaciones</div>';
+                return;
+            }
+            
+            const html = conversacionesFiltradas.map(conversacion => {
+                const ultimoMensaje = conversacion.ultimoMensaje;
+                const fechaFormateada = formatearFecha(ultimoMensaje.fecha);
+                
+                return `
+                    <div class="message-item ${conversacion.mensajesNoLeidos > 0 ? 'unread' : ''} p-3 position-relative" 
+                         onclick="abrirConversacion('${conversacion.id}')">
+                        <div class="d-flex align-items-center">
+                            <div class="position-relative me-3">
+                                <div class="avatar">${conversacion.contacto.avatar}</div>
+                                ${conversacion.contacto.online ? '<div class="online-status"></div>' : ''}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="mb-0">${conversacion.contacto.nombre}</h6>
+                                    <small class="text-muted">${fechaFormateada}</small>
+                                </div>
+                                <small class="text-muted d-block mb-1">${conversacion.contacto.cargo}</small>
+                                <p class="message-preview mb-0">${ultimoMensaje.mensaje}</p>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card comunicado-card comunicado-importante mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Entrega de boletines</h5>
-                            <span class="badge-comunicado importante">Importante</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">El próximo lunes 27 de marzo se entregarán los boletines de calificaciones del segundo trimestre. Por favor asistir al aula correspondiente entre las 14:00 y 16:00 horas.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Publicado: 18/03/2023</small>
-                                <small class="text-muted">Dirigido a: Todos los grados</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                `;
+            }).join('');
+            
+            contenedor.innerHTML = html;
+        }
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card comunicado-card comunicado-informativo mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Actividad cultural - Día del Libro</h5>
-                            <span class="badge-comunicado informativo">Informativo</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">El próximo 2 de abril celebraremos el Día Internacional del Libro con diversas actividades culturales. Los alumnos pueden venir disfrazados de su personaje literario favorito.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Publicado: 15/03/2023</small>
-                                <small class="text-muted">Dirigido a: Todos los grados</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card comunicado-card comunicado-general mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Cambio de uniforme</h5>
-                            <span class="badge-comunicado general">General</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">A partir del 1 de abril los alumnos deberán usar el uniforme de verano (playera blanca y pantalón azul marino). El uniforme de invierno quedará suspendido hasta octubre.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Publicado: 10/03/2023</small>
-                                <small class="text-muted">Dirigido a: Todos los grados</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        // Exportar mensajes
+        function exportarMensajes() {
+            const datosExport = mensajes.map(mensaje => ({
+                'Fecha': new Date(mensaje.fecha).toLocaleDateString('es-ES'),
+                'Hora': new Date(mensaje.fecha).toLocaleTimeString('es-ES'),
+                'De': mensaje.remitenteNombre,
+                'Para': mensaje.destinatarioNombre,
+                'Asunto': mensaje.asunto,
+                'Mensaje': mensaje.mensaje,
+                'Prioridad': mensaje.prioridad,
+                'Estado': mensaje.leido ? 'Leído' : 'No leído',
+                'Tipo': mensaje.tipo === 'enviado' ? 'Enviado' : 'Recibido'
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(datosExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Mensajes");
+            
+            const fecha = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `mensajes_tutor_${fecha}.xlsx`);
+            
+            mostrarNotificacion('Mensajes exportados correctamente', 'success');
+        }
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card comunicado-card comunicado-informativo mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Taller para padres - Educación digital</h5>
-                            <span class="badge-comunicado informativo">Informativo</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">Invitamos a todos los padres de familia al taller "Educación digital en casa" que se llevará a cabo el próximo miércoles 29 de marzo a las 17:00 horas en el aula magna.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Publicado: 08/03/2023</small>
-                                <small class="text-muted">Dirigido a: Padres de familia</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card comunicado-card comunicado-importante mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Reunión de padres - 3° Grado</h5>
-                            <span class="badge-comunicado importante">Importante</span>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">Se convoca a los padres de familia de 3° grado a una reunión informativa el próximo viernes 24 de marzo a las 16:00 horas en el salón de clases.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Publicado: 05/03/2023</small>
-                                <small class="text-muted">Dirigido a: 3° Grado</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        // Exportar conversación específica
+        function exportarConversacion(conversacionId) {
+            const mensajesConversacion = mensajes.filter(m => m.conversacionId === conversacionId);
+            const conversacion = conversaciones.find(c => c.id === conversacionId);
+            
+            const datosExport = mensajesConversacion.map(mensaje => ({
+                'Fecha': new Date(mensaje.fecha).toLocaleDateString('es-ES'),
+                'Hora': new Date(mensaje.fecha).toLocaleTimeString('es-ES'),
+                'De': mensaje.remitenteNombre,
+                'Mensaje': mensaje.mensaje,
+                'Tipo': mensaje.tipo === 'enviado' ? 'Enviado' : 'Recibido'
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(datosExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Conversación");
+            
+            const fecha = new Date().toISOString().split('T')[0];
+            const nombreArchivo = `conversacion_${conversacion.contacto.nombre.replace(/\s+/g, '_')}_${fecha}.xlsx`;
+            XLSX.writeFile(wb, nombreArchivo);
+            
+            mostrarNotificacion('Conversación exportada correctamente', 'success');
+        }
 
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Siguiente</a>
-                    </li>
-                </ul>
-            </nav>
-        </main>
-    </div>
-</div>
+        // Imprimir mensajes
+        function imprimirMensajes() {
+            window.print();
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src=""></script>
-</body>
+        // Formatear fecha
+        function formatearFecha(fechaISO) {
+            const fecha = new Date(fechaISO);
+            const ahora = new Date();
+            const diferencia = ahora - fecha;
+            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+            
+            if (dias === 0) {
+                return fecha.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            } else if (dias === 1) {
+                return 'Ayer';
+            } else if (dias < 7) {
+                return fecha.toLocaleDateString('es-ES', {weekday: 'short'});
+            } else {
+                return fecha.toLocaleDateString('es-ES', {day: 'numeric', month: 'short'});
+            }
+        }
+
+        // Mostrar notificación
+        function mostrarNotificacion(mensaje, tipo) {
+            const alertaHtml = `
+                <div class="alert alert-${tipo} alert-dismissible fade show position-fixed" 
+                     style="top: 80px; right: 20px; z-index: 1060; min-width: 300px;" role="alert">
+                    ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', alertaHtml);
+            
+            setTimeout(() => {
+                const alerta = document.querySelector('.alert');
+                if (alerta) alerta.remove();
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

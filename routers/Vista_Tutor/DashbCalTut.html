@@ -3,216 +3,962 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario Escolar - Escuela Primaria</title>
+    <title>Calendario - Portal del Tutor</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <!-- SheetJS para exportar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-    <link href="./Conex/cal.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9b59b6;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-tutor {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-tutor .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-tutor .navbar-nav .nav-link:hover,
+        .navbar-tutor .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== EVENTOS ESPECÍFICOS ===== */
+        .evento-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--info-color);
+            transition: all 0.3s ease;
+        }
+
+        .evento-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .evento-escolar { border-left-color: var(--primary-color); }
+        .evento-importante { border-left-color: var(--danger-color); }
+        .evento-general { border-left-color: var(--info-color); }
+        .evento-familiar { border-left-color: var(--success-color); }
+
+        .badge-evento {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+
+        .badge-escolar { background-color: var(--primary-color); color: white; }
+        .badge-importante { background-color: var(--danger-color); color: white; }
+        .badge-general { background-color: var(--info-color); color: white; }
+        .badge-familiar { background-color: var(--success-color); color: white; }
+
+        /* ===== CALENDARIO PERSONALIZADO ===== */
+        .fc {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .fc-toolbar {
+            padding: 20px 20px 10px 20px;
+        }
+
+        .fc-toolbar-title {
+            color: var(--secondary-color);
+            font-weight: 700;
+        }
+
+        .fc-button-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+        }
+
+        .fc-button-primary:hover {
+            background: #8e44ad;
+            border-color: #8e44ad;
+        }
+
+        .fc-daygrid-day {
+            border-radius: 5px;
+            margin: 1px;
+        }
+
+        .fc-event {
+            border-radius: 8px;
+            border: none;
+            padding: 2px 5px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .fc-event-escolar { background-color: var(--primary-color); }
+        .fc-event-importante { background-color: var(--danger-color); }
+        .fc-event-general { background-color: var(--info-color); }
+        .fc-event-familiar { background-color: var(--success-color); }
+
+        /* ===== FILTROS ===== */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .card-number { font-size: 2rem; }
+            .icon-circle { width: 50px; height: 50px; font-size: 1.2rem; }
+            .fc-toolbar { flex-direction: column; }
+            .fc-toolbar-chunk { margin-bottom: 10px; }
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
-                </a>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-tutor fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="tutor.html">
+                <i class="fas fa-user-friends fa-2x text-white"></i>
+            </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <i class="fas fa-bars"></i>
-                </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
 
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbTutor.html">
-                                <i class="fas fa-child me-2"></i> Mis Hijos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbNotTut.html">
-                                <i class="fas fa-book me-2"></i> Notas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbAsisTut.html">
-                                <i class="fas fa-calendar-check me-2"></i> Asistencia
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashComuTut.html">
-                                <i class="fas fa-bullhorn me-2"></i> Comunicados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="./DashbCalTut.html">
-                                <i class="fas fa-calendar-alt me-2"></i> Calendario
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="d-flex">
-                        <a href="./DashbMensjTut.html" class="btn btn-claro">
-                            <i class="fas fa-envelope me-1"></i> Mensajes
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor.html">
+                            <i class="fas fa-home me-1"></i> Inicio
                         </a>
-                    </div>
-                    <div class="sidebar-footer mt-auto p-3 text-center">
-                        <a href="./DashbConfigTut.html"  class=" btn btn-claro btn-outline-primary">
-                            <i class="fas fa-cog me-1"></i> Configuración
-                            </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-informacion.html">
+                            <i class="fas fa-child me-2"></i> Mis Hijos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-notas.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-asistencia.html">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutor-comunicados.html">
+                            <i class="fas fa-bullhorn me-2"></i> Comunicados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tutor-calendario.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <div class="page-header">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                <h1 class="h2"><i class="fas fa-calendar-alt me-2"></i>Calendario Escolar</h1>
+                <div class="btn-toolbar">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-success btn-sm" onclick="exportarCalendario()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="imprimirCalendario()">
+                            <i class="fas fa-print me-1"></i> Imprimir
                         </button>
                     </div>
                 </div>
             </div>
-        </nav>
+        </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <main class="col-md-12 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Calendario Escolar</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button class="btn btn-sm btn-outline-secondary" id="btnHoy"><i class="fas fa-calendar-day me-1"></i> Hoy</button>
-                        <button class="btn btn-sm btn-outline-primary" id="btnAgregarEvento"><i class="fas fa-plus me-1"></i> Agregar</button>
+        <!-- Estadísticas de eventos -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Eventos Este Mes</h5>
+                                <h2 class="card-number" id="eventosEsteMes">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="card card-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Eventos Próximos</h5>
+                                <h2 class="card-number" id="eventosProximos">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-calendar-plus"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Eventos Importantes</h5>
+                                <h2 class="card-number" id="eventosImportantes">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Días Sin Clases</h5>
+                                <h2 class="card-number" id="diasSinClases">0</h2>
+                            </div>
+                            <div class="icon-circle">
+                                <i class="fas fa-home"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Filtros -->
+        <div class="filter-section">
             <div class="row">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <div id="calendario"></div>
-                        </div>
-                    </div>
+                <div class="col-md-3">
+                    <label for="selectTipoEvento" class="form-label">Tipo de Evento:</label>
+                    <select class="form-select" id="selectTipoEvento" onchange="filtrarEventos()">
+                        <option value="">Todos</option>
+                        <option value="escolar">Escolares</option>
+                        <option value="importante">Importantes</option>
+                        <option value="general">Generales</option>
+                        <option value="familiar">Familiares</option>
+                    </select>
                 </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Próximos Eventos</h5>
-                        </div>
-                        <div class="card-body proximos-eventos">
-                            <div class="card evento-card evento-importante-card mb-2">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">Entrega de boletines</h6>
-                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 27 Mar 2023</small></p>
-                                    <p class="card-text mb-0"><small><i class="fas fa-clock me-1"></i> 14:00 - 16:00</small></p>
-                                </div>
-                            </div>
-                            <div class="card evento-card evento-general-card mb-2">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">Suspensión de clases</h6>
-                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 25 Mar 2023</small></p>
-                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Todo el día</small></p>
-                                </div>
-                            </div>
-                            <div class="card evento-card evento-escolar-card mb-2">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">Día del Libro</h6>
-                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 2 Abr 2023</small></p>
-                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Actividades especiales</small></p>
-                                </div>
-                            </div>
-                            <div class="card evento-card evento-familiar-card mb-2">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">Cumpleaños de María</h6>
-                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 5 Abr 2023</small></p>
-                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Evento personal</small></p>
-                                </div>
-                            </div>
-                            <div class="card evento-card evento-escolar-card mb-2">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">Reunión de padres 3°A</h6>
-                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 10 Abr 2023</small></p>
-                                    <p class="card-text mb-0"><small><i class="fas fa-clock me-1"></i> 16:00 - 17:30</small></p>
-                                </div>
-                            </div>
-                            <div class="card evento-card evento-general-card mb-2">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">Cambio de uniforme</h6>
-                                    <p class="card-text mb-1"><small class="text-muted"><i class="fas fa-calendar-day me-1"></i> 1 Abr 2023</small></p>
-                                    <p class="card-text mb-0"><small><i class="fas fa-info-circle me-1"></i> Uniforme de verano</small></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">Eventos por Hijo</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input" type="checkbox" id="switchMaria" checked>
-                                <label class="form-check-label" for="switchMaria">María López (3°A)</label>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="switchJuan" checked>
-                                <label class="form-check-label" for="switchJuan">Juan López (1°B)</label>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-3">
+                    <label for="selectHijoEvento" class="form-label">Hijo Afectado:</label>
+                    <select class="form-select" id="selectHijoEvento" onchange="filtrarEventos()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="selectMesEvento" class="form-label">Mes:</label>
+                    <select class="form-select" id="selectMesEvento" onchange="filtrarEventos()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                        <i class="fas fa-eraser me-1"></i> Limpiar Filtros
+                    </button>
                 </div>
             </div>
-        </main>
-    </div>
-</div>
+        </div>
 
-<!-- Modal para agregar evento -->
-<div class="modal fade" id="modalEvento" tabindex="-1" aria-labelledby="modalEventoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalEventoLabel">Agregar Evento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Contenido principal -->
+        <div class="row">
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div id="calendario"></div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="formEvento">
-                    <div class="mb-3">
-                        <label for="tituloEvento" class="form-label">Título</label>
-                        <input type="text" class="form-control" id="tituloEvento" required>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-clock me-2"></i>Próximos Eventos</h5>
                     </div>
-                    <div class="mb-3">
-                        <label for="tipoEvento" class="form-label">Tipo de Evento</label>
-                        <select class="form-select" id="tipoEvento">
-                            <option value="personal">Personal/Familiar</option>
-                            <option value="escolar">Escolar</option>
-                            <option value="importante">Importante</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fechaEvento" class="form-label">Fecha</label>
-                        <input type="date" class="form-control" id="fechaEvento" required>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="horaInicio" class="form-label">Hora de inicio</label>
-                            <input type="time" class="form-control" id="horaInicio">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="horaFin" class="form-label">Hora de fin</label>
-                            <input type="time" class="form-control" id="horaFin">
+                    <div class="card-body">
+                        <div id="proximosEventos">
+                            <!-- Eventos próximos se cargarán aquí -->
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="descripcionEvento" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcionEvento" rows="3"></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle me-2"></i>Leyenda</h5>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnGuardarEvento">Guardar</button>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <span class="badge badge-escolar me-2">Escolar</span>
+                            <small>Eventos académicos</small>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge badge-importante me-2">Importante</span>
+                            <small>Eventos críticos</small>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge badge-general me-2">General</span>
+                            <small>Información general</small>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge badge-familiar me-2">Familiar</span>
+                            <small>Eventos personales</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.min.js"></script>
-<script src="./Conex/cal.js"></script>
+    <!-- Modal para detalles del evento -->
+    <div class="modal fade" id="modalEvento" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEventoTitle">Detalles del Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalEventoBody">
+                    <!-- Contenido dinámico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="agregarACalendarioPersonal()">
+                        <i class="fas fa-calendar-plus me-1"></i> Agregar a mi Calendario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <!-- FullCalendar Spanish -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales/es.global.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let calendar;
+        let hijosData = [];
+        let eventosData = [];
+        let eventosFiltrados = [];
+        let eventoSeleccionado = null;
+
+        // Datos de los hijos
+        function obtenerDatosHijos() {
+            return [
+                {
+                    id: 'hijo1',
+                    nombre: 'María González',
+                    grado: 3,
+                    seccion: 'A'
+                },
+                {
+                    id: 'hijo2',
+                    nombre: 'Juan López',
+                    grado: 1,
+                    seccion: 'B'
+                }
+            ];
+        }
+
+        // Generar eventos de ejemplo
+        function generarEventosEjemplo() {
+            const hoy = new Date();
+            const eventos = [
+                // Eventos próximos
+                {
+                    id: 'evt1',
+                    titulo: 'Entrega de boletines del 2° trimestre',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 3).toISOString().split('T')[0],
+                    horaInicio: '14:00',
+                    horaFin: '16:00',
+                    tipo: 'importante',
+                    descripcion: 'Entrega de boletines del segundo trimestre. Horarios:\n• 1° y 2° grado: 14:00-15:00\n• 3° y 4° grado: 15:00-16:00\n• 5° y 6° grado: 16:00-17:00\n\nAsistir puntualmente al aula correspondiente.',
+                    dirigidoA: 'Todos los grados',
+                    hijoAfectado: ['hijo1', 'hijo2']
+                },
+                {
+                    id: 'evt2',
+                    titulo: 'Reunión de padres - 3°A',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 5).toISOString().split('T')[0],
+                    horaInicio: '16:00',
+                    horaFin: '17:30',
+                    tipo: 'escolar',
+                    descripcion: 'Reunión trimestral con padres de familia del grado 3°A.\n\nTemas a tratar:\n• Avance académico del trimestre\n• Proyecto de ciencias\n• Actividades del próximo trimestre\n• Preguntas y sugerencias',
+                    dirigidoA: '3°A',
+                    hijoAfectado: ['hijo1']
+                },
+                {
+                    id: 'evt3',
+                    titulo: 'Obra de teatro - 1°B',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 8).toISOString().split('T')[0],
+                    horaInicio: '10:00',
+                    horaFin: '11:30',
+                    tipo: 'escolar',
+                    descripcion: 'Presentación de la obra "Los tres cerditos" por los alumnos de 1°B. Los padres están invitados a asistir.\n\nLugar: Salón de actos\nVestimenta: Uniforme de gala',
+                    dirigidoA: '1°B',
+                    hijoAfectado: ['hijo2']
+                },
+                {
+                    id: 'evt4',
+                    titulo: 'Suspensión de clases',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 12).toISOString().split('T')[0],
+                    horaInicio: '',
+                    horaFin: '',
+                    tipo: 'general',
+                    descripcion: 'No habrá clases debido a jornada de capacitación docente. Las clases se reanudan normalmente al día siguiente.',
+                    dirigidoA: 'Todos los grados',
+                    hijoAfectado: ['hijo1', 'hijo2']
+                },
+                {
+                    id: 'evt5',
+                    titulo: 'Día del Libro',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 18).toISOString().split('T')[0],
+                    horaInicio: '09:00',
+                    horaFin: '15:00',
+                    tipo: 'escolar',
+                    descripcion: 'Celebración del Día Internacional del Libro.\n\nActividades:\n• Cuenta cuentos (9:00 AM)\n• Intercambio de libros\n• Obras teatrales por grado\n• Concurso de marcapáginas\n\n¡Los alumnos pueden venir disfrazados de su personaje favorito!',
+                    dirigidoA: 'Todos los grados',
+                    hijoAfectado: ['hijo1', 'hijo2']
+                },
+                {
+                    id: 'evt6',
+                    titulo: 'Cumpleaños de María',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 22).toISOString().split('T')[0],
+                    horaInicio: '15:00',
+                    horaFin: '18:00',
+                    tipo: 'familiar',
+                    descripcion: 'Celebración del 9° cumpleaños de María. Fiesta familiar en casa.',
+                    dirigidoA: 'Familia',
+                    hijoAfectado: ['hijo1']
+                },
+                {
+                    id: 'evt7',
+                    titulo: 'Excursión al zoológico - 1°B',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + 25).toISOString().split('T')[0],
+                    horaInicio: '08:30',
+                    horaFin: '16:00',
+                    tipo: 'escolar',
+                    descripcion: 'Visita educativa al zoológico para conocer los animales.\n\nSalida: 8:30 AM desde la escuela\nRegreso: 4:00 PM\nAlmuerzo: Incluido\nAutorización: Requerida',
+                    dirigidoA: '1°B',
+                    hijoAfectado: ['hijo2']
+                },
+                {
+                    id: 'evt8',
+                    titulo: 'Feria de ciencias',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth() + 1, 5).toISOString().split('T')[0],
+                    horaInicio: '09:00',
+                    horaFin: '12:00',
+                    tipo: 'escolar',
+                    descripcion: 'Presentación de proyectos de ciencias de todos los grados. Los padres están invitados a recorrer los stands y conocer los trabajos de sus hijos.',
+                    dirigidoA: 'Todos los grados',
+                    hijoAfectado: ['hijo1', 'hijo2']
+                },
+                {
+                    id: 'evt9',
+                    titulo: 'Torneo deportivo intercolegial',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth() + 1, 12).toISOString().split('T')[0],
+                    horaInicio: '09:00',
+                    horaFin: '16:00',
+                    tipo: 'escolar',
+                    descripcion: 'Participación en torneo de fútbol y básquet.\n\nCategorías:\n• Fútbol: 3°, 4°, 5° y 6° grado\n• Básquet: 5° y 6° grado\n\nLugar: Polideportivo Municipal\n¡Vengan a alentar a nuestros equipos!',
+                    dirigidoA: '3°,4°,5°,6°',
+                    hijoAfectado: ['hijo1']
+                },
+                {
+                    id: 'evt10',
+                    titulo: 'Cambio de uniforme de verano',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1).toISOString().split('T')[0],
+                    horaInicio: '',
+                    horaFin: '',
+                    tipo: 'general',
+                    descripcion: 'A partir de esta fecha, uso obligatorio del uniforme de verano:\n• Playera blanca con logo\n• Pantalón azul marino\n• Zapatos negros\n• Suéter azul (opcional)',
+                    dirigidoA: 'Todos los grados',
+                    hijoAfectado: ['hijo1', 'hijo2']
+                },
+                // Eventos pasados para mostrar historial
+                {
+                    id: 'evt11',
+                    titulo: 'Acto del Día de la Bandera',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 5).toISOString().split('T')[0],
+                    horaInicio: '09:00',
+                    horaFin: '10:30',
+                    tipo: 'escolar',
+                    descripcion: 'Ceremonia especial por el Día de la Bandera con presentaciones de todos los grados.',
+                    dirigidoA: 'Todos los grados',
+                    hijoAfectado: ['hijo1', 'hijo2']
+                },
+                {
+                    id: 'evt12',
+                    titulo: 'Consulta médica Juan',
+                    fecha: new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 10).toISOString().split('T')[0],
+                    horaInicio: '10:00',
+                    horaFin: '11:00',
+                    tipo: 'familiar',
+                    descripcion: 'Consulta oftalmológica de rutina para Juan.',
+                    dirigidoA: 'Familia',
+                    hijoAfectado: ['hijo2']
+                }
+            ];
+            
+            return eventos;
+        }
+
+        // Inicializar calendario
+        function inicializarCalendario() {
+            const calendarEl = document.getElementById('calendario');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'es',
+                initialView: 'dayGridMonth',
+                height: 600,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,listWeek'
+                },
+                events: [],
+                eventClick: function(info) {
+                    mostrarDetallesEvento(info.event.id);
+                },
+                eventDisplay: 'block',
+                dayMaxEvents: 3,
+                moreLinkClick: 'popover'
+            });
+            
+            calendar.render();
+        }
+
+        // Poblar selectores
+        function poblarSelectores() {
+            const selectHijo = document.getElementById('selectHijoEvento');
+            const selectMes = document.getElementById('selectMesEvento');
+            
+            // Limpiar selectores
+            selectHijo.innerHTML = '<option value="">Todos</option>';
+            selectMes.innerHTML = '<option value="">Todos</option>';
+            
+            // Poblar selector de hijos
+            hijosData.forEach(hijo => {
+                const option = document.createElement('option');
+                option.value = hijo.id;
+                option.textContent = hijo.nombre;
+                selectHijo.appendChild(option);
+            });
+            
+            // Poblar selector de meses
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            meses.forEach((mes, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = mes;
+                selectMes.appendChild(option);
+            });
+        }
+
+        // Filtrar eventos
+        function filtrarEventos() {
+            const tipoSeleccionado = document.getElementById('selectTipoEvento').value;
+            const hijoSeleccionado = document.getElementById('selectHijoEvento').value;
+            const mesSeleccionado = document.getElementById('selectMesEvento').value;
+            
+            eventosFiltrados = eventosData.filter(evento => {
+                const fechaEvento = new Date(evento.fecha);
+                const cumpleTipo = !tipoSeleccionado || evento.tipo === tipoSeleccionado;
+                const cumpleHijo = !hijoSeleccionado || evento.hijoAfectado.includes(hijoSeleccionado);
+                const cumpleMes = !mesSeleccionado || fechaEvento.getMonth().toString() === mesSeleccionado;
+                
+                return cumpleTipo && cumpleHijo && cumpleMes;
+            });
+            
+            actualizarCalendario();
+            actualizarProximosEventos();
+            actualizarEstadisticas();
+        }
+
+        // Limpiar filtros
+        function limpiarFiltros() {
+            document.getElementById('selectTipoEvento').value = '';
+            document.getElementById('selectHijoEvento').value = '';
+            document.getElementById('selectMesEvento').value = '';
+            filtrarEventos();
+        }
+
+        // Actualizar calendario
+        function actualizarCalendario() {
+            const eventosCalendario = eventosFiltrados.map(evento => ({
+                id: evento.id,
+                title: evento.titulo,
+                start: evento.fecha,
+                startTime: evento.horaInicio,
+                endTime: evento.horaFin,
+                classNames: [`fc-event-${evento.tipo}`],
+                allDay: !evento.horaInicio
+            }));
+            
+            calendar.removeAllEvents();
+            calendar.addEventSource(eventosCalendario);
+        }
+
+        // Mostrar detalles del evento
+        function mostrarDetallesEvento(eventoId) {
+            const evento = eventosData.find(e => e.id === eventoId);
+            if (!evento) return;
+            
+            eventoSeleccionado = evento;
+            
+            const hijosAfectados = evento.hijoAfectado.map(hijoId => {
+                const hijo = hijosData.find(h => h.id === hijoId);
+                return hijo ? hijo.nombre : 'Desconocido';
+            }).join(', ');
+            
+            const fechaFormateada = formatearFecha(evento.fecha);
+            const horaTexto = evento.horaInicio ? 
+                `${evento.horaInicio}${evento.horaFin ? ' - ' + evento.horaFin : ''}` : 
+                'Todo el día';
+            
+            const tipoTexto = obtenerTextoTipo(evento.tipo);
+            const tipoClase = obtenerBadgeTipo(evento.tipo);
+            
+            const contenido = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6><i class="fas fa-info-circle text-primary me-2"></i>Información del Evento</h6>
+                        <p><strong>Fecha:</strong> ${fechaFormateada}</p>
+                        <p><strong>Hora:</strong> ${horaTexto}</p>
+                        <p><strong>Dirigido a:</strong> ${evento.dirigidoA}</p>
+                        <p><strong>Hijos afectados:</strong> ${hijosAfectados}</p>
+                        
+                        <h6 class="mt-3"><i class="fas fa-align-left text-success me-2"></i>Descripción</h6>
+                        <div class="border rounded p-3 bg-light">
+                            ${evento.descripcion.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <span class="badge ${tipoClase} badge-evento mb-3">${tipoTexto}</span>
+                            <h6>Días restantes:</h6>
+                            <div class="display-6 text-primary">${calcularDiasRestantes(evento.fecha)}</div>
+                            <small class="text-muted">días</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalEventoTitle').textContent = evento.titulo;
+            document.getElementById('modalEventoBody').innerHTML = contenido;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalEvento'));
+            modal.show();
+        }
+
+        // Calcular días restantes
+        function calcularDiasRestantes(fecha) {
+            const hoy = new Date();
+            const fechaEvento = new Date(fecha);
+            const diferencia = fechaEvento - hoy;
+            const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+            return dias < 0 ? 'Pasado' : dias;
+        }
+
+        // Obtener texto del tipo
+        function obtenerTextoTipo(tipo) {
+            const tipos = {
+                'escolar': 'Escolar',
+                'importante': 'Importante',
+                'general': 'General',
+                'familiar': 'Familiar'
+            };
+            return tipos[tipo] || 'Escolar';
+        }
+
+        // Obtener badge del tipo
+        function obtenerBadgeTipo(tipo) {
+            const badges = {
+                'escolar': 'badge-escolar',
+                'importante': 'badge-importante',
+                'general': 'badge-general',
+                'familiar': 'badge-familiar'
+            };
+            return badges[tipo] || 'badge-escolar';
+        }
+
+        // Formatear fecha
+        function formatearFecha(fecha) {
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return new Date(fecha).toLocaleDateString('es-ES', opciones);
+        }
+
+        // Actualizar próximos eventos
+        function actualizarProximosEventos() {
+            const container = document.getElementById('proximosEventos');
+            const hoy = new Date();
+            
+            // Filtrar eventos futuros y ordenar por fecha
+            const eventosProximos = eventosFiltrados
+                .filter(evento => new Date(evento.fecha) >= hoy)
+                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+                .slice(0, 5);
+            
+            if (eventosProximos.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No hay eventos próximos</p>';
+                return;
+            }
+            
+            let html = '';
+            eventosProximos.forEach(evento => {
+                const tipoClase = obtenerBadgeTipo(evento.tipo);
+                const diasRestantes = calcularDiasRestantes(evento.fecha);
+                
+                html += `
+                    <div class="evento-item evento-${evento.tipo} mb-3" onclick="mostrarDetallesEvento('${evento.id}')" style="cursor: pointer;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${evento.titulo}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i> ${formatearFecha(evento.fecha)}
+                                </small>
+                                ${evento.horaInicio ? `<br><small class="text-muted"><i class="fas fa-clock me-1"></i> ${evento.horaInicio}</small>` : ''}
+                            </div>
+                            <div class="text-end">
+                                <span class="badge ${tipoClase} mb-1">${obtenerTextoTipo(evento.tipo)}</span>
+                                <br><small class="text-primary">${diasRestantes} días</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas() {
+            const hoy = new Date();
+            const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            
+            // Eventos este mes
+            const eventosEsteMes = eventosFiltrados.filter(evento => {
+                const fechaEvento = new Date(evento.fecha);
+                return fechaEvento >= inicioMes && fechaEvento <= finMes;
+            }).length;
+            
+            // Eventos próximos (próximos 7 días)
+            const proximaSemana = new Date();
+            proximaSemana.setDate(hoy.getDate() + 7);
+            const eventosProximos = eventosFiltrados.filter(evento => {
+                const fechaEvento = new Date(evento.fecha);
+                return fechaEvento >= hoy && fechaEvento <= proximaSemana;
+            }).length;
+            
+            // Eventos importantes
+            const eventosImportantes = eventosFiltrados.filter(evento => 
+                evento.tipo === 'importante'
+            ).length;
+            
+            // Días sin clases
+            const diasSinClases = eventosFiltrados.filter(evento => 
+                evento.titulo.toLowerCase().includes('suspensión') || 
+                evento.titulo.toLowerCase().includes('feriado') ||
+                evento.titulo.toLowerCase().includes('vacaciones')
+            ).length;
+            
+            document.getElementById('eventosEsteMes').textContent = eventosEsteMes;
+            document.getElementById('eventosProximos').textContent = eventosProximos;
+            document.getElementById('eventosImportantes').textContent = eventosImportantes;
+            document.getElementById('diasSinClases').textContent = diasSinClases;
+        }
+
+        // Agregar a calendario personal
+        function agregarACalendarioPersonal() {
+            if (!eventoSeleccionado) return;
+            
+            const evento = eventoSeleccionado;
+            const fechaInicio = evento.fecha + (evento.horaInicio ? 'T' + evento.horaInicio : '');
+            const fechaFin = evento.fecha + (evento.horaFin ? 'T' + evento.horaFin : '');
+            
+            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(evento.titulo)}&dates=${fechaInicio.replace(/[-:]/g, '')}/${fechaFin.replace(/[-:]/g, '')}&details=${encodeURIComponent(evento.descripcion)}&location=Escuela`;
+            
+            window.open(url, '_blank');
+        }
+
+        // Exportar calendario
+        function exportarCalendario() {
+            const datosExport = eventosFiltrados.map(evento => ({
+                'Título': evento.titulo,
+                'Fecha': evento.fecha,
+                'Hora Inicio': evento.horaInicio || 'Todo el día',
+                'Hora Fin': evento.horaFin || '-',
+                'Tipo': obtenerTextoTipo(evento.tipo),
+                'Dirigido A': evento.dirigidoA,
+                'Descripción': evento.descripcion.replace(/\n/g, ' ')
+            }));
+            
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(datosExport);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Calendario');
+            
+            XLSX.writeFile(workbook, 'calendario_escolar.xlsx');
+            alert('Calendario exportado exitosamente');
+        }
+
+        // Imprimir calendario
+        function imprimirCalendario() {
+            window.print();
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            hijosData = obtenerDatosHijos();
+            eventosData = generarEventosEjemplo();
+            eventosFiltrados = [...eventosData];
+            
+            inicializarCalendario();
+            poblarSelectores();
+            actualizarCalendario();
+            actualizarProximosEventos();
+            actualizarEstadisticas();
+        });
+    </script>
 </body>
 </html>

@@ -3,104 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Tutor - Escuela Primaria</title>
+    <title>Portal del Tutor - Escuela Jesús El Buen Maestro</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome / fuente -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts - Fuente infantil -->
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap"
-          rel="stylesheet">
-    <!-- CSS Personalizado -->
-     <link href="./Conex/TurtDash.Css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para exportar Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9b59b6;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            padding-top: var(--navbar-height);
+            background-color: #f8f9fa;
+        }
+
+        /* ===== NAVBAR PERSONALIZADA ===== */
+        .navbar-tutor {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: var(--navbar-height);
+        }
+
+        .navbar-tutor .navbar-brand img {
+            height: 45px;
+            width: auto;
+        }
+
+        .navbar-tutor .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 5px;
+            padding: 8px 15px !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-tutor .navbar-nav .nav-link:hover,
+        .navbar-tutor .navbar-nav .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-tutor {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-tutor:hover {
+            background-color: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* ===== CARDS PRINCIPALES ===== */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-primary { border-left: 5px solid var(--primary-color); }
+        .card-success { border-left: 5px solid var(--success-color); }
+        .card-warning { border-left: 5px solid var(--warning-color); }
+        .card-danger { border-left: 5px solid var(--danger-color); }
+        .card-info { border-left: 5px solid var(--info-color); }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        /* ===== ICONOS CIRCULARES ===== */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-primary .icon-circle { background: var(--primary-color); }
+        .card-success .icon-circle { background: var(--success-color); }
+        .card-warning .icon-circle { background: var(--warning-color); }
+        .card-danger .icon-circle { background: var(--danger-color); }
+        .card-info .icon-circle { background: var(--info-color); }
+
+        .card-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        /* ===== AVATAR ===== */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* ===== BOTONES PERSONALIZADOS ===== */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            border: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #138496);
+            border: none;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .section-content {
+            padding-top: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ===== TUTORÍAS ESPECÍFICAS ===== */
+        .tutoring-session {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .tutoring-session:hover {
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .session-status {
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .session-status.programada {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .session-status.en-progreso {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .session-status.completada {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .session-status.cancelada {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                background: rgba(0,0,0,0.1);
+                border-radius: 10px;
+                margin-top: 10px;
+                padding: 10px;
+            }
+
+            .card-number {
+                font-size: 2rem;
+            }
+
+            .icon-circle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row">
-        <!-- Menú estilo Claro -->
-       <nav class="navbar navbar-expand-lg navbar-claro fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <img src="./Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
-        </a>
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-tutor fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-friends fa-2x text-white"></i>
+            </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-bars"></i>
-        </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i class="fas fa-bars text-white"></i>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#Menu" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show"><i class="fas fa-home me-1"></i> Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./DashbTutor.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                        <i class="fas fa-child me-2"></i> Mis Hijos
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-home me-1"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./DashbHijsTutor.html">
+                            <i class="fas fa-child me-2"></i> Mis Hijos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./DashbNotTut.html">
+                            <i class="fas fa-book me-2"></i> Notas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./DashbAsisTut.html">
+                            <i class="fas fa-calendar-check me-2"></i> Asistencia
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./DashComuTut.html">
+                            <i class="fas fa-bullhorn me-2"></i> Comunicados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./DashbCalTut.html">
+                            <i class="fas fa-calendar-alt me-2"></i> Calendario
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex flex-column flex-lg-row align-items-center">
+                    <a href="./DashbMensjTut.html" class="btn btn-claro mb-2 mb-lg-0 me-lg-2">
+                        <i class="fas fa-envelope me-1"></i> Mensajes
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./DashbNotTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                        <i class="fas fa-book me-2"></i> Notas
+                    <a href="./DashbConfigTut.html" class="btn btn-claro btn-outline-primary">
+                        <i class="fas fa-cog me-1"></i> Configuración
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./DashbAsisTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                        <i class="fas fa-calendar-check me-2"></i> Asistencia
+                    <span class="text-white me-3 ms-3" id="userInfo">Tutor</span>
+                    <a href="../InicionSecion/login.html" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./DashComuTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                        <i class="fas fa-bullhorn me-2"></i> Comunicados
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./DashbCalTut.html" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                        <i class="fas fa-calendar-alt me-2"></i> Calendario
-                    </a>
-                </li>
-            </ul>
-            <div class="d-flex flex-column flex-lg-row align-items-center">
-                <a href="./DashbMensjTut.html" class="btn btn-claro mb-2 mb-lg-0 me-lg-2" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                    <i class="fas fa-envelope me-1"></i> Mensajes
-                </a>
-                <a href="./DashbConfigTut.html" class="btn btn-claro btn-outline-primary" data-bs-toggle="collapse" data-bs-target=".navbar-collapse.show">
-                    <i class="fas fa-cog me-1"></i> Configuración
-                </a>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
-        <!-- Contenido -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Panel del Tutor</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-primary">
-                            <i class="fas fa-download me-1"></i> Reportes
+    </nav>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <div class="container-fluid">
+        <!-- ===== DASHBOARD PRINCIPAL ===== -->
+        <div id="dashboard-section" class="section-content">
+            <div class="page-header">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <h1 class="h2">Panel del Tutor</h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="exportTutoringData()">
+                                <i class="fas fa-download me-1"></i> Exportar Datos
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm">
+                            <i class="fas fa-bell me-1"></i> Notificaciones 
+                            <span class="badge bg-danger" id="notificationCount">0</span>
                         </button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-warning">
-                        <i class="fas fa-bell me-1"></i> Notificaciones <span class="badge bg-danger">3</span>
-                    </button>
                 </div>
             </div>
 
-            <!-- Contenido -->
+            <!-- Tarjetas de estadísticas -->
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="card card-primary">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="card-title">Hijos</h5>
-                                    <h2 class="card-number">2</h2>
+                                    <h5 class="card-title">Estudiantes Asignados</h5>
+                                    <h2 class="card-number" id="totalEstudiantesAsignados">2</h2>
                                 </div>
                                 <div class="icon-circle">
-                                    <i class="fas fa-child"></i>
+                                    <i class="fas fa-users"></i>
                                 </div>
                             </div>
-                            <p class="card-text"><small>Matriculados en la escuela</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Tutorías Esta Semana</h5>
+                                    <h2 class="card-number" id="tutoriasEstaSemana">4</h2>
+                                </div>
+                                <div class="icon-circle">
+                                    <i class="fas fa-calendar-week"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,14 +378,13 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="card-title">Promedio</h5>
-                                    <h2 class="card-number">8.7</h2>
+                                    <h5 class="card-title">Estudiantes en Riesgo</h5>
+                                    <h2 class="card-number" id="estudiantesEnRiesgo">1</h2>
                                 </div>
                                 <div class="icon-circle">
-                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-exclamation-triangle"></i>
                                 </div>
                             </div>
-                            <p class="card-text"><small>Promedio general</small></p>
                         </div>
                     </div>
                 </div>
@@ -125,175 +393,155 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="card-title">Asistencia</h5>
-                                    <h2 class="card-number">95%</h2>
+                                    <h5 class="card-title">Promedio General</h5>
+                                    <h2 class="card-number" id="promedioGeneral">8.2</h2>
                                 </div>
                                 <div class="icon-circle">
-                                    <i class="fas fa-calendar-check"></i>
+                                    <i class="fas fa-star"></i>
                                 </div>
                             </div>
-                            <p class="card-text"><small>Este trimestre</small></p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card card-danger">
+            </div>
+
+            <!-- Contenido del dashboard -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calendar-check me-2"></i>Próximas Tutorías</h5>
+                        </div>
                         <div class="card-body">
-                            <div class="d-flex justify-content-between">
+                            <div class="tutoring-session">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">Matemáticas - Juan</h6>
+                                        <p class="text-muted mb-1">Mañana 15:30 - 16:30</p>
+                                        <small class="text-muted">Refuerzo en fracciones</small>
+                                    </div>
+                                    <span class="session-status programada">Programada</span>
+                                </div>
+                            </div>
+                            <div class="tutoring-session">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">Lengua - María</h6>
+                                        <p class="text-muted mb-1">Miércoles 14:00 - 15:00</p>
+                                        <small class="text-muted">Preparación para examen</small>
+                                    </div>
+                                    <span class="session-status programada">Programada</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-clock me-2"></i>Actividades Recientes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar me-3">MG</div>
                                 <div>
-                                    <h5 class="card-title">Pendientes</h5>
-                                    <h2 class="card-number">3</h2>
-                                </div>
-                                <div class="icon-circle">
-                                    <i class="fas fa-exclamation-circle"></i>
+                                    <h6 class="mb-0">María González</h6>
+                                    <small class="text-muted">Completó tarea de matemáticas</small>
                                 </div>
                             </div>
-                            <p class="card-text"><small>Tareas/documentos</small></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráficos y Tablas -->
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5>Rendimiento de mis hijos</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="performanceChart" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5>Asistencia mensual</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="attendanceChart" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Mis Hijos</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Grado</th>
-                                        <th>Edad</th>
-                                        <th>Tutor</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>María López Pérez</td>
-                                        <td>3° A</td>
-                                        <td>8 años</td>
-                                        <td>Principal</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Juan López Pérez</td>
-                                        <td>1° B</td>
-                                        <td>6 años</td>
-                                        <td>Principal</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Últimas Notas</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                    <tr>
-                                        <th>Alumno</th>
-                                        <th>Materia</th>
-                                        <th>Nota</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>María López</td>
-                                        <td>Matemáticas</td>
-                                        <td>9.0</td>
-                                        <td>20/03/2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>María López</td>
-                                        <td>Lengua</td>
-                                        <td>8.5</td>
-                                        <td>18/03/2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Juan López</td>
-                                        <td>Matemáticas</td>
-                                        <td>7.5</td>
-                                        <td>17/03/2023</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Juan López</td>
-                                        <td>Ciencias</td>
-                                        <td>8.0</td>
-                                        <td>15/03/2023</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar me-3">JL</div>
+                                <div>
+                                    <h6 class="mb-0">Juan López</h6>
+                                    <small class="text-muted">Necesita apoyo en ciencias</small>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Comunicados recientes -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Comunicados Recientes</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info">
-                                <h6><i class="fas fa-info-circle me-2"></i> Reunión de padres - 25 de Marzo</h6>
-                                <p class="mb-0">Se convoca a todos los padres de familia a la reunión trimestral el próximo viernes a las 16:00 en el aula magna.</p>
-                                <small class="text-muted">Publicado: 18/03/2023</small>
-                            </div>
-                            <div class="alert alert-warning">
-                                <h6><i class="fas fa-exclamation-triangle me-2"></i> Entrega de boletines</h6>
-                                <p class="mb-0">El próximo lunes 27 de marzo se entregarán los boletines de calificaciones del segundo trimestre.</p>
-                                <small class="text-muted">Publicado: 15/03/2023</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
-</div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- JS Personalizado -->
-<script src="./Conex/TutDash.Js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Datos de ejemplo mejorados
+        const hijosData = [
+            {
+                id: 'hijo1',
+                nombre: 'María González',
+                edad: 9,
+                grado: 3,
+                seccion: 'A',
+                promedio: 8.7,
+                asistencia: 96,
+                telefono: '555-0123',
+                direccion: 'Calle Principal 123',
+                nombreAcudiente: 'Carmen González',
+                telefonoAcudiente: '555-0124',
+                estado: 'activo'
+            },
+            {
+                id: 'hijo2',
+                nombre: 'Juan López',
+                edad: 7,
+                grado: 1,
+                seccion: 'B',
+                promedio: 7.8,
+                asistencia: 91,
+                telefono: '555-0125',
+                direccion: 'Avenida Secundaria 456',
+                nombreAcudiente: 'Pedro López',
+                telefonoAcudiente: '555-0126',
+                estado: 'activo'
+            }
+        ];
+
+        // Función para exportar datos
+        function exportTutoringData() {
+            const workbook = XLSX.utils.book_new();
+            
+            // Datos de estudiantes
+            const estudiantesData = hijosData.map(hijo => ({
+                'Nombre': hijo.nombre,
+                'Edad': hijo.edad,
+                'Grado': `${hijo.grado}°${hijo.seccion}`,
+                'Promedio': hijo.promedio,
+                'Asistencia': `${hijo.asistencia}%`,
+                'Acudiente': hijo.nombreAcudiente,
+                'Teléfono': hijo.telefonoAcudiente
+            }));
+            
+            const wsEstudiantes = XLSX.utils.json_to_sheet(estudiantesData);
+            XLSX.utils.book_append_sheet(workbook, wsEstudiantes, 'Estudiantes');
+            
+            // Descargar archivo
+            XLSX.writeFile(workbook, 'datos_tutoria.xlsx');
+            
+            alert('Datos exportados exitosamente');
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+        });
+
+        function updateDashboard() {
+            // Actualizar contadores
+            document.getElementById('totalEstudiantesAsignados').textContent = hijosData.length;
+            document.getElementById('tutoriasEstaSemana').textContent = '4';
+            document.getElementById('estudiantesEnRiesgo').textContent = hijosData.filter(h => h.promedio < 8.0).length;
+            
+            const promedioTotal = hijosData.reduce((sum, hijo) => sum + hijo.promedio, 0) / hijosData.length;
+            document.getElementById('promedioGeneral').textContent = promedioTotal.toFixed(1);
+        }
+
+        function showSection(sectionName) {
+            // Función para navegación (placeholder)
+            console.log('Navegando a:', sectionName);
+        }
+    </script>
 </body>
 </html>
