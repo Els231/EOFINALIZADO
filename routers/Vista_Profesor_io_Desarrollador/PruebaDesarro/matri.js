@@ -90,6 +90,7 @@ function loadMatriculasSection() {
                         <option value="3">Tercer Grado</option>
                         <option value="4">Cuarto Grado</option>
                         <option value="5">Quinto Grado</option>
+                        <option value="6">Sexto Grado</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -183,6 +184,7 @@ function loadMatriculasSection() {
                                             <option value="3">Tercer Grado</option>
                                             <option value="4">Cuarto Grado</option>
                                             <option value="5">Quinto Grado</option>
+                                            <option value="6">Sexto Grado</option>
                                         </select>
                                     </div>
                                 </div>
@@ -231,28 +233,63 @@ function loadMatriculasSection() {
                                         <label for="tipoEstudiante" class="form-label">Tipo de Estudiante *</label>
                                         <select class="form-select" id="tipoEstudiante" name="tipoEstudiante" required>
                                             <option value="">Seleccionar tipo</option>
-                                            <option value="Nuevo">Nuevo</option>
+                                            <option value="Nuevo">Nuevo Ingreso</option>
+                                            <option value="Regular">Regular</option>
                                             <option value="Repitente">Repitente</option>
-                                            <option value="Transferido">Transferido</option>
+                                            <option value="Traslado">Traslado</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Información de la matrícula -->
+                            <!-- Información de pago -->
                             <h6 class="text-primary mb-3 mt-4">
-                                <i class="fas fa-file-invoice-dollar me-2"></i>
-                                Información de Matrícula
+                                <i class="fas fa-dollar-sign me-2"></i>
+                                Información de Pago
                             </h6>
                             
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="montoMatricula" class="form-label">Monto de Matrícula *</label>
+                                        <input type="number" class="form-control" id="montoMatricula" name="montoMatricula" 
+                                               min="0" step="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="fechaPago" class="form-label">Fecha de Pago</label>
+                                        <input type="date" class="form-control" id="fechaPago" name="fechaPago">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="metodoPago" class="form-label">Método de Pago</label>
+                                        <select class="form-select" id="metodoPago" name="metodoPago">
+                                            <option value="">Seleccionar método</option>
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Transferencia">Transferencia Bancaria</option>
+                                            <option value="Cheque">Cheque</option>
+                                            <option value="Tarjeta">Tarjeta de Crédito</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información adicional -->
+                            <h6 class="text-primary mb-3 mt-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Información Adicional
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="fechaMatricula" class="form-label">Fecha de Matrícula *</label>
                                         <input type="date" class="form-control" id="fechaMatricula" name="fechaMatricula" required>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="estadoMatricula" class="form-label">Estado *</label>
                                         <select class="form-select" id="estadoMatricula" name="estado" required>
@@ -263,120 +300,9 @@ function loadMatriculasSection() {
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="costoMatricula" class="form-label">Costo de Matrícula</label>
-                                        <input type="number" class="form-control" id="costoMatricula" name="costoMatricula" 
-                                               step="0.01" min="0">
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label for="descuento" class="form-label">Descuento (%)</label>
-                                        <input type="number" class="form-control" id="descuento" name="descuento" 
-                                               min="0" max="100" value="0">
-                                    </div>
-                                </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="metodoPago" class="form-label">Método de Pago</label>
-                                        <select class="form-select" id="metodoPago" name="metodoPago">
-                                            <option value="">Seleccionar método</option>
-                                            <option value="Efectivo">Efectivo</option>
-                                            <option value="Transferencia">Transferencia Bancaria</option>
-                                            <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
-                                            <option value="Cheque">Cheque</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="numeroRecibo" class="form-label">Número de Recibo</label>
-                                        <input type="text" class="form-control" id="numeroRecibo" name="numeroRecibo">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Documentos requeridos -->
-                            <h6 class="text-primary mb-3 mt-4">
-                                <i class="fas fa-folder-open me-2"></i>
-                                Documentos Requeridos
-                            </h6>
-                            
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="actaNacimiento" name="documentos" value="Acta de Nacimiento">
-                                        <label class="form-check-label" for="actaNacimiento">
-                                            Acta de Nacimiento
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="cedulaEstudiante" name="documentos" value="Cédula del Estudiante">
-                                        <label class="form-check-label" for="cedulaEstudiante">
-                                            Cédula del Estudiante
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="cedulaPadre" name="documentos" value="Cédula del Padre/Tutor">
-                                        <label class="form-check-label" for="cedulaPadre">
-                                            Cédula del Padre/Tutor
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="recordNotas" name="documentos" value="Record de Notas">
-                                        <label class="form-check-label" for="recordNotas">
-                                            Record de Notas
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="fotoCarnet" name="documentos" value="Fotos Carnet">
-                                        <label class="form-check-label" for="fotoCarnet">
-                                            Fotos Carnet (2x2)
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="certificadoMedico" name="documentos" value="Certificado Médico">
-                                        <label class="form-check-label" for="certificadoMedico">
-                                            Certificado Médico
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="cartaRetiro" name="documentos" value="Carta de Retiro">
-                                        <label class="form-check-label" for="cartaRetiro">
-                                            Carta de Retiro (Transferidos)
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="certificadoBuenaConducta" name="documentos" value="Certificado de Buena Conducta">
-                                        <label class="form-check-label" for="certificadoBuenaConducta">
-                                            Certificado Buena Conducta
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3 mt-3">
+                            <div class="mb-3">
                                 <label for="observacionesMatricula" class="form-label">Observaciones</label>
                                 <textarea class="form-control" id="observacionesMatricula" name="observaciones" rows="3"></textarea>
                             </div>
@@ -393,452 +319,207 @@ function loadMatriculasSection() {
         </div>
     `;
     
-    // Cargar datos
     loadMatriculasData();
-    loadEstudiantesMatriculaSelect();
+    updateMatriculasStats();
+    loadEstudiantesOptions();
 }
 
 // Función para cargar datos de matrículas
 function loadMatriculasData() {
-    try {
-        matriculasData = db.getMatriculas();
-        renderMatriculasGrid();
-        updateMatriculasStats();
-    } catch (error) {
-        console.error('Error al cargar matrículas:', error);
-        showAlert.error('Error', 'No se pudieron cargar los datos de matrículas');
+    const savedData = localStorage.getItem('matriculasData');
+    if (savedData) {
+        matriculasData = JSON.parse(savedData);
+    } else {
+        // Datos iniciales de ejemplo para desarrollo
+        matriculasData = [];
+    }
+    displayMatriculas();
+}
+
+// Función para cargar opciones de estudiantes
+function loadEstudiantesOptions() {
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+    const select = document.getElementById('estudianteMatricula');
+    
+    if (select) {
+        select.innerHTML = '<option value="">Seleccionar estudiante</option>';
+        estudiantesData.forEach(estudiante => {
+            if (estudiante.estado === 'Activo') {
+                select.innerHTML += `
+                    <option value="${estudiante.id}">
+                        ${estudiante.nombres} ${estudiante.apellidos} - ${estudiante.cedula}
+                    </option>
+                `;
+            }
+        });
     }
 }
 
-// Función para cargar estudiantes en el select
-function loadEstudiantesMatriculaSelect() {
-    const estudiantesSelect = document.getElementById('estudianteMatricula');
-    if (!estudiantesSelect) return;
-    
-    const estudiantes = db.getEstudiantes();
-    estudiantesSelect.innerHTML = '<option value="">Seleccionar estudiante</option>';
-    
-    estudiantes.forEach(estudiante => {
-        const option = document.createElement('option');
-        option.value = estudiante.id;
-        option.textContent = `${estudiante.nombres} ${estudiante.apellidos} - ${estudiante.cedula || 'Sin cédula'}`;
-        estudiantesSelect.appendChild(option);
-    });
-}
-
-// Función para actualizar estadísticas de matrículas
-function updateMatriculasStats() {
-    const matriculas = db.getMatriculas();
-    
-    // Matrículas activas
-    const activas = matriculas.filter(m => m.estado === 'Activa').length;
-    
-    // Matrículas este mes
-    const hoy = new Date();
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    const esteMes = matriculas.filter(m => new Date(m.fechaMatricula) >= inicioMes).length;
-    
-    // Matrículas pendientes
-    const pendientes = matriculas.filter(m => m.estado === 'Pendiente').length;
-    
-    // Ingresos por matrículas
-    const ingresos = matriculas
-        .filter(m => m.estado === 'Activa')
-        .reduce((total, m) => {
-            const costo = parseFloat(m.costoMatricula) || 0;
-            const descuento = parseFloat(m.descuento) || 0;
-            return total + (costo * (1 - descuento / 100));
-        }, 0);
-    
-    // Actualizar UI
-    document.getElementById('total-matriculas-activas').textContent = activas;
-    document.getElementById('matriculas-este-mes').textContent = esteMes;
-    document.getElementById('matriculas-pendientes').textContent = pendientes;
-    document.getElementById('ingresos-matriculas').textContent = formatCurrency(ingresos);
-}
-
-// Función para renderizar grid de matrículas
-function renderMatriculasGrid() {
+// Función para mostrar matrículas
+function displayMatriculas() {
     const container = document.getElementById('matriculasTableContainer');
-    
+    if (!container) return;
+
     if (matriculasData.length === 0) {
         showEmptyState(container, 'No hay matrículas registradas', 'fas fa-clipboard-list');
+        document.getElementById('matriculasPagination').innerHTML = '';
         return;
     }
-    
+
     // Aplicar filtros
-    let filteredData = [...matriculasData];
-    
-    const searchTerm = document.getElementById('searchMatriculas')?.value;
-    const gradoFilter = document.getElementById('filterGradoMatricula')?.value;
-    const estadoFilter = document.getElementById('filterEstadoMatricula')?.value;
-    const anoFilter = document.getElementById('filterAnoLectivo')?.value;
-    const modalidadFilter = document.getElementById('filterModalidad')?.value;
-    
-    // Aplicar filtros
-    if (searchTerm) {
-        const estudiantes = db.getEstudiantes();
-        const estudiantesIds = estudiantes
-            .filter(e => 
-                e.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                e.apellidos.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-            .map(e => e.id);
-        filteredData = filteredData.filter(m => estudiantesIds.includes(m.estudianteId));
-    }
-    
-    if (gradoFilter) filteredData = filteredData.filter(m => m.grado == gradoFilter);
-    if (estadoFilter) filteredData = filteredData.filter(m => m.estado === estadoFilter);
-    if (anoFilter) filteredData = filteredData.filter(m => m.anoLectivo === anoFilter);
-    if (modalidadFilter) filteredData = filteredData.filter(m => m.modalidad === modalidadFilter);
+    let filteredData = applyMatriculasFilters();
     
     // Paginar datos
     const paginatedData = paginateData(filteredData, currentMatriculasPage, matriculasPerPage);
     
-    // Crear grid de cards
-    let gridHTML = '<div class="row">';
+    // Crear tabla
+    let tableHTML = `
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Grado</th>
+                        <th>Año Lectivo</th>
+                        <th>Estado</th>
+                        <th>Fecha Matrícula</th>
+                        <th>Monto</th>
+                        <th>Modalidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
     
     paginatedData.data.forEach(matricula => {
-        const estudiante = db.getEstudianteById(matricula.estudianteId);
-        const estadoBadge = getMatriculaEstadoBadge(matricula.estado);
-        const costo = parseFloat(matricula.costoMatricula) || 0;
-        const descuento = parseFloat(matricula.descuento) || 0;
-        const costoFinal = costo * (1 - descuento / 100);
+        const estudiante = estudiantesData.find(e => e.id === matricula.estudianteId);
+        const nombreCompleto = estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'Estudiante no encontrado';
         
-        gridHTML += `
-            <div class="col-xl-4 col-lg-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="fw-bold">Matrícula #${matricula.id}</span>
-                        ${estadoBadge}
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="avatar me-3">
-                                ${estudiante ? estudiante.nombres.charAt(0) + estudiante.apellidos.charAt(0) : '??'}
-                            </div>
-                            <div>
-                                <h6 class="mb-0">${estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'Estudiante no encontrado'}</h6>
-                                <small class="text-muted">${getGradoText(matricula.grado)} - ${matricula.anoLectivo}</small>
-                            </div>
+        const estadoBadge = getEstadoBadge(matricula.estado);
+        const montoFormateado = formatCurrency(matricula.montoMatricula || 0);
+        
+        tableHTML += `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                            <i class="fas fa-user-graduate text-primary"></i>
                         </div>
-                        
-                        <div class="mb-2">
-                            <small class="text-muted d-block">Modalidad:</small>
-                            <span class="badge bg-primary">${matricula.modalidad}</span>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <small class="text-muted d-block">Jornada:</small>
-                            <span>${matricula.jornada}</span>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <small class="text-muted d-block">Fecha de Matrícula:</small>
-                            <span>${formatDateShort(matricula.fechaMatricula)}</span>
-                        </div>
-                        
-                        ${costo > 0 ? `
-                            <div class="mb-2">
-                                <small class="text-muted d-block">Costo:</small>
-                                <span class="fw-bold ${descuento > 0 ? 'text-decoration-line-through' : ''}">${formatCurrency(costo)}</span>
-                                ${descuento > 0 ? `<span class="text-success fw-bold ms-2">${formatCurrency(costoFinal)}</span>` : ''}
-                            </div>
-                        ` : ''}
-                    </div>
-                    <div class="card-footer">
-                        <div class="btn-group w-100">
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewMatricula(${matricula.id})" 
-                                    title="Ver Detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning" onclick="editMatricula(${matricula.id})" 
-                                    title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="printMatricula(${matricula.id})" 
-                                    title="Imprimir">
-                                <i class="fas fa-print"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteMatricula(${matricula.id})" 
-                                    title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <div>
+                            <div class="fw-bold">${nombreCompleto}</div>
+                            <small class="text-muted">${estudiante ? estudiante.cedula : ''}</small>
                         </div>
                     </div>
-                </div>
-            </div>
+                </td>
+                <td>
+                    <span class="badge bg-primary">${getGradoText(matricula.grado)}</span>
+                </td>
+                <td>${matricula.anoLectivo}</td>
+                <td>${estadoBadge}</td>
+                <td>${formatDateShort(matricula.fechaMatricula)}</td>
+                <td>${montoFormateado}</td>
+                <td>
+                    <small class="text-muted">${matricula.modalidad}</small><br>
+                    <small class="text-muted">${matricula.jornada}</small>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="editMatricula('${matricula.id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="viewMatricula('${matricula.id}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteMatricula('${matricula.id}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
         `;
     });
     
-    gridHTML += '</div>';
-    container.innerHTML = gridHTML;
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
     
-    // Crear paginación
-    const paginationContainer = document.getElementById('matriculasPagination');
-    paginationContainer.innerHTML = createPagination(
-        paginatedData.totalPages, 
-        currentMatriculasPage, 
-        'changeMatriculasPage'
-    );
+    container.innerHTML = tableHTML;
+    
+    // Actualizar paginación
+    document.getElementById('matriculasPagination').innerHTML = 
+        createPagination(paginatedData.totalPages, currentMatriculasPage, 'goToMatriculasPage');
 }
 
-// Función para obtener badge de estado de matrícula
-function getMatriculaEstadoBadge(estado) {
-    switch (estado) {
-        case 'Activa':
-            return '<span class="badge bg-success">Activa</span>';
-        case 'Pendiente':
-            return '<span class="badge bg-warning">Pendiente</span>';
-        case 'Cancelada':
-            return '<span class="badge bg-danger">Cancelada</span>';
-        case 'Retirada':
-            return '<span class="badge bg-secondary">Retirada</span>';
-        default:
-            return '<span class="badge bg-secondary">Desconocido</span>';
-    }
+// Función para obtener texto del grado
+function getGradoText(grado) {
+    const grados = {
+        '1': '1ro',
+        '2': '2do', 
+        '3': '3ro',
+        '4': '4to',
+        '5': '5to',
+        '6': '6to'
+    };
+    return grados[grado] || grado;
 }
 
-// Función para mostrar modal de nueva matrícula
-function showAddMatriculaModal() {
-    document.getElementById('matriculaModalTitle').innerHTML = 
-        '<i class="fas fa-clipboard-list me-2"></i>Nueva Matrícula';
-    document.getElementById('matriculaId').value = '';
-    clearForm(document.getElementById('matriculaForm'));
-    
-    // Establecer valores por defecto
-    document.getElementById('fechaMatricula').value = new Date().toISOString().split('T')[0];
-    document.getElementById('anoLectivo').value = new Date().getFullYear().toString();
-    document.getElementById('estadoMatricula').value = 'Pendiente';
-    document.getElementById('descuento').value = '0';
-    
-    const modal = new bootstrap.Modal(document.getElementById('matriculaModal'));
-    modal.show();
+// Función para obtener badge del estado
+function getEstadoBadge(estado) {
+    const badges = {
+        'Activa': '<span class="badge bg-success">Activa</span>',
+        'Pendiente': '<span class="badge bg-warning">Pendiente</span>',
+        'Cancelada': '<span class="badge bg-danger">Cancelada</span>',
+        'Retirada': '<span class="badge bg-secondary">Retirada</span>'
+    };
+    return badges[estado] || `<span class="badge bg-secondary">${estado}</span>`;
 }
 
-// Función para editar matrícula
-function editMatricula(id) {
-    const matricula = db.getMatriculaById(id);
-    if (!matricula) {
-        showAlert.error('Error', 'Matrícula no encontrada');
-        return;
-    }
+// Función para aplicar filtros
+function applyMatriculasFilters() {
+    let filtered = [...matriculasData];
     
-    document.getElementById('matriculaModalTitle').innerHTML = 
-        '<i class="fas fa-edit me-2"></i>Editar Matrícula';
+    const searchTerm = document.getElementById('searchMatriculas')?.value?.toLowerCase() || '';
+    const gradoFilter = document.getElementById('filterGradoMatricula')?.value || '';
+    const estadoFilter = document.getElementById('filterEstadoMatricula')?.value || '';
+    const anoFilter = document.getElementById('filterAnoLectivo')?.value || '';
+    const modalidadFilter = document.getElementById('filterModalidad')?.value || '';
     
-    // Llenar formulario
-    document.getElementById('matriculaId').value = matricula.id;
-    document.getElementById('estudianteMatricula').value = matricula.estudianteId;
-    document.getElementById('gradoMatricula').value = matricula.grado;
-    document.getElementById('anoLectivo').value = matricula.anoLectivo;
-    document.getElementById('modalidad').value = matricula.modalidad || '';
-    document.getElementById('jornada').value = matricula.jornada || '';
-    document.getElementById('tipoEstudiante').value = matricula.tipoEstudiante || '';
-    document.getElementById('fechaMatricula').value = matricula.fechaMatricula;
-    document.getElementById('estadoMatricula').value = matricula.estado;
-    document.getElementById('costoMatricula').value = matricula.costoMatricula || '';
-    document.getElementById('descuento').value = matricula.descuento || '0';
-    document.getElementById('metodoPago').value = matricula.metodoPago || '';
-    document.getElementById('numeroRecibo').value = matricula.numeroRecibo || '';
-    document.getElementById('observacionesMatricula').value = matricula.observaciones || '';
-    
-    // Marcar documentos
-    if (matricula.documentos) {
-        const documentos = Array.isArray(matricula.documentos) ? matricula.documentos : matricula.documentos.split(',');
-        const checkboxes = document.querySelectorAll('input[name="documentos"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = documentos.includes(checkbox.value);
+    if (searchTerm) {
+        const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+        filtered = filtered.filter(matricula => {
+            const estudiante = estudiantesData.find(e => e.id === matricula.estudianteId);
+            if (estudiante) {
+                const nombreCompleto = `${estudiante.nombres} ${estudiante.apellidos}`.toLowerCase();
+                return nombreCompleto.includes(searchTerm) || estudiante.cedula.includes(searchTerm);
+            }
+            return false;
         });
     }
     
-    const modal = new bootstrap.Modal(document.getElementById('matriculaModal'));
-    modal.show();
+    if (gradoFilter) {
+        filtered = filtered.filter(m => m.grado === gradoFilter);
+    }
+    
+    if (estadoFilter) {
+        filtered = filtered.filter(m => m.estado === estadoFilter);
+    }
+    
+    if (anoFilter) {
+        filtered = filtered.filter(m => m.anoLectivo === anoFilter);
+    }
+    
+    if (modalidadFilter) {
+        filtered = filtered.filter(m => m.modalidad === modalidadFilter);
+    }
+    
+    return filtered;
 }
 
-// Función para ver detalles de la matrícula
-function viewMatricula(id) {
-    const matricula = db.getMatriculaById(id);
-    if (!matricula) {
-        showAlert.error('Error', 'Matrícula no encontrada');
-        return;
-    }
-    
-    const estudiante = db.getEstudianteById(matricula.estudianteId);
-    const costo = parseFloat(matricula.costoMatricula) || 0;
-    const descuento = parseFloat(matricula.descuento) || 0;
-    const costoFinal = costo * (1 - descuento / 100);
-    
-    const documentos = matricula.documentos 
-        ? (Array.isArray(matricula.documentos) ? matricula.documentos : matricula.documentos.split(','))
-        : [];
-    
-    Swal.fire({
-        title: `Matrícula #${matricula.id}`,
-        html: `
-            <div class="text-start">
-                <h6 class="text-primary mb-2">Información del Estudiante</h6>
-                <p><strong>Estudiante:</strong> ${estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado'}</p>
-                <p><strong>Grado:</strong> ${getGradoText(matricula.grado)}</p>
-                <p><strong>Año Lectivo:</strong> ${matricula.anoLectivo}</p>
-                
-                <h6 class="text-primary mb-2 mt-3">Información Académica</h6>
-                <p><strong>Modalidad:</strong> ${matricula.modalidad || 'No especificada'}</p>
-                <p><strong>Jornada:</strong> ${matricula.jornada || 'No especificada'}</p>
-                <p><strong>Tipo de Estudiante:</strong> ${matricula.tipoEstudiante || 'No especificado'}</p>
-                
-                <h6 class="text-primary mb-2 mt-3">Información de Matrícula</h6>
-                <p><strong>Fecha de Matrícula:</strong> ${formatDate(matricula.fechaMatricula)}</p>
-                <p><strong>Estado:</strong> ${matricula.estado}</p>
-                ${costo > 0 ? `
-                    <p><strong>Costo:</strong> ${formatCurrency(costo)}</p>
-                    ${descuento > 0 ? `<p><strong>Descuento:</strong> ${descuento}%</p>` : ''}
-                    <p><strong>Costo Final:</strong> ${formatCurrency(costoFinal)}</p>
-                ` : ''}
-                ${matricula.metodoPago ? `<p><strong>Método de Pago:</strong> ${matricula.metodoPago}</p>` : ''}
-                ${matricula.numeroRecibo ? `<p><strong>Recibo:</strong> ${matricula.numeroRecibo}</p>` : ''}
-                
-                ${documentos.length > 0 ? `
-                    <h6 class="text-primary mb-2 mt-3">Documentos Entregados</h6>
-                    <ul class="list-unstyled">
-                        ${documentos.map(doc => `<li><i class="fas fa-check text-success me-2"></i>${doc}</li>`).join('')}
-                    </ul>
-                ` : ''}
-                
-                ${matricula.observaciones ? `
-                    <h6 class="text-primary mb-2 mt-3">Observaciones</h6>
-                    <p>${matricula.observaciones}</p>
-                ` : ''}
-                
-                <p class="mt-3"><strong>Fecha de Registro:</strong> ${formatDate(matricula.fechaMatricula)}</p>
-            </div>
-        `,
-        icon: 'info',
-        showCloseButton: true,
-        showConfirmButton: false,
-        width: '700px'
-    });
-}
-
-// Función para guardar matrícula
-function saveMatricula() {
-    const form = document.getElementById('matriculaForm');
-    
-    if (!validateForm(form)) {
-        showAlert.warning('Datos Incompletos', 'Por favor complete todos los campos requeridos');
-        return;
-    }
-    
-    const formData = new FormData(form);
-    const matriculaData = {};
-    
-    // Procesar datos del formulario
-    for (let [key, value] of formData.entries()) {
-        if (key === 'documentos') {
-            if (!matriculaData.documentos) matriculaData.documentos = [];
-            matriculaData.documentos.push(value);
-        } else {
-            matriculaData[key] = value;
-        }
-    }
-    
-    // Si no hay documentos seleccionados, establecer array vacío
-    if (!matriculaData.documentos) {
-        matriculaData.documentos = [];
-    }
-    
-    const matriculaId = document.getElementById('matriculaId').value;
-    
-    try {
-        if (matriculaId) {
-            // Actualizar matrícula existente
-            db.updateMatricula(matriculaId, matriculaData);
-            showAlert.success('¡Actualizada!', 'Matrícula actualizada correctamente');
-        } else {
-            // Crear nueva matrícula
-            db.insertMatricula(matriculaData);
-            showAlert.success('¡Guardada!', 'Matrícula registrada correctamente');
-        }
-        
-        // Cerrar modal y actualizar datos
-        const modal = bootstrap.Modal.getInstance(document.getElementById('matriculaModal'));
-        modal.hide();
-        
-        loadMatriculasData();
-        
-    } catch (error) {
-        console.error('Error al guardar matrícula:', error);
-        showAlert.error('Error', 'No se pudo guardar la matrícula');
-    }
-}
-
-// Función para eliminar matrícula
-function deleteMatricula(id) {
-    const matricula = db.getMatriculaById(id);
-    if (!matricula) {
-        showAlert.error('Error', 'Matrícula no encontrada');
-        return;
-    }
-    
-    const estudiante = db.getEstudianteById(matricula.estudianteId);
-    const estudianteNombre = estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'Estudiante';
-    
-    showAlert.confirm(
-        '¿Eliminar Matrícula?',
-        `¿Estás seguro de que deseas eliminar la matrícula de ${estudianteNombre}?`
-    ).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                db.deleteMatricula(id);
-                showAlert.success('¡Eliminada!', 'Matrícula eliminada correctamente');
-                loadMatriculasData();
-            } catch (error) {
-                console.error('Error al eliminar matrícula:', error);
-                showAlert.error('Error', 'No se pudo eliminar la matrícula');
-            }
-        }
-    });
-}
-
-// Función para imprimir matrícula
-function printMatricula(id) {
-    const matricula = db.getMatriculaById(id);
-    if (!matricula) {
-        showAlert.error('Error', 'Matrícula no encontrada');
-        return;
-    }
-    
-    const estudiante = db.getEstudianteById(matricula.estudianteId);
-    const costo = parseFloat(matricula.costoMatricula) || 0;
-    const descuento = parseFloat(matricula.descuento) || 0;
-    const costoFinal = costo * (1 - descuento / 100);
-    
-    const printData = [{
-        'Número de Matrícula': matricula.id,
-        'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-        'Grado': getGradoText(matricula.grado),
-        'Año Lectivo': matricula.anoLectivo,
-        'Modalidad': matricula.modalidad || '',
-        'Jornada': matricula.jornada || '',
-        'Estado': matricula.estado,
-        'Fecha de Matrícula': formatDateShort(matricula.fechaMatricula),
-        'Costo': costo > 0 ? formatCurrency(costoFinal) : 'N/A'
-    }];
-    
-    exportToPDF(`Matrícula #${matricula.id}`, printData, [
-        { key: 'Número de Matrícula', header: 'Matrícula', width: 30 },
-        { key: 'Estudiante', header: 'Estudiante', width: 60 },
-        { key: 'Grado', header: 'Grado', width: 30 },
-        { key: 'Estado', header: 'Estado', width: 30 }
-    ]);
-}
-
-// Funciones de filtrado y navegación
-function filterMatriculas() {
-    currentMatriculasPage = 1;
-    renderMatriculasGrid();
-}
-
+// Función para limpiar filtros
 function clearMatriculasFilters() {
     document.getElementById('searchMatriculas').value = '';
     document.getElementById('filterGradoMatricula').value = '';
@@ -848,88 +529,271 @@ function clearMatriculasFilters() {
     filterMatriculas();
 }
 
-function changeMatriculasPage(page) {
+// Función para filtrar matrículas
+function filterMatriculas() {
+    currentMatriculasPage = 1;
+    displayMatriculas();
+}
+
+// Función para cambiar página
+function goToMatriculasPage(page) {
     currentMatriculasPage = page;
-    renderMatriculasGrid();
+    displayMatriculas();
+}
+
+// Función para mostrar modal de nueva matrícula
+function showAddMatriculaModal() {
+    const modal = new bootstrap.Modal(document.getElementById('matriculaModal'));
+    document.getElementById('matriculaModalTitle').innerHTML = '<i class="fas fa-clipboard-list me-2"></i>Nueva Matrícula';
+    document.getElementById('matriculaId').value = '';
+    clearForm(document.getElementById('matriculaForm'));
+    
+    // Establecer fecha actual
+    document.getElementById('fechaMatricula').value = new Date().toISOString().split('T')[0];
+    
+    loadEstudiantesOptions();
+    modal.show();
+}
+
+// Función para editar matrícula
+function editMatricula(id) {
+    const matricula = matriculasData.find(m => m.id === id);
+    if (!matricula) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('matriculaModal'));
+    document.getElementById('matriculaModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Matrícula';
+    
+    // Llenar formulario
+    document.getElementById('matriculaId').value = matricula.id;
+    document.getElementById('estudianteMatricula').value = matricula.estudianteId || '';
+    document.getElementById('gradoMatricula').value = matricula.grado || '';
+    document.getElementById('anoLectivo').value = matricula.anoLectivo || '';
+    document.getElementById('modalidad').value = matricula.modalidad || '';
+    document.getElementById('jornada').value = matricula.jornada || '';
+    document.getElementById('tipoEstudiante').value = matricula.tipoEstudiante || '';
+    document.getElementById('montoMatricula').value = matricula.montoMatricula || '';
+    document.getElementById('fechaPago').value = matricula.fechaPago || '';
+    document.getElementById('metodoPago').value = matricula.metodoPago || '';
+    document.getElementById('fechaMatricula').value = matricula.fechaMatricula || '';
+    document.getElementById('estadoMatricula').value = matricula.estado || '';
+    document.getElementById('observacionesMatricula').value = matricula.observaciones || '';
+    
+    loadEstudiantesOptions();
+    modal.show();
+}
+
+// Función para guardar matrícula
+function saveMatricula() {
+    const form = document.getElementById('matriculaForm');
+    if (!validateForm(form)) {
+        showAlert.error('Error', 'Por favor complete todos los campos requeridos correctamente');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    const matriculaData = {
+        id: document.getElementById('matriculaId').value || generateId(),
+        estudianteId: formData.get('estudianteId'),
+        grado: formData.get('grado'),
+        anoLectivo: formData.get('anoLectivo'),
+        modalidad: formData.get('modalidad'),
+        jornada: formData.get('jornada'),
+        tipoEstudiante: formData.get('tipoEstudiante'),
+        montoMatricula: parseFloat(formData.get('montoMatricula')) || 0,
+        fechaPago: formData.get('fechaPago'),
+        metodoPago: formData.get('metodoPago'),
+        fechaMatricula: formData.get('fechaMatricula'),
+        estado: formData.get('estado'),
+        observaciones: formData.get('observaciones'),
+        fechaCreacion: new Date().toISOString(),
+        fechaModificacion: new Date().toISOString()
+    };
+    
+    const existingIndex = matriculasData.findIndex(m => m.id === matriculaData.id);
+    
+    if (existingIndex >= 0) {
+        matriculasData[existingIndex] = { ...matriculasData[existingIndex], ...matriculaData };
+        showAlert.success('¡Actualizada!', 'La matrícula ha sido actualizada correctamente');
+    } else {
+        matriculasData.push(matriculaData);
+        showAlert.success('¡Registrada!', 'La matrícula ha sido registrada correctamente');
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('matriculasData', JSON.stringify(matriculasData));
+    
+    // Cerrar modal y actualizar tabla
+    bootstrap.Modal.getInstance(document.getElementById('matriculaModal')).hide();
+    displayMatriculas();
+    updateMatriculasStats();
+}
+
+// Función para eliminar matrícula
+function deleteMatricula(id) {
+    showAlert.confirm(
+        '¿Está seguro?',
+        'Esta acción no se puede deshacer'
+    ).then((result) => {
+        if (result.isConfirmed) {
+            matriculasData = matriculasData.filter(m => m.id !== id);
+            localStorage.setItem('matriculasData', JSON.stringify(matriculasData));
+            displayMatriculas();
+            updateMatriculasStats();
+            showAlert.success('¡Eliminada!', 'La matrícula ha sido eliminada correctamente');
+        }
+    });
+}
+
+// Función para ver detalles de matrícula
+function viewMatricula(id) {
+    const matricula = matriculasData.find(m => m.id === id);
+    if (!matricula) return;
+    
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+    const estudiante = estudiantesData.find(e => e.id === matricula.estudianteId);
+    const nombreCompleto = estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado';
+    
+    const detalles = `
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Estudiante:</strong> ${nombreCompleto}</p>
+                <p><strong>Grado:</strong> ${getGradoText(matricula.grado)}</p>
+                <p><strong>Año Lectivo:</strong> ${matricula.anoLectivo}</p>
+                <p><strong>Modalidad:</strong> ${matricula.modalidad}</p>
+                <p><strong>Jornada:</strong> ${matricula.jornada}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Estado:</strong> ${matricula.estado}</p>
+                <p><strong>Monto:</strong> ${formatCurrency(matricula.montoMatricula || 0)}</p>
+                <p><strong>Fecha Matrícula:</strong> ${formatDate(matricula.fechaMatricula)}</p>
+                <p><strong>Tipo:</strong> ${matricula.tipoEstudiante}</p>
+                <p><strong>Método de Pago:</strong> ${matricula.metodoPago || 'No especificado'}</p>
+            </div>
+        </div>
+        ${matricula.observaciones ? `<p><strong>Observaciones:</strong> ${matricula.observaciones}</p>` : ''}
+    `;
+    
+    Swal.fire({
+        title: 'Detalles de Matrícula',
+        html: detalles,
+        icon: 'info',
+        width: '600px'
+    });
+}
+
+// Función para actualizar estadísticas
+function updateMatriculasStats() {
+    const activas = matriculasData.filter(m => m.estado === 'Activa').length;
+    const pendientes = matriculasData.filter(m => m.estado === 'Pendiente').length;
+    const esteMes = matriculasData.filter(m => {
+        const fecha = new Date(m.fechaMatricula);
+        const hoy = new Date();
+        return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+    }).length;
+    
+    const ingresos = matriculasData
+        .filter(m => m.estado === 'Activa')
+        .reduce((total, m) => total + (m.montoMatricula || 0), 0);
+    
+    document.getElementById('total-matriculas-activas').textContent = activas;
+    document.getElementById('matriculas-pendientes').textContent = pendientes;
+    document.getElementById('matriculas-este-mes').textContent = esteMes;
+    document.getElementById('ingresos-matriculas').textContent = formatCurrency(ingresos);
 }
 
 // Función para exportar matrículas
 function exportMatriculas() {
     if (matriculasData.length === 0) {
-        showAlert.warning('Sin Datos', 'No hay matrículas para exportar');
+        showAlert.warning('Sin datos', 'No hay matrículas para exportar');
         return;
     }
     
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
     const dataToExport = matriculasData.map(matricula => {
-        const estudiante = db.getEstudianteById(matricula.estudianteId);
-        const costo = parseFloat(matricula.costoMatricula) || 0;
-        const descuento = parseFloat(matricula.descuento) || 0;
-        const costoFinal = costo * (1 - descuento / 100);
-        
+        const estudiante = estudiantesData.find(e => e.id === matricula.estudianteId);
         return {
-            'ID': matricula.id,
-            'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-            'Grado': getGradoText(matricula.grado),
+            Estudiante: estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
+            Cedula: estudiante ? estudiante.cedula : '',
+            Grado: getGradoText(matricula.grado),
             'Año Lectivo': matricula.anoLectivo,
-            'Modalidad': matricula.modalidad || '',
-            'Jornada': matricula.jornada || '',
-            'Tipo de Estudiante': matricula.tipoEstudiante || '',
-            'Estado': matricula.estado,
-            'Fecha de Matrícula': formatDateShort(matricula.fechaMatricula),
-            'Costo Original': costo > 0 ? costo : '',
-            'Descuento (%)': matricula.descuento || '0',
-            'Costo Final': costo > 0 ? costoFinal : '',
-            'Método de Pago': matricula.metodoPago || '',
-            'Número de Recibo': matricula.numeroRecibo || '',
-            'Observaciones': matricula.observaciones || ''
+            Modalidad: matricula.modalidad,
+            Jornada: matricula.jornada,
+            Estado: matricula.estado,
+            'Monto Matrícula': matricula.montoMatricula || 0,
+            'Fecha Matrícula': formatDateShort(matricula.fechaMatricula),
+            'Tipo Estudiante': matricula.tipoEstudiante,
+            Observaciones: matricula.observaciones || ''
         };
     });
     
-    exportToExcel('Registro de Matrículas', dataToExport, 'matriculas');
+    exportToExcel('Matrículas', dataToExport, 'matriculas_' + new Date().toISOString().split('T')[0]);
 }
 
-// Función para generar reporte de matrículas
+// Función para generar reporte
 function generateReporteMatriculas() {
-    const matriculas = db.getMatriculas();
-    
-    if (matriculas.length === 0) {
-        showAlert.warning('Sin Datos', 'No hay matrículas para generar reporte');
+    if (matriculasData.length === 0) {
+        showAlert.warning('Sin datos', 'No hay matrículas para generar reporte');
         return;
     }
     
-    // Reporte por estado
-    const reportePorEstado = {};
-    matriculas.forEach(m => {
-        reportePorEstado[m.estado] = (reportePorEstado[m.estado] || 0) + 1;
+    // Estadísticas para el reporte
+    const stats = {
+        total: matriculasData.length,
+        activas: matriculasData.filter(m => m.estado === 'Activa').length,
+        pendientes: matriculasData.filter(m => m.estado === 'Pendiente').length,
+        canceladas: matriculasData.filter(m => m.estado === 'Cancelada').length,
+        ingresos: matriculasData.filter(m => m.estado === 'Activa').reduce((total, m) => total + (m.montoMatricula || 0), 0)
+    };
+    
+    // Por grado
+    const porGrado = {};
+    matriculasData.forEach(m => {
+        porGrado[m.grado] = (porGrado[m.grado] || 0) + 1;
     });
     
-    const estadosData = Object.keys(reportePorEstado).map(estado => ({
-        'Estado': estado,
-        'Cantidad': reportePorEstado[estado],
-        'Porcentaje': ((reportePorEstado[estado] / matriculas.length) * 100).toFixed(2) + '%'
-    }));
+    let reporteHTML = `
+        <div class="text-start">
+            <h5>Estadísticas Generales</h5>
+            <ul>
+                <li>Total de matrículas: ${stats.total}</li>
+                <li>Matrículas activas: ${stats.activas}</li>
+                <li>Matrículas pendientes: ${stats.pendientes}</li>
+                <li>Matrículas canceladas: ${stats.canceladas}</li>
+                <li>Ingresos totales: ${formatCurrency(stats.ingresos)}</li>
+            </ul>
+            
+            <h5>Distribución por Grado</h5>
+            <ul>
+    `;
     
-    exportToExcel('Reporte de Matrículas por Estado', estadosData, 'reporte_matriculas_estado');
+    Object.entries(porGrado).forEach(([grado, cantidad]) => {
+        reporteHTML += `<li>${getGradoText(grado)}: ${cantidad} estudiantes</li>`;
+    });
+    
+    reporteHTML += `
+            </ul>
+        </div>
+    `;
+    
+    Swal.fire({
+        title: 'Reporte de Matrículas',
+        html: reporteHTML,
+        icon: 'info',
+        width: '500px'
+    });
 }
 
-// Función para refrescar matrículas
+// Función para refrescar datos
 function refreshMatriculas() {
     loadMatriculasData();
-    loadEstudiantesMatriculaSelect();
-    showAlert.success('¡Actualizado!', 'Sistema de matrículas actualizado');
+    updateMatriculasStats();
+    showAlert.success('¡Actualizado!', 'Los datos han sido actualizados');
 }
 
-// Exponer funciones globalmente
-window.loadMatriculasSection = loadMatriculasSection;
-window.showAddMatriculaModal = showAddMatriculaModal;
-window.editMatricula = editMatricula;
-window.viewMatricula = viewMatricula;
-window.saveMatricula = saveMatricula;
-window.deleteMatricula = deleteMatricula;
-window.printMatricula = printMatricula;
-window.filterMatriculas = filterMatriculas;
-window.clearMatriculasFilters = clearMatriculasFilters;
-window.changeMatriculasPage = changeMatriculasPage;
-window.exportMatriculas = exportMatriculas;
-window.generateReporteMatriculas = generateReporteMatriculas;
-window.refreshMatriculas = refreshMatriculas;
+// Inicializar cuando se carga la sección
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof loadMatriculasSection === 'function') {
+        // La función está disponible pero no la ejecutamos automáticamente
+        // Se ejecutará cuando el usuario navegue a la sección
+    }
+});

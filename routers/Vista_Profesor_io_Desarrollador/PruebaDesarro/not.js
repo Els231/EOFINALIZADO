@@ -54,12 +54,13 @@ function loadNotasSection() {
                         <option value="3">Tercer Grado</option>
                         <option value="4">Cuarto Grado</option>
                         <option value="5">Quinto Grado</option>
+                        <option value="6">Sexto Grado</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterCurso" class="form-label">Curso:</label>
-                    <select class="form-select" id="filterCurso" onchange="filterNotas()">
-                        <option value="">Todos</option>
+                    <label for="filterMateria" class="form-label">Materia:</label>
+                    <select class="form-select" id="filterMateria" onchange="filterNotas()">
+                        <option value="">Todas</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -79,6 +80,7 @@ function loadNotasSection() {
                         <option value="Tarea">Tarea</option>
                         <option value="Proyecto">Proyecto</option>
                         <option value="Participación">Participación</option>
+                        <option value="Quiz">Quiz</option>
                     </select>
                 </div>
                 <div class="col-md-1">
@@ -167,9 +169,9 @@ function loadNotasSection() {
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="cursoSelect" class="form-label">Curso *</label>
-                                        <select class="form-select" id="cursoSelect" name="cursoId" required>
-                                            <option value="">Seleccionar curso</option>
+                                        <label for="materiaSelect" class="form-label">Materia *</label>
+                                        <select class="form-select" id="materiaSelect" name="materiaId" required>
+                                            <option value="">Seleccionar materia</option>
                                         </select>
                                     </div>
                                 </div>
@@ -233,14 +235,15 @@ function loadNotasSection() {
 
                             <div class="mb-3">
                                 <label for="observaciones" class="form-label">Observaciones</label>
-                                <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                                <textarea class="form-control" id="observaciones" name="observaciones" rows="2"
+                                          placeholder="Observaciones adicionales sobre la evaluación"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary" onclick="saveNota()">
-                            <i class="fas fa-save me-1"></i> Guardar
+                            <i class="fas fa-save me-1"></i> Guardar Nota
                         </button>
                     </div>
                 </div>
@@ -248,161 +251,119 @@ function loadNotasSection() {
         </div>
     `;
     
-    // Cargar datos
     loadNotasData();
-    loadCursosSelect();
-    loadEstudiantesSelect();
+    updateNotasStats();
+    loadEstudiantesForNotas();
+    loadMateriasForNotas();
 }
 
 // Función para cargar datos de notas
 function loadNotasData() {
-    try {
-        notasData = db.getNotas();
-        renderNotasTable();
-        updateNotasStats();
-    } catch (error) {
-        console.error('Error al cargar notas:', error);
-        showAlert.error('Error', 'No se pudieron cargar los datos de notas');
+    const savedData = localStorage.getItem('notasData');
+    if (savedData) {
+        notasData = JSON.parse(savedData);
+    } else {
+        // Inicializar con datos vacíos
+        notasData = [];
     }
+    displayNotas();
 }
 
-// Función para cargar estudiantes en el select
-function loadEstudiantesSelect() {
-    const estudiantesSelect = document.getElementById('estudianteSelect');
-    if (!estudiantesSelect) return;
+// Función para cargar estudiantes en el selector
+function loadEstudiantesForNotas() {
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+    const matriculasData = JSON.parse(localStorage.getItem('matriculasData')) || [];
     
-    const estudiantes = db.getEstudiantes().filter(e => e.estado === 'Activo');
-    estudiantesSelect.innerHTML = '<option value="">Seleccionar estudiante</option>';
-    
-    estudiantes.forEach(estudiante => {
-        const option = document.createElement('option');
-        option.value = estudiante.id;
-        option.textContent = `${estudiante.nombres} ${estudiante.apellidos} - ${getGradoText(estudiante.grado)}`;
-        estudiantesSelect.appendChild(option);
+    // Solo estudiantes con matrícula activa
+    const estudiantesActivos = estudiantesData.filter(estudiante => {
+        const tieneMatriculaActiva = matriculasData.some(matricula => 
+            matricula.estudianteId === estudiante.id && matricula.estado === 'Activa'
+        );
+        return estudiante.estado === 'Activo' && tieneMatriculaActiva;
     });
-}
-
-// Función para cargar cursos en el select
-function loadCursosSelect() {
-    const cursosSelect = document.getElementById('cursoSelect');
-    const filterCurso = document.getElementById('filterCurso');
     
-    const cursos = db.getCursos();
-    
-    if (cursosSelect) {
-        cursosSelect.innerHTML = '<option value="">Seleccionar curso</option>';
-        cursos.forEach(curso => {
-            const option = document.createElement('option');
-            option.value = curso.id;
-            option.textContent = `${curso.nombre} - ${getGradoText(curso.grado)}`;
-            cursosSelect.appendChild(option);
-        });
-    }
-    
-    if (filterCurso) {
-        filterCurso.innerHTML = '<option value="">Todos</option>';
-        cursos.forEach(curso => {
-            const option = document.createElement('option');
-            option.value = curso.id;
-            option.textContent = `${curso.nombre} - ${getGradoText(curso.grado)}`;
-            filterCurso.appendChild(option);
+    const select = document.getElementById('estudianteSelect');
+    if (select) {
+        select.innerHTML = '<option value="">Seleccionar estudiante</option>';
+        estudiantesActivos.forEach(estudiante => {
+            select.innerHTML += `
+                <option value="${estudiante.id}">
+                    ${estudiante.nombres} ${estudiante.apellidos} - ${getGradoFromMatricula(estudiante.id)}
+                </option>
+            `;
         });
     }
 }
 
-// Función para actualizar estadísticas de notas
-function updateNotasStats() {
-    const notas = db.getNotas();
-    const estudiantes = db.getEstudiantes();
-    
-    // Promedio general
-    const promedioGeneral = notas.length > 0 
-        ? (notas.reduce((sum, nota) => sum + parseFloat(nota.calificacion), 0) / notas.length).toFixed(1)
-        : 0;
-    
-    // Total de notas
-    const totalNotas = notas.length;
-    
-    // Estudiantes bajo promedio (menos de 70)
-    const estudiantesBajoPromedio = calcularEstudiantesBajoPromedio(notas, estudiantes);
-    
-    // Notas este mes
-    const hoy = new Date();
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    const notasMes = notas.filter(nota => new Date(nota.fechaEvaluacion) >= inicioMes).length;
-    
-    // Actualizar UI
-    document.getElementById('promedio-general').textContent = promedioGeneral;
-    document.getElementById('total-notas').textContent = totalNotas;
-    document.getElementById('estudiantes-bajo-promedio').textContent = estudiantesBajoPromedio;
-    document.getElementById('notas-mes').textContent = notasMes;
+// Función para obtener el grado del estudiante desde la matrícula
+function getGradoFromMatricula(estudianteId) {
+    const matriculasData = JSON.parse(localStorage.getItem('matriculasData')) || [];
+    const matricula = matriculasData.find(m => m.estudianteId === estudianteId && m.estado === 'Activa');
+    return matricula ? getGradoText(matricula.grado) : '';
 }
 
-// Función para calcular estudiantes bajo promedio
-function calcularEstudiantesBajoPromedio(notas, estudiantes) {
-    const promediosPorEstudiante = {};
+// Función para cargar materias
+function loadMateriasForNotas() {
+    // Materias estándar para educación primaria
+    const materias = [
+        { id: 'MAT', nombre: 'Matemáticas' },
+        { id: 'ESP', nombre: 'Lengua Española' },
+        { id: 'CN', nombre: 'Ciencias Naturales' },
+        { id: 'CS', nombre: 'Ciencias Sociales' },
+        { id: 'EF', nombre: 'Educación Física' },
+        { id: 'EA', nombre: 'Educación Artística' },
+        { id: 'ING', nombre: 'Inglés' },
+        { id: 'FM', nombre: 'Formación Humana y Religiosa' },
+        { id: 'INF', nombre: 'Informática' }
+    ];
     
-    // Calcular promedio por estudiante
-    notas.forEach(nota => {
-        if (!promediosPorEstudiante[nota.estudianteId]) {
-            promediosPorEstudiante[nota.estudianteId] = [];
-        }
-        promediosPorEstudiante[nota.estudianteId].push(parseFloat(nota.calificacion));
-    });
+    const select = document.getElementById('materiaSelect');
+    const filterSelect = document.getElementById('filterMateria');
     
-    let estudiantesBajoPromedio = 0;
-    Object.keys(promediosPorEstudiante).forEach(estudianteId => {
-        const calificaciones = promediosPorEstudiante[estudianteId];
-        const promedio = calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length;
-        if (promedio < 70) {
-            estudiantesBajoPromedio++;
-        }
-    });
+    if (select) {
+        select.innerHTML = '<option value="">Seleccionar materia</option>';
+        materias.forEach(materia => {
+            select.innerHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
+        });
+    }
     
-    return estudiantesBajoPromedio;
+    if (filterSelect) {
+        filterSelect.innerHTML = '<option value="">Todas</option>';
+        materias.forEach(materia => {
+            filterSelect.innerHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
+        });
+    }
 }
 
-// Función para renderizar tabla de notas
-function renderNotasTable() {
+// Función para obtener nombre de materia
+function getMateriaName(materiaId) {
+    const materias = {
+        'MAT': 'Matemáticas',
+        'ESP': 'Lengua Española',
+        'CN': 'Ciencias Naturales',
+        'CS': 'Ciencias Sociales',
+        'EF': 'Educación Física',
+        'EA': 'Educación Artística',
+        'ING': 'Inglés',
+        'FM': 'Formación Humana y Religiosa',
+        'INF': 'Informática'
+    };
+    return materias[materiaId] || materiaId;
+}
+
+// Función para mostrar notas
+function displayNotas() {
     const container = document.getElementById('notasTableContainer');
-    
+    if (!container) return;
+
     if (notasData.length === 0) {
-        showEmptyState(container, 'No hay calificaciones registradas', 'fas fa-star');
+        showEmptyState(container, 'No hay notas registradas', 'fas fa-book');
+        document.getElementById('notasPagination').innerHTML = '';
         return;
     }
-    
+
     // Aplicar filtros
-    let filteredData = [...notasData];
-    
-    const searchTerm = document.getElementById('searchNotas')?.value;
-    const gradoFilter = document.getElementById('filterGradoNotas')?.value;
-    const cursoFilter = document.getElementById('filterCurso')?.value;
-    const periodoFilter = document.getElementById('filterPeriodo')?.value;
-    const tipoFilter = document.getElementById('filterTipoNota')?.value;
-    
-    // Filtrar por búsqueda de estudiante
-    if (searchTerm) {
-        const estudiantes = db.getEstudiantes();
-        const estudiantesIds = estudiantes
-            .filter(e => 
-                e.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                e.apellidos.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-            .map(e => e.id);
-        filteredData = filteredData.filter(nota => estudiantesIds.includes(nota.estudianteId));
-    }
-    
-    // Filtrar por grado
-    if (gradoFilter) {
-        const estudiantes = db.getEstudiantes().filter(e => e.grado == gradoFilter);
-        const estudiantesIds = estudiantes.map(e => e.id);
-        filteredData = filteredData.filter(nota => estudiantesIds.includes(nota.estudianteId));
-    }
-    
-    // Otros filtros
-    if (cursoFilter) filteredData = filteredData.filter(n => n.cursoId == cursoFilter);
-    if (periodoFilter) filteredData = filteredData.filter(n => n.periodo === periodoFilter);
-    if (tipoFilter) filteredData = filteredData.filter(n => n.tipoEvaluacion === tipoFilter);
+    let filteredData = applyNotasFilters();
     
     // Paginar datos
     const paginatedData = paginateData(filteredData, currentNotasPage, notasPerPage);
@@ -411,18 +372,14 @@ function renderNotasTable() {
     let tableHTML = `
         <div class="table-responsive">
             <table class="table table-hover">
-                <thead>
+                <thead class="table-dark">
                     <tr>
-                        <th onclick="sortNotas('fechaEvaluacion')" style="cursor: pointer;">
-                            Fecha <i class="fas fa-sort"></i>
-                        </th>
                         <th>Estudiante</th>
-                        <th>Curso</th>
-                        <th onclick="sortNotas('calificacion')" style="cursor: pointer;">
-                            Calificación <i class="fas fa-sort"></i>
-                        </th>
+                        <th>Materia</th>
+                        <th>Calificación</th>
                         <th>Tipo</th>
                         <th>Período</th>
+                        <th>Fecha</th>
                         <th>Peso</th>
                         <th>Acciones</th>
                     </tr>
@@ -430,44 +387,49 @@ function renderNotasTable() {
                 <tbody>
     `;
     
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+    
     paginatedData.data.forEach(nota => {
-        const estudiante = db.getEstudianteById(nota.estudianteId);
-        const curso = db.getCursos().find(c => c.id == nota.cursoId);
+        const estudiante = estudiantesData.find(e => e.id === nota.estudianteId);
+        const nombreCompleto = estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado';
         const gradeClass = getGradeClass(nota.calificacion);
+        const gradeText = getGradeText(nota.calificacion);
         
         tableHTML += `
             <tr>
-                <td>${formatDateShort(nota.fechaEvaluacion)}</td>
                 <td>
-                    <div>
-                        <div class="fw-bold">${estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'Estudiante no encontrado'}</div>
-                        <small class="text-muted">${estudiante ? getGradoText(estudiante.grado) : ''}</small>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                            <i class="fas fa-user-graduate text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">${nombreCompleto}</div>
+                            <small class="text-muted">${getGradoFromMatricula(nota.estudianteId)}</small>
+                        </div>
                     </div>
                 </td>
                 <td>
-                    <span class="badge bg-primary">${curso ? curso.nombre : 'Curso no encontrado'}</span>
+                    <span class="badge bg-secondary">${getMateriaName(nota.materiaId)}</span>
                 </td>
                 <td>
-                    <span class="fw-bold ${gradeClass}">${nota.calificacion}</span>
-                    <small class="d-block text-muted">${getGradeText(nota.calificacion)}</small>
+                    <div class="d-flex align-items-center">
+                        <span class="badge ${gradeClass} me-2">${nota.calificacion}</span>
+                        <small class="text-muted">${gradeText}</small>
+                    </div>
                 </td>
-                <td>
-                    <span class="badge bg-secondary">${nota.tipoEvaluacion}</span>
-                </td>
+                <td>${nota.tipoEvaluacion}</td>
                 <td>${nota.periodo}</td>
+                <td>${formatDateShort(nota.fechaEvaluacion)}</td>
                 <td>${nota.peso}%</td>
                 <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="viewNota(${nota.id})" 
-                                title="Ver Detalles">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-outline-warning" onclick="editNota(${nota.id})" 
-                                title="Editar">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="editNota('${nota.id}')" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-outline-danger" onclick="deleteNota(${nota.id})" 
-                                title="Eliminar">
+                        <button type="button" class="btn btn-outline-info" onclick="viewNota('${nota.id}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteNota('${nota.id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -476,273 +438,342 @@ function renderNotasTable() {
         `;
     });
     
-    tableHTML += '</tbody></table></div>';
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
     container.innerHTML = tableHTML;
     
-    // Crear paginación
-    const paginationContainer = document.getElementById('notasPagination');
-    paginationContainer.innerHTML = createPagination(
-        paginatedData.totalPages, 
-        currentNotasPage, 
-        'changeNotasPage'
-    );
+    // Actualizar paginación
+    document.getElementById('notasPagination').innerHTML = 
+        createPagination(paginatedData.totalPages, currentNotasPage, 'goToNotasPage');
 }
 
-// Función para mostrar modal de nueva nota
-function showAddNotaModal() {
-    document.getElementById('notaModalTitle').innerHTML = 
-        '<i class="fas fa-star me-2"></i>Nueva Calificación';
-    document.getElementById('notaId').value = '';
-    clearForm(document.getElementById('notaForm'));
+// Función para aplicar filtros
+function applyNotasFilters() {
+    let filtered = [...notasData];
     
-    // Establecer fecha actual
-    document.getElementById('fechaEvaluacion').value = new Date().toISOString().split('T')[0];
-    document.getElementById('peso').value = '100';
+    const searchTerm = document.getElementById('searchNotas')?.value?.toLowerCase() || '';
+    const gradoFilter = document.getElementById('filterGradoNotas')?.value || '';
+    const materiaFilter = document.getElementById('filterMateria')?.value || '';
+    const periodoFilter = document.getElementById('filterPeriodo')?.value || '';
+    const tipoFilter = document.getElementById('filterTipoNota')?.value || '';
     
-    const modal = new bootstrap.Modal(document.getElementById('notaModal'));
-    modal.show();
-}
-
-// Función para editar nota
-function editNota(id) {
-    const nota = db.getNotaById(id);
-    if (!nota) {
-        showAlert.error('Error', 'Nota no encontrada');
-        return;
-    }
-    
-    document.getElementById('notaModalTitle').innerHTML = 
-        '<i class="fas fa-edit me-2"></i>Editar Calificación';
-    
-    // Llenar formulario
-    document.getElementById('notaId').value = nota.id;
-    document.getElementById('estudianteSelect').value = nota.estudianteId;
-    document.getElementById('cursoSelect').value = nota.cursoId;
-    document.getElementById('calificacion').value = nota.calificacion;
-    document.getElementById('tipoEvaluacion').value = nota.tipoEvaluacion;
-    document.getElementById('periodo').value = nota.periodo;
-    document.getElementById('fechaEvaluacion').value = nota.fechaEvaluacion;
-    document.getElementById('peso').value = nota.peso || 100;
-    document.getElementById('descripcion').value = nota.descripcion || '';
-    document.getElementById('observaciones').value = nota.observaciones || '';
-    
-    const modal = new bootstrap.Modal(document.getElementById('notaModal'));
-    modal.show();
-}
-
-// Función para ver detalles de la nota
-function viewNota(id) {
-    const nota = db.getNotaById(id);
-    if (!nota) {
-        showAlert.error('Error', 'Nota no encontrada');
-        return;
-    }
-    
-    const estudiante = db.getEstudianteById(nota.estudianteId);
-    const curso = db.getCursos().find(c => c.id == nota.cursoId);
-    
-    Swal.fire({
-        title: `Calificación: ${nota.calificacion}`,
-        html: `
-            <div class="text-start">
-                <p><strong>Estudiante:</strong> ${estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado'}</p>
-                <p><strong>Curso:</strong> ${curso ? curso.nombre : 'No encontrado'}</p>
-                <p><strong>Tipo de Evaluación:</strong> ${nota.tipoEvaluacion}</p>
-                <p><strong>Período:</strong> ${nota.periodo}</p>
-                <p><strong>Fecha de Evaluación:</strong> ${formatDate(nota.fechaEvaluacion)}</p>
-                <p><strong>Peso:</strong> ${nota.peso}%</p>
-                <p><strong>Descripción:</strong> ${nota.descripcion || 'No especificada'}</p>
-                <p><strong>Observaciones:</strong> ${nota.observaciones || 'Ninguna'}</p>
-                <p><strong>Calificación Literaria:</strong> ${getGradeText(nota.calificacion)}</p>
-                <p><strong>Fecha de Registro:</strong> ${formatDate(nota.fechaRegistro)}</p>
-            </div>
-        `,
-        icon: 'info',
-        showCloseButton: true,
-        showConfirmButton: false,
-        width: '600px'
-    });
-}
-
-// Función para guardar nota
-function saveNota() {
-    const form = document.getElementById('notaForm');
-    
-    if (!validateForm(form)) {
-        showAlert.warning('Datos Incompletos', 'Por favor complete todos los campos requeridos');
-        return;
-    }
-    
-    const formData = new FormData(form);
-    const notaData = {};
-    
-    for (let [key, value] of formData.entries()) {
-        notaData[key] = value;
-    }
-    
-    // Validar calificación
-    const calificacion = parseFloat(notaData.calificacion);
-    if (calificacion < 0 || calificacion > 100) {
-        showAlert.warning('Calificación Inválida', 'La calificación debe estar entre 0 y 100');
-        return;
-    }
-    
-    const notaId = document.getElementById('notaId').value;
-    
-    try {
-        if (notaId) {
-            // Actualizar nota existente
-            db.updateNota(notaId, notaData);
-            showAlert.success('¡Actualizada!', 'Calificación actualizada correctamente');
-        } else {
-            // Crear nueva nota
-            db.insertNota(notaData);
-            showAlert.success('¡Guardada!', 'Calificación registrada correctamente');
-        }
-        
-        // Cerrar modal y actualizar tabla
-        const modal = bootstrap.Modal.getInstance(document.getElementById('notaModal'));
-        modal.hide();
-        
-        loadNotasData();
-        
-    } catch (error) {
-        console.error('Error al guardar nota:', error);
-        showAlert.error('Error', 'No se pudo guardar la calificación');
-    }
-}
-
-// Función para eliminar nota
-function deleteNota(id) {
-    const nota = db.getNotaById(id);
-    if (!nota) {
-        showAlert.error('Error', 'Nota no encontrada');
-        return;
-    }
-    
-    const estudiante = db.getEstudianteById(nota.estudianteId);
-    const estudianteNombre = estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'Estudiante';
-    
-    showAlert.confirm(
-        '¿Eliminar Calificación?',
-        `¿Estás seguro de que deseas eliminar la calificación de ${estudianteNombre}?`
-    ).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                db.deleteNota(id);
-                showAlert.success('¡Eliminada!', 'Calificación eliminada correctamente');
-                loadNotasData();
-            } catch (error) {
-                console.error('Error al eliminar nota:', error);
-                showAlert.error('Error', 'No se pudo eliminar la calificación');
+    if (searchTerm) {
+        const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+        filtered = filtered.filter(nota => {
+            const estudiante = estudiantesData.find(e => e.id === nota.estudianteId);
+            if (estudiante) {
+                const nombreCompleto = `${estudiante.nombres} ${estudiante.apellidos}`.toLowerCase();
+                return nombreCompleto.includes(searchTerm);
             }
-        }
-    });
+            return false;
+        });
+    }
+    
+    if (gradoFilter) {
+        const matriculasData = JSON.parse(localStorage.getItem('matriculasData')) || [];
+        filtered = filtered.filter(nota => {
+            const matricula = matriculasData.find(m => m.estudianteId === nota.estudianteId && m.estado === 'Activa');
+            return matricula && matricula.grado === gradoFilter;
+        });
+    }
+    
+    if (materiaFilter) {
+        filtered = filtered.filter(n => n.materiaId === materiaFilter);
+    }
+    
+    if (periodoFilter) {
+        filtered = filtered.filter(n => n.periodo === periodoFilter);
+    }
+    
+    if (tipoFilter) {
+        filtered = filtered.filter(n => n.tipoEvaluacion === tipoFilter);
+    }
+    
+    return filtered;
 }
 
-// Funciones de filtrado y navegación
-function filterNotas() {
-    currentNotasPage = 1;
-    renderNotasTable();
-}
-
+// Función para limpiar filtros
 function clearNotasFilters() {
     document.getElementById('searchNotas').value = '';
     document.getElementById('filterGradoNotas').value = '';
-    document.getElementById('filterCurso').value = '';
+    document.getElementById('filterMateria').value = '';
     document.getElementById('filterPeriodo').value = '';
     document.getElementById('filterTipoNota').value = '';
     filterNotas();
 }
 
-function sortNotas(field) {
-    notasData = sortData(notasData, field);
-    renderNotasTable();
+// Función para filtrar notas
+function filterNotas() {
+    currentNotasPage = 1;
+    displayNotas();
 }
 
-function changeNotasPage(page) {
+// Función para cambiar página
+function goToNotasPage(page) {
     currentNotasPage = page;
-    renderNotasTable();
+    displayNotas();
+}
+
+// Función para mostrar modal de nueva nota
+function showAddNotaModal() {
+    const modal = new bootstrap.Modal(document.getElementById('notaModal'));
+    document.getElementById('notaModalTitle').innerHTML = '<i class="fas fa-star me-2"></i>Nueva Calificación';
+    document.getElementById('notaId').value = '';
+    clearForm(document.getElementById('notaForm'));
+    
+    // Establecer fecha actual
+    document.getElementById('fechaEvaluacion').value = new Date().toISOString().split('T')[0];
+    
+    loadEstudiantesForNotas();
+    loadMateriasForNotas();
+    modal.show();
+}
+
+// Función para editar nota
+function editNota(id) {
+    const nota = notasData.find(n => n.id === id);
+    if (!nota) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('notaModal'));
+    document.getElementById('notaModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Calificación';
+    
+    // Llenar formulario
+    document.getElementById('notaId').value = nota.id;
+    document.getElementById('estudianteSelect').value = nota.estudianteId || '';
+    document.getElementById('materiaSelect').value = nota.materiaId || '';
+    document.getElementById('calificacion').value = nota.calificacion || '';
+    document.getElementById('tipoEvaluacion').value = nota.tipoEvaluacion || '';
+    document.getElementById('periodo').value = nota.periodo || '';
+    document.getElementById('fechaEvaluacion').value = nota.fechaEvaluacion || '';
+    document.getElementById('peso').value = nota.peso || '';
+    document.getElementById('descripcion').value = nota.descripcion || '';
+    document.getElementById('observaciones').value = nota.observaciones || '';
+    
+    loadEstudiantesForNotas();
+    loadMateriasForNotas();
+    modal.show();
+}
+
+// Función para guardar nota
+function saveNota() {
+    const form = document.getElementById('notaForm');
+    if (!validateForm(form)) {
+        showAlert.error('Error', 'Por favor complete todos los campos requeridos correctamente');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    const notaData = {
+        id: document.getElementById('notaId').value || generateId(),
+        estudianteId: formData.get('estudianteId'),
+        materiaId: formData.get('materiaId'),
+        calificacion: parseFloat(formData.get('calificacion')),
+        tipoEvaluacion: formData.get('tipoEvaluacion'),
+        periodo: formData.get('periodo'),
+        fechaEvaluacion: formData.get('fechaEvaluacion'),
+        peso: parseInt(formData.get('peso')),
+        descripcion: formData.get('descripcion'),
+        observaciones: formData.get('observaciones'),
+        fechaCreacion: new Date().toISOString(),
+        fechaModificacion: new Date().toISOString()
+    };
+    
+    const existingIndex = notasData.findIndex(n => n.id === notaData.id);
+    
+    if (existingIndex >= 0) {
+        notasData[existingIndex] = { ...notasData[existingIndex], ...notaData };
+        showAlert.success('¡Actualizada!', 'La calificación ha sido actualizada correctamente');
+    } else {
+        notasData.push(notaData);
+        showAlert.success('¡Registrada!', 'La calificación ha sido registrada correctamente');
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('notasData', JSON.stringify(notasData));
+    
+    // Cerrar modal y actualizar tabla
+    bootstrap.Modal.getInstance(document.getElementById('notaModal')).hide();
+    displayNotas();
+    updateNotasStats();
+}
+
+// Función para eliminar nota
+function deleteNota(id) {
+    showAlert.confirm(
+        '¿Está seguro?',
+        'Esta acción no se puede deshacer'
+    ).then((result) => {
+        if (result.isConfirmed) {
+            notasData = notasData.filter(n => n.id !== id);
+            localStorage.setItem('notasData', JSON.stringify(notasData));
+            displayNotas();
+            updateNotasStats();
+            showAlert.success('¡Eliminada!', 'La calificación ha sido eliminada correctamente');
+        }
+    });
+}
+
+// Función para ver detalles de nota
+function viewNota(id) {
+    const nota = notasData.find(n => n.id === id);
+    if (!nota) return;
+    
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
+    const estudiante = estudiantesData.find(e => e.id === nota.estudianteId);
+    const nombreCompleto = estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado';
+    
+    const detalles = `
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Estudiante:</strong> ${nombreCompleto}</p>
+                <p><strong>Materia:</strong> ${getMateriaName(nota.materiaId)}</p>
+                <p><strong>Calificación:</strong> <span class="badge ${getGradeClass(nota.calificacion)}">${nota.calificacion}</span> (${getGradeText(nota.calificacion)})</p>
+                <p><strong>Tipo:</strong> ${nota.tipoEvaluacion}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Período:</strong> ${nota.periodo}</p>
+                <p><strong>Fecha:</strong> ${formatDate(nota.fechaEvaluacion)}</p>
+                <p><strong>Peso:</strong> ${nota.peso}%</p>
+                <p><strong>Descripción:</strong> ${nota.descripcion || 'No especificada'}</p>
+            </div>
+        </div>
+        ${nota.observaciones ? `<p><strong>Observaciones:</strong> ${nota.observaciones}</p>` : ''}
+    `;
+    
+    Swal.fire({
+        title: 'Detalles de Calificación',
+        html: detalles,
+        icon: 'info',
+        width: '600px'
+    });
+}
+
+// Función para actualizar estadísticas
+function updateNotasStats() {
+    const totalNotas = notasData.length;
+    const promedioGeneral = totalNotas > 0 ? 
+        (notasData.reduce((sum, nota) => sum + nota.calificacion, 0) / totalNotas).toFixed(1) : 0;
+    
+    // Estudiantes con promedio bajo (menos de 70)
+    const estudiantesConNotas = {};
+    notasData.forEach(nota => {
+        if (!estudiantesConNotas[nota.estudianteId]) {
+            estudiantesConNotas[nota.estudianteId] = [];
+        }
+        estudiantesConNotas[nota.estudianteId].push(nota.calificacion);
+    });
+    
+    let estudiantesBajoPromedio = 0;
+    Object.keys(estudiantesConNotas).forEach(estudianteId => {
+        const notas = estudiantesConNotas[estudianteId];
+        const promedio = notas.reduce((sum, nota) => sum + nota, 0) / notas.length;
+        if (promedio < 70) {
+            estudiantesBajoPromedio++;
+        }
+    });
+    
+    // Notas de este mes
+    const notasEsteMes = notasData.filter(nota => {
+        const fecha = new Date(nota.fechaEvaluacion);
+        const hoy = new Date();
+        return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
+    }).length;
+    
+    document.getElementById('promedio-general').textContent = promedioGeneral;
+    document.getElementById('total-notas').textContent = totalNotas;
+    document.getElementById('estudiantes-bajo-promedio').textContent = estudiantesBajoPromedio;
+    document.getElementById('notas-mes').textContent = notasEsteMes;
 }
 
 // Función para exportar notas
 function exportNotas() {
     if (notasData.length === 0) {
-        showAlert.warning('Sin Datos', 'No hay calificaciones para exportar');
+        showAlert.warning('Sin datos', 'No hay notas para exportar');
         return;
     }
     
+    const estudiantesData = JSON.parse(localStorage.getItem('estudiantesData')) || [];
     const dataToExport = notasData.map(nota => {
-        const estudiante = db.getEstudianteById(nota.estudianteId);
-        const curso = db.getCursos().find(c => c.id == nota.cursoId);
-        
+        const estudiante = estudiantesData.find(e => e.id === nota.estudianteId);
         return {
-            'Fecha': formatDateShort(nota.fechaEvaluacion),
-            'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-            'Grado': estudiante ? getGradoText(estudiante.grado) : '',
-            'Curso': curso ? curso.nombre : 'No encontrado',
-            'Tipo de Evaluación': nota.tipoEvaluacion,
-            'Período': nota.periodo,
-            'Calificación': nota.calificacion,
+            Estudiante: estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
+            Grado: getGradoFromMatricula(nota.estudianteId),
+            Materia: getMateriaName(nota.materiaId),
+            Calificación: nota.calificacion,
+            'Tipo Evaluación': nota.tipoEvaluacion,
+            Período: nota.periodo,
+            'Fecha Evaluación': formatDateShort(nota.fechaEvaluacion),
             'Peso (%)': nota.peso,
-            'Descripción': nota.descripcion || '',
-            'Observaciones': nota.observaciones || '',
-            'Fecha de Registro': formatDateShort(nota.fechaRegistro)
+            Descripción: nota.descripcion || '',
+            Observaciones: nota.observaciones || '',
+            'Nivel de Desempeño': getGradeText(nota.calificacion)
         };
     });
     
-    exportToExcel('Registro de Calificaciones', dataToExport, 'calificaciones');
+    exportToExcel('Notas y Calificaciones', dataToExport, 'notas_' + new Date().toISOString().split('T')[0]);
 }
 
-// Función para generar reporte de notas
+// Función para generar reporte
 function generateReporteNotas() {
-    const notas = db.getNotas();
-    const estudiantes = db.getEstudiantes();
-    const cursos = db.getCursos();
-    
-    if (notas.length === 0) {
-        showAlert.warning('Sin Datos', 'No hay calificaciones para generar reporte');
+    if (notasData.length === 0) {
+        showAlert.warning('Sin datos', 'No hay notas para generar reporte');
         return;
     }
     
-    // Generar reporte por estudiante
-    const reportePorEstudiante = estudiantes.map(estudiante => {
-        const notasEstudiante = notas.filter(n => n.estudianteId === estudiante.id);
-        const promedio = notasEstudiante.length > 0 
-            ? (notasEstudiante.reduce((sum, n) => sum + parseFloat(n.calificacion), 0) / notasEstudiante.length).toFixed(2)
-            : 0;
-        
-        return {
-            'Estudiante': `${estudiante.nombres} ${estudiante.apellidos}`,
-            'Grado': getGradoText(estudiante.grado),
-            'Total Notas': notasEstudiante.length,
-            'Promedio': promedio,
-            'Estado': promedio >= 70 ? 'Aprobado' : 'Reprobado'
-        };
-    }).filter(r => r['Total Notas'] > 0);
+    // Estadísticas por materia
+    const estatisticasPorMateria = {};
+    notasData.forEach(nota => {
+        if (!estatisticasPorMateria[nota.materiaId]) {
+            estatisticasPorMateria[nota.materiaId] = [];
+        }
+        estatisticasPorMateria[nota.materiaId].push(nota.calificacion);
+    });
     
-    exportToExcel('Reporte de Calificaciones por Estudiante', reportePorEstudiante, 'reporte_notas_estudiantes');
+    let reporteHTML = `
+        <div class="text-start">
+            <h5>Estadísticas Generales</h5>
+            <ul>
+                <li>Total de calificaciones: ${notasData.length}</li>
+                <li>Promedio general: ${(notasData.reduce((sum, nota) => sum + nota.calificacion, 0) / notasData.length).toFixed(1)}</li>
+            </ul>
+            
+            <h5>Promedios por Materia</h5>
+            <ul>
+    `;
+    
+    Object.entries(estatisticasPorMateria).forEach(([materiaId, calificaciones]) => {
+        const promedio = (calificaciones.reduce((sum, cal) => sum + cal, 0) / calificaciones.length).toFixed(1);
+        reporteHTML += `<li>${getMateriaName(materiaId)}: ${promedio} (${calificaciones.length} evaluaciones)</li>`;
+    });
+    
+    reporteHTML += `
+            </ul>
+        </div>
+    `;
+    
+    Swal.fire({
+        title: 'Reporte de Calificaciones',
+        html: reporteHTML,
+        icon: 'info',
+        width: '500px'
+    });
 }
 
-// Función para refrescar notas
+// Función para refrescar datos
 function refreshNotas() {
     loadNotasData();
-    loadCursosSelect();
-    loadEstudiantesSelect();
-    showAlert.success('¡Actualizado!', 'Sistema de notas actualizado');
+    updateNotasStats();
+    showAlert.success('¡Actualizado!', 'Los datos han sido actualizados');
 }
 
-// Exponer funciones globalmente
-window.loadNotasSection = loadNotasSection;
-window.showAddNotaModal = showAddNotaModal;
-window.editNota = editNota;
-window.viewNota = viewNota;
-window.saveNota = saveNota;
-window.deleteNota = deleteNota;
-window.filterNotas = filterNotas;
-window.clearNotasFilters = clearNotasFilters;
-window.sortNotas = sortNotas;
-window.changeNotasPage = changeNotasPage;
-window.exportNotas = exportNotas;
-window.generateReporteNotas = generateReporteNotas;
-window.refreshNotas = refreshNotas;
+// Inicializar cuando se carga la sección
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof loadNotasSection === 'function') {
+        // La función está disponible pero no la ejecutamos automáticamente
+        // Se ejecutará cuando el usuario navegue a la sección
+    }
+});
