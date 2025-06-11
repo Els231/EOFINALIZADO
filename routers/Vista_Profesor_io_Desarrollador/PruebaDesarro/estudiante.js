@@ -1,11 +1,30 @@
 /**
  * Módulo de gestión de estudiantes
- * Funcionalidades CRUD para estudiantes
+ * Funcionalidades CRUD para estudiantes con sincronización automática
  */
 
 let estudiantesData = [];
 let currentPage = 1;
 const itemsPerPage = 10;
+
+// Registrar módulo en el sistema de sincronización
+window.registerModule('estudiantes', handleDataSync);
+
+// Función de sincronización con otros módulos
+function handleDataSync(changeData) {
+    const { collection, action, data } = changeData;
+    
+    // Actualizar datos locales cuando hay cambios en estudiantes o datos relacionados
+    if (collection === 'estudiantes' || collection === 'tutores' || collection === 'matriculas') {
+        refreshEstudiantesData();
+        if (typeof updateEstudiantesTable === 'function') {
+            updateEstudiantesTable();
+        }
+        if (typeof updateEstudiantesStats === 'function') {
+            updateEstudiantesStats();
+        }
+    }
+}
 
 // Función principal para cargar la sección de estudiantes
 function loadEstudiantesSection() {
@@ -33,6 +52,78 @@ function loadEstudiantesSection() {
             </div>
         </div>
 
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Estudiantes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-estudiantes">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-success">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Estudiantes Activos
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="estudiantes-activos">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-warning">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Nuevos Este Mes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="estudiantes-mes">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-plus fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-info">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Promedio de Edad
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="promedio-edad">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-birthday-cake fa-2x text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Filtros -->
         <div class="filtros-section">
             <div class="row">
@@ -51,6 +142,7 @@ function loadEstudiantesSection() {
                         <option value="3">Tercer Grado</option>
                         <option value="4">Cuarto Grado</option>
                         <option value="5">Quinto Grado</option>
+                        <option value="6">Sexto Grado</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -71,18 +163,33 @@ function loadEstudiantesSection() {
         </div>
 
         <!-- Tabla de estudiantes -->
-        <div class="card">
-            <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Lista de Estudiantes</h6>
+        <div class="table-section">
+            <div class="table-responsive">
+                <table class="table table-striped" id="estudiantesTable">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Nombre Completo</th>
+                            <th>Cédula</th>
+                            <th>Grado</th>
+                            <th>Tutor</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estudiantesTableBody">
+                        <!-- Contenido dinámico -->
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <div id="estudiantesTableContainer">
-                    <!-- La tabla se cargará aquí -->
-                </div>
-                <div id="estudiantesPagination" class="mt-3">
-                    <!-- La paginación se cargará aquí -->
-                </div>
-            </div>
+            
+            <!-- Paginación -->
+            <nav aria-label="Paginación de estudiantes">
+                <ul class="pagination justify-content-center" id="estudiantesPagination">
+                    <!-- Contenido dinámico -->
+                </ul>
+            </nav>
         </div>
 
         <!-- Modal para agregar/editar estudiante -->
@@ -90,68 +197,77 @@ function loadEstudiantesSection() {
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="estudianteModalTitle">
-                            <i class="fas fa-user-graduate me-2"></i>
-                            Nuevo Estudiante
-                        </h5>
+                        <h5 class="modal-title" id="estudianteModalTitle">Nuevo Estudiante</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="estudianteForm">
                             <input type="hidden" id="estudianteId">
                             
+                            <!-- Datos personales -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nombres" class="form-label">Nombres *</label>
-                                        <input type="text" class="form-control" id="nombres" name="nombres" required>
+                                        <label for="nombre" class="form-label">Nombre *</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="apellidos" class="form-label">Apellidos *</label>
-                                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                                        <label for="apellido" class="form-label">Apellido *</label>
+                                        <input type="text" class="form-control" id="apellido" name="apellido" required>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="cedula" class="form-label">Cédula</label>
                                         <input type="text" class="form-control" id="cedula" name="cedula" 
                                                placeholder="000-0000000-0">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento *</label>
-                                        <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="grado" class="form-label">Grado *</label>
-                                        <select class="form-select" id="grado" name="grado" required>
-                                            <option value="">Seleccionar grado</option>
-                                            <option value="1">Primer Grado</option>
-                                            <option value="2">Segundo Grado</option>
-                                            <option value="3">Tercer Grado</option>
-                                            <option value="4">Cuarto Grado</option>
-                                            <option value="5">Quinto Grado</option>
-                                        </select>
+                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento *</label>
+                                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="genero" class="form-label">Género *</label>
                                         <select class="form-select" id="genero" name="genero" required>
-                                            <option value="">Seleccionar género</option>
+                                            <option value="">Seleccionar...</option>
                                             <option value="Masculino">Masculino</option>
                                             <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información académica -->
+                            <h6 class="mt-4 mb-3">Información Académica</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="grado" class="form-label">Grado *</label>
+                                        <select class="form-select" id="grado" name="grado" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="1">Primer Grado</option>
+                                            <option value="2">Segundo Grado</option>
+                                            <option value="3">Tercer Grado</option>
+                                            <option value="4">Cuarto Grado</option>
+                                            <option value="5">Quinto Grado</option>
+                                            <option value="6">Sexto Grado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="turno_id" class="form-label">Turno *</label>
+                                        <select class="form-select" id="turno_id" name="turno_id" required>
+                                            <!-- Opciones cargadas dinámicamente -->
                                         </select>
                                     </div>
                                 </div>
@@ -166,11 +282,14 @@ function loadEstudiantesSection() {
                                 </div>
                             </div>
 
+                            <!-- Información de contacto -->
+                            <h6 class="mt-4 mb-3">Información de Contacto</h6>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="telefono" class="form-label">Teléfono</label>
-                                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                                        <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                               placeholder="809-000-0000">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -186,23 +305,21 @@ function loadEstudiantesSection() {
                                 <textarea class="form-control" id="direccion" name="direccion" rows="2"></textarea>
                             </div>
 
-                            <h6 class="mt-4 mb-3">Información del Tutor/Acudiente</h6>
-                            
+                            <!-- Tutor -->
+                            <h6 class="mt-4 mb-3">Información del Tutor</h6>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="nombreTutor" class="form-label">Nombre del Tutor</label>
-                                        <input type="text" class="form-control" id="nombreTutor" name="nombreTutor">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="telefonoTutor" class="form-label">Teléfono del Tutor</label>
-                                        <input type="tel" class="form-control" id="telefonoTutor" name="telefonoTutor">
+                                        <label for="tutor_id" class="form-label">Tutor Responsable</label>
+                                        <select class="form-select" id="tutor_id" name="tutor_id">
+                                            <option value="">Seleccionar tutor...</option>
+                                            <!-- Opciones cargadas dinámicamente -->
+                                        </select>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Observaciones -->
                             <div class="mb-3">
                                 <label for="observaciones" class="form-label">Observaciones</label>
                                 <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
@@ -211,306 +328,435 @@ function loadEstudiantesSection() {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="saveEstudiante()">
-                            <i class="fas fa-save me-1"></i> Guardar
-                        </button>
+                        <button type="button" class="btn btn-primary" onclick="saveEstudiante()">Guardar</button>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
-    // Cargar datos
-    loadEstudiantesData();
+
+    // Inicializar datos y tabla
+    refreshEstudiantesData();
+    loadTurnosOptions();
+    loadTutoresOptions();
+    updateEstudiantesTable();
+    updateEstudiantesStats();
 }
 
-// Función para cargar datos de estudiantes
-function loadEstudiantesData() {
-    try {
-        estudiantesData = db.getEstudiantes();
-        renderEstudiantesTable();
-    } catch (error) {
-        console.error('Error al cargar estudiantes:', error);
-        showAlert.error('Error', 'No se pudieron cargar los datos de estudiantes');
+// Refrescar datos de estudiantes desde la base de datos
+function refreshEstudiantesData() {
+    estudiantesData = window.db.read('estudiantes');
+}
+
+// Cargar opciones de turnos
+function loadTurnosOptions() {
+    const turnos = window.db.read('turnos').filter(t => t.activo);
+    const select = document.getElementById('turno_id');
+    if (select) {
+        select.innerHTML = '<option value="">Seleccionar turno...</option>';
+        turnos.forEach(turno => {
+            const option = document.createElement('option');
+            option.value = turno.id;
+            option.textContent = `${turno.nombre} (${turno.hora_inicio} - ${turno.hora_fin})`;
+            select.appendChild(option);
+        });
     }
 }
 
-// Función para renderizar la tabla de estudiantes
-function renderEstudiantesTable() {
-    const container = document.getElementById('estudiantesTableContainer');
-    
-    if (estudiantesData.length === 0) {
-        showEmptyState(container, 'No hay estudiantes registrados', 'fas fa-user-graduate');
-        return;
+// Cargar opciones de tutores
+function loadTutoresOptions() {
+    const tutores = window.db.read('tutores').filter(t => t.estado === 'Activo');
+    const select = document.getElementById('tutor_id');
+    if (select) {
+        select.innerHTML = '<option value="">Seleccionar tutor...</option>';
+        tutores.forEach(tutor => {
+            const option = document.createElement('option');
+            option.value = tutor.id;
+            option.textContent = `${tutor.nombre} ${tutor.apellido} - ${tutor.parentesco}`;
+            select.appendChild(option);
+        });
     }
-    
+}
+
+// Actualizar estadísticas
+function updateEstudiantesStats() {
+    const stats = window.db.getStats('estudiantes');
+    const edades = estudiantesData.map(e => calculateAge(e.fecha_nacimiento)).filter(edad => edad > 0);
+    const promedioEdad = edades.length > 0 ? Math.round(edades.reduce((a, b) => a + b, 0) / edades.length) : 0;
+
+    document.getElementById('total-estudiantes').textContent = stats.total;
+    document.getElementById('estudiantes-activos').textContent = stats.active;
+    document.getElementById('estudiantes-mes').textContent = stats.created_this_month;
+    document.getElementById('promedio-edad').textContent = promedioEdad;
+
+    // Actualizar estadísticas del módulo
+    window.updateModuleStats('estudiantes', {
+        ...stats,
+        promedio_edad: promedioEdad
+    });
+}
+
+// Actualizar tabla de estudiantes
+function updateEstudiantesTable() {
+    const tbody = document.getElementById('estudiantesTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
     // Aplicar filtros
     let filteredData = [...estudiantesData];
     
-    const searchTerm = document.getElementById('searchEstudiantes')?.value;
-    const gradoFilter = document.getElementById('filterGrado')?.value;
-    const estadoFilter = document.getElementById('filterEstado')?.value;
-    
+    const searchTerm = document.getElementById('searchEstudiantes')?.value.toLowerCase() || '';
+    const gradoFilter = document.getElementById('filterGrado')?.value || '';
+    const estadoFilter = document.getElementById('filterEstado')?.value || '';
+
     if (searchTerm) {
-        filteredData = filterData(filteredData, searchTerm, ['nombres', 'apellidos', 'cedula']);
+        filteredData = filteredData.filter(estudiante =>
+            estudiante.nombre.toLowerCase().includes(searchTerm) ||
+            estudiante.apellido.toLowerCase().includes(searchTerm) ||
+            (estudiante.cedula && estudiante.cedula.includes(searchTerm))
+        );
     }
-    
+
     if (gradoFilter) {
-        filteredData = filteredData.filter(e => e.grado == gradoFilter);
+        filteredData = filteredData.filter(estudiante => estudiante.grado === gradoFilter);
     }
-    
+
     if (estadoFilter) {
-        filteredData = filteredData.filter(e => e.estado === estadoFilter);
+        filteredData = filteredData.filter(estudiante => estudiante.estado === estadoFilter);
     }
-    
-    // Paginar datos
-    const paginatedData = paginateData(filteredData, currentPage, itemsPerPage);
-    
-    // Crear tabla
-    let tableHTML = `
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th onclick="sortEstudiantes('nombres')" style="cursor: pointer;">
-                            Nombre <i class="fas fa-sort"></i>
-                        </th>
-                        <th onclick="sortEstudiantes('grado')" style="cursor: pointer;">
-                            Grado <i class="fas fa-sort"></i>
-                        </th>
-                        <th>Edad</th>
-                        <th>Género</th>
-                        <th onclick="sortEstudiantes('estado')" style="cursor: pointer;">
-                            Estado <i class="fas fa-sort"></i>
-                        </th>
-                        <th>Teléfono</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    paginatedData.data.forEach(estudiante => {
-        const edad = calculateAge(estudiante.fechaNacimiento);
-        const gradoText = getGradoText(estudiante.grado);
-        const estadoBadge = estudiante.estado === 'Activo' 
-            ? '<span class="badge bg-success">Activo</span>'
-            : '<span class="badge bg-secondary">Inactivo</span>';
+
+    // Paginación
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filteredData.slice(startIndex, endIndex);
+
+    // Obtener datos relacionados
+    const tutores = window.db.read('tutores');
+    const turnos = window.db.read('turnos');
+
+    // Generar filas de la tabla
+    paginatedData.forEach(estudiante => {
+        const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+        const turno = turnos.find(t => t.id === estudiante.turno_id);
         
-        tableHTML += `
-            <tr>
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="avatar me-2">
-                            ${estudiante.nombres.charAt(0)}${estudiante.apellidos.charAt(0)}
-                        </div>
-                        <div>
-                            <div class="fw-bold">${estudiante.nombres} ${estudiante.apellidos}</div>
-                            <small class="text-muted">${estudiante.cedula || 'Sin cédula'}</small>
-                        </div>
-                    </div>
-                </td>
-                <td>${gradoText}</td>
-                <td>${edad} años</td>
-                <td>${estudiante.genero}</td>
-                <td>${estadoBadge}</td>
-                <td>${estudiante.telefono || 'N/A'}</td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="viewEstudiante(${estudiante.id})" 
-                                title="Ver Detalles">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-outline-warning" onclick="editEstudiante(${estudiante.id})" 
-                                title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-outline-danger" onclick="deleteEstudiante(${estudiante.id})" 
-                                title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="avatar-circle">
+                    ${estudiante.nombre.charAt(0)}${estudiante.apellido.charAt(0)}
+                </div>
+            </td>
+            <td>
+                <strong>${estudiante.nombre} ${estudiante.apellido}</strong><br>
+                <small class="text-muted">Edad: ${calculateAge(estudiante.fecha_nacimiento)} años</small>
+            </td>
+            <td>${estudiante.cedula || 'N/A'}</td>
+            <td>
+                <span class="badge bg-primary">${getGradoName(estudiante.grado)}</span><br>
+                <small class="text-muted">${turno ? turno.nombre : 'N/A'}</small>
+            </td>
+            <td>${tutor ? `${tutor.nombre} ${tutor.apellido}` : 'Sin asignar'}</td>
+            <td>${estudiante.telefono || 'N/A'}</td>
+            <td>
+                <span class="badge ${estudiante.estado === 'Activo' ? 'bg-success' : 'bg-secondary'}">
+                    ${estudiante.estado}
+                </span>
+            </td>
+            <td>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewEstudiante('${estudiante.id}')" title="Ver">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="editEstudiante('${estudiante.id}')" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteEstudiante('${estudiante.id}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
         `;
+        tbody.appendChild(row);
     });
-    
-    tableHTML += '</tbody></table></div>';
-    container.innerHTML = tableHTML;
-    
-    // Crear paginación
-    const paginationContainer = document.getElementById('estudiantesPagination');
-    paginationContainer.innerHTML = createPagination(
-        paginatedData.totalPages, 
-        currentPage, 
-        'changeEstudiantesPage'
-    );
+
+    // Actualizar paginación
+    updatePagination(totalPages, filteredData.length);
 }
 
-// Función para obtener texto del grado
-function getGradoText(grado) {
-    const grados = {
-        1: 'Primer Grado',
-        2: 'Segundo Grado',
-        3: 'Tercer Grado',
-        4: 'Cuarto Grado',
-        5: 'Quinto Grado'
-    };
-    return grados[grado] || 'Sin asignar';
+// Actualizar paginación
+function updatePagination(totalPages, totalItems) {
+    const pagination = document.getElementById('estudiantesPagination');
+    if (!pagination) return;
+
+    pagination.innerHTML = '';
+
+    if (totalPages <= 1) return;
+
+    // Botón anterior
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePageEstudiantes(${currentPage - 1})">Anterior</a>`;
+    pagination.appendChild(prevLi);
+
+    // Números de página
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            const li = document.createElement('li');
+            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#" onclick="changePageEstudiantes(${i})">${i}</a>`;
+            pagination.appendChild(li);
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            const li = document.createElement('li');
+            li.className = 'page-item disabled';
+            li.innerHTML = '<span class="page-link">...</span>';
+            pagination.appendChild(li);
+        }
+    }
+
+    // Botón siguiente
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePageEstudiantes(${currentPage + 1})">Siguiente</a>`;
+    pagination.appendChild(nextLi);
 }
 
-// Función para mostrar modal de nuevo estudiante
+// Cambiar página
+function changePageEstudiantes(page) {
+    const totalPages = Math.ceil(estudiantesData.length / itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        updateEstudiantesTable();
+    }
+}
+
+// Mostrar modal para agregar estudiante
 function showAddEstudianteModal() {
-    document.getElementById('estudianteModalTitle').innerHTML = 
-        '<i class="fas fa-user-graduate me-2"></i>Nuevo Estudiante';
+    document.getElementById('estudianteModalTitle').textContent = 'Nuevo Estudiante';
+    document.getElementById('estudianteForm').reset();
     document.getElementById('estudianteId').value = '';
-    clearForm(document.getElementById('estudianteForm'));
+    document.getElementById('estado').value = 'Activo';
     
     const modal = new bootstrap.Modal(document.getElementById('estudianteModal'));
     modal.show();
 }
 
-// Función para editar estudiante
+// Editar estudiante
 function editEstudiante(id) {
-    const estudiante = db.getEstudianteById(id);
-    if (!estudiante) {
-        showAlert.error('Error', 'Estudiante no encontrado');
-        return;
-    }
-    
-    document.getElementById('estudianteModalTitle').innerHTML = 
-        '<i class="fas fa-edit me-2"></i>Editar Estudiante';
+    const estudiante = estudiantesData.find(e => e.id === id);
+    if (!estudiante) return;
+
+    document.getElementById('estudianteModalTitle').textContent = 'Editar Estudiante';
+    document.getElementById('estudianteId').value = estudiante.id;
     
     // Llenar formulario
-    document.getElementById('estudianteId').value = estudiante.id;
-    document.getElementById('nombres').value = estudiante.nombres || '';
-    document.getElementById('apellidos').value = estudiante.apellidos || '';
-    document.getElementById('cedula').value = estudiante.cedula || '';
-    document.getElementById('fechaNacimiento').value = estudiante.fechaNacimiento || '';
-    document.getElementById('grado').value = estudiante.grado || '';
-    document.getElementById('genero').value = estudiante.genero || '';
-    document.getElementById('estado').value = estudiante.estado || 'Activo';
-    document.getElementById('telefono').value = estudiante.telefono || '';
-    document.getElementById('email').value = estudiante.email || '';
-    document.getElementById('direccion').value = estudiante.direccion || '';
-    document.getElementById('nombreTutor').value = estudiante.nombreTutor || '';
-    document.getElementById('telefonoTutor').value = estudiante.telefonoTutor || '';
-    document.getElementById('observaciones').value = estudiante.observaciones || '';
-    
+    Object.keys(estudiante).forEach(key => {
+        const field = document.getElementById(key);
+        if (field) {
+            field.value = estudiante[key] || '';
+        }
+    });
+
     const modal = new bootstrap.Modal(document.getElementById('estudianteModal'));
     modal.show();
 }
 
-// Función para ver detalles del estudiante
-function viewEstudiante(id) {
-    const estudiante = db.getEstudianteById(id);
-    if (!estudiante) {
-        showAlert.error('Error', 'Estudiante no encontrado');
-        return;
-    }
-    
-    const edad = calculateAge(estudiante.fechaNacimiento);
-    const gradoText = getGradoText(estudiante.grado);
-    
-    Swal.fire({
-        title: `${estudiante.nombres} ${estudiante.apellidos}`,
-        html: `
-            <div class="text-start">
-                <p><strong>Cédula:</strong> ${estudiante.cedula || 'No registrada'}</p>
-                <p><strong>Edad:</strong> ${edad} años</p>
-                <p><strong>Grado:</strong> ${gradoText}</p>
-                <p><strong>Género:</strong> ${estudiante.genero}</p>
-                <p><strong>Estado:</strong> ${estudiante.estado}</p>
-                <p><strong>Teléfono:</strong> ${estudiante.telefono || 'No registrado'}</p>
-                <p><strong>Email:</strong> ${estudiante.email || 'No registrado'}</p>
-                <p><strong>Dirección:</strong> ${estudiante.direccion || 'No registrada'}</p>
-                <hr>
-                <p><strong>Tutor:</strong> ${estudiante.nombreTutor || 'No registrado'}</p>
-                <p><strong>Teléfono del Tutor:</strong> ${estudiante.telefonoTutor || 'No registrado'}</p>
-                <p><strong>Observaciones:</strong> ${estudiante.observaciones || 'Ninguna'}</p>
-                <p><strong>Fecha de Registro:</strong> ${formatDate(estudiante.fechaRegistro)}</p>
-            </div>
-        `,
-        icon: 'info',
-        showCloseButton: true,
-        showConfirmButton: false,
-        width: '600px'
-    });
-}
-
-// Función para guardar estudiante
+// Guardar estudiante
 function saveEstudiante() {
     const form = document.getElementById('estudianteForm');
-    
-    if (!validateForm(form)) {
-        showAlert.warning('Datos Incompletos', 'Por favor complete todos los campos requeridos');
+    const formData = new FormData(form);
+    const id = document.getElementById('estudianteId').value;
+
+    // Validar campos requeridos
+    if (!formData.get('nombre') || !formData.get('apellido') || !formData.get('fecha_nacimiento')) {
+        alert('Por favor complete todos los campos requeridos.');
         return;
     }
-    
-    const formData = new FormData(form);
+
+    // Validar email si se proporciona
+    const email = formData.get('email');
+    if (email && !validateEmail(email)) {
+        alert('Por favor ingrese un email válido.');
+        return;
+    }
+
+    // Validar cédula si se proporciona
+    const cedula = formData.get('cedula');
+    if (cedula && !validateCedula(cedula)) {
+        alert('Por favor ingrese una cédula válida (formato: 000-0000000-0).');
+        return;
+    }
+
     const estudianteData = {};
-    
     for (let [key, value] of formData.entries()) {
         estudianteData[key] = value;
     }
-    
-    const estudianteId = document.getElementById('estudianteId').value;
-    
+
     try {
-        if (estudianteId) {
+        if (id) {
             // Actualizar estudiante existente
-            db.updateEstudiante(estudianteId, estudianteData);
-            showAlert.success('¡Actualizado!', 'Estudiante actualizado correctamente');
+            window.db.update('estudiantes', id, estudianteData);
         } else {
             // Crear nuevo estudiante
-            db.insertEstudiante(estudianteData);
-            showAlert.success('¡Guardado!', 'Estudiante registrado correctamente');
+            window.db.create('estudiantes', estudianteData);
         }
-        
-        // Cerrar modal y actualizar tabla
+
+        // Cerrar modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('estudianteModal'));
         modal.hide();
-        
-        loadEstudiantesData();
+
+        // Los datos se actualizarán automáticamente por sincronización
         
     } catch (error) {
         console.error('Error al guardar estudiante:', error);
-        showAlert.error('Error', 'No se pudo guardar el estudiante');
+        alert('Error al guardar el estudiante. Por favor intente nuevamente.');
     }
 }
 
-// Función para eliminar estudiante
+// Ver detalles del estudiante
+function viewEstudiante(id) {
+    const estudiante = estudiantesData.find(e => e.id === id);
+    if (!estudiante) return;
+
+    const tutores = window.db.read('tutores');
+    const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+    const turnos = window.db.read('turnos');
+    const turno = turnos.find(t => t.id === estudiante.turno_id);
+
+    const modalContent = `
+        <div class="modal fade" id="viewEstudianteModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Información del Estudiante</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <div class="avatar-circle-large mx-auto mb-3">
+                                    ${estudiante.nombre.charAt(0)}${estudiante.apellido.charAt(0)}
+                                </div>
+                                <h5>${estudiante.nombre} ${estudiante.apellido}</h5>
+                                <span class="badge ${estudiante.estado === 'Activo' ? 'bg-success' : 'bg-secondary'}">
+                                    ${estudiante.estado}
+                                </span>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <strong>Cédula:</strong><br>
+                                        ${estudiante.cedula || 'N/A'}
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Fecha de Nacimiento:</strong><br>
+                                        ${formatDate(estudiante.fecha_nacimiento)}
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Edad:</strong><br>
+                                        ${calculateAge(estudiante.fecha_nacimiento)} años
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Género:</strong><br>
+                                        ${estudiante.genero}
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Grado:</strong><br>
+                                        ${getGradoName(estudiante.grado)}
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Turno:</strong><br>
+                                        ${turno ? turno.nombre : 'N/A'}
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-sm-6">
+                                        <strong>Teléfono:</strong><br>
+                                        ${estudiante.telefono || 'N/A'}
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <strong>Email:</strong><br>
+                                        ${estudiante.email || 'N/A'}
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <strong>Dirección:</strong><br>
+                                        ${estudiante.direccion || 'N/A'}
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <strong>Tutor:</strong><br>
+                                        ${tutor ? `${tutor.nombre} ${tutor.apellido} (${tutor.parentesco})` : 'Sin asignar'}
+                                    </div>
+                                </div>
+                                ${estudiante.observaciones ? `
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <strong>Observaciones:</strong><br>
+                                        ${estudiante.observaciones}
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" onclick="editEstudiante('${estudiante.id}')" data-bs-dismiss="modal">Editar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remover modal existente si existe
+    const existingModal = document.getElementById('viewEstudianteModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Agregar nuevo modal
+    document.body.insertAdjacentHTML('beforeend', modalContent);
+    const modal = new bootstrap.Modal(document.getElementById('viewEstudianteModal'));
+    modal.show();
+}
+
+// Eliminar estudiante
 function deleteEstudiante(id) {
-    const estudiante = db.getEstudianteById(id);
-    if (!estudiante) {
-        showAlert.error('Error', 'Estudiante no encontrado');
+    const estudiante = estudiantesData.find(e => e.id === id);
+    if (!estudiante) return;
+
+    // Verificar si el estudiante tiene registros relacionados
+    if (!window.db.validateReferences('estudiantes', id)) {
+        alert('No se puede eliminar este estudiante porque tiene registros relacionados (notas, matrículas, etc.).');
         return;
     }
-    
-    showAlert.confirm(
-        '¿Eliminar Estudiante?',
-        `¿Estás seguro de que deseas eliminar a ${estudiante.nombres} ${estudiante.apellidos}?`
-    ).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                db.deleteEstudiante(id);
-                showAlert.success('¡Eliminado!', 'Estudiante eliminado correctamente');
-                loadEstudiantesData();
-            } catch (error) {
-                console.error('Error al eliminar estudiante:', error);
-                showAlert.error('Error', 'No se pudo eliminar el estudiante');
-            }
+
+    if (confirm(`¿Está seguro de que desea eliminar a ${estudiante.nombre} ${estudiante.apellido}?`)) {
+        try {
+            window.db.delete('estudiantes', id);
+            // Los datos se actualizarán automáticamente por sincronización
+        } catch (error) {
+            console.error('Error al eliminar estudiante:', error);
+            alert('Error al eliminar el estudiante. Por favor intente nuevamente.');
         }
-    });
+    }
 }
 
-// Función para filtrar estudiantes
+// Filtrar estudiantes
 function filterEstudiantes() {
     currentPage = 1;
-    renderEstudiantesTable();
+    updateEstudiantesTable();
 }
 
-// Función para limpiar filtros
+// Limpiar filtros
 function clearFilters() {
     document.getElementById('searchEstudiantes').value = '';
     document.getElementById('filterGrado').value = '';
@@ -518,62 +764,92 @@ function clearFilters() {
     filterEstudiantes();
 }
 
-// Función para ordenar estudiantes
-function sortEstudiantes(field) {
-    estudiantesData = sortData(estudiantesData, field);
-    renderEstudiantesTable();
-}
-
-// Función para cambiar página
-function changeEstudiantesPage(page) {
-    currentPage = page;
-    renderEstudiantesTable();
-}
-
-// Función para exportar estudiantes
+// Exportar estudiantes
 function exportEstudiantes() {
-    if (estudiantesData.length === 0) {
-        showAlert.warning('Sin Datos', 'No hay estudiantes para exportar');
-        return;
+    try {
+        const data = estudiantesData.map(estudiante => {
+            const tutores = window.db.read('tutores');
+            const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+            
+            return {
+                'Nombre': estudiante.nombre,
+                'Apellido': estudiante.apellido,
+                'Cédula': estudiante.cedula || '',
+                'Fecha de Nacimiento': estudiante.fecha_nacimiento,
+                'Edad': calculateAge(estudiante.fecha_nacimiento),
+                'Género': estudiante.genero,
+                'Grado': getGradoName(estudiante.grado),
+                'Estado': estudiante.estado,
+                'Teléfono': estudiante.telefono || '',
+                'Email': estudiante.email || '',
+                'Dirección': estudiante.direccion || '',
+                'Tutor': tutor ? `${tutor.nombre} ${tutor.apellido}` : '',
+                'Observaciones': estudiante.observaciones || ''
+            };
+        });
+
+        exportToExcel(data, 'estudiantes');
+    } catch (error) {
+        console.error('Error al exportar estudiantes:', error);
+        alert('Error al exportar los datos.');
     }
-    
-    // Preparar datos para exportación
-    const dataToExport = estudiantesData.map(estudiante => ({
-        'Nombres': estudiante.nombres,
-        'Apellidos': estudiante.apellidos,
-        'Cédula': estudiante.cedula || '',
-        'Fecha de Nacimiento': formatDateShort(estudiante.fechaNacimiento),
-        'Edad': calculateAge(estudiante.fechaNacimiento),
-        'Grado': getGradoText(estudiante.grado),
-        'Género': estudiante.genero,
-        'Estado': estudiante.estado,
-        'Teléfono': estudiante.telefono || '',
-        'Email': estudiante.email || '',
-        'Dirección': estudiante.direccion || '',
-        'Tutor': estudiante.nombreTutor || '',
-        'Teléfono Tutor': estudiante.telefonoTutor || '',
-        'Fecha de Registro': formatDateShort(estudiante.fechaRegistro)
-    }));
-    
-    exportToExcel('Lista de Estudiantes', dataToExport, 'estudiantes');
 }
 
-// Función para refrescar estudiantes
+// Refrescar datos
 function refreshEstudiantes() {
-    loadEstudiantesData();
-    showAlert.success('¡Actualizado!', 'Lista de estudiantes actualizada');
+    refreshEstudiantesData();
+    updateEstudiantesTable();
+    updateEstudiantesStats();
 }
 
-// Exponer funciones globalmente
-window.loadEstudiantesSection = loadEstudiantesSection;
-window.showAddEstudianteModal = showAddEstudianteModal;
-window.editEstudiante = editEstudiante;
-window.viewEstudiante = viewEstudiante;
-window.saveEstudiante = saveEstudiante;
-window.deleteEstudiante = deleteEstudiante;
-window.filterEstudiantes = filterEstudiantes;
-window.clearFilters = clearFilters;
-window.sortEstudiantes = sortEstudiantes;
-window.changeEstudiantesPage = changeEstudiantesPage;
-window.exportEstudiantes = exportEstudiantes;
-window.refreshEstudiantes = refreshEstudiantes;
+// Funciones auxiliares
+function getGradoName(grado) {
+    const grados = {
+        '1': 'Primer Grado',
+        '2': 'Segundo Grado',
+        '3': 'Tercer Grado',
+        '4': 'Cuarto Grado',
+        '5': 'Quinto Grado',
+        '6': 'Sexto Grado'
+    };
+    return grados[grado] || grado;
+}
+
+function calculateAge(birthDate) {
+    if (!birthDate) return 0;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function validateCedula(cedula) {
+    const cedulaRegex = /^\d{3}-\d{7}-\d{1}$/;
+    return cedulaRegex.test(cedula);
+}
+
+function exportToExcel(data, filename) {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
+    XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+}

@@ -13,84 +13,228 @@
     <!-- Google Fonts - Fuente infantil -->
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <!-- CSS Personalizado -->
-    <link rel="stylesheet" href="./routers/Vista_Profesor_io_Desarrollador/conex/Styledash.css">
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar-claro {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .btn-claro {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-claro:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            margin: 0 5px;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea !important;
+            transform: translateY(-1px);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            border-radius: 20px 20px 0 0 !important;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .text-primary {
+            color: #667eea !important;
+        }
+        
+        .bg-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2) !important;
+        }
+        
+        .bg-info {
+            background: linear-gradient(45deg, #17a2b8, #20c997) !important;
+        }
+        
+        .table {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .table th {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.9rem;
+        }
+        
+        .location-section, .education-section, .infrastructure-section, .commitments-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .features-section, .benefits-section, .guarantees-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .mission-vision-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .impact-statement {
+            background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+            border-radius: 20px;
+        }
+        
+        .list-group-item {
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+        }
+        
+        .navbar-toggler {
+            border: none;
+            padding: 4px 8px;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
 </head>
 <body>
 <!-- Menú estilo Claro -->
-<nav class="navbar navbar-expand-lg navbar-claro ">
+<nav class="navbar navbar-expand-lg navbar-claro fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="#">
-            <img src="./routers/Vista_Profesor_io_Desarrollador/Pag/Imagenes/edu.ico" alt="Escuela Jesús El Buen Maestro">
+        <a class="navbar-brand" href="#inicio">
+            <img src="https://via.placeholder.com/40x40/667eea/white?text=🎓" alt="Escuela Jesús El Buen Maestro">
+            <span class="ms-2 fw-bold text-primary">EduOptima</span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <i class="fas fa-bars"></i>
+            <i class="fas fa-bars text-primary"></i>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#Menu"><i class="fas fa-home me-1"></i> Inicio</a>
+                    <a class="nav-link active" href="#inicio"><i class="fas fa-home me-1"></i> Inicio</a>
                 </li>
-
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="serviciosDropdown" role="button"
-                       data-bs-toggle="dropdown">
-                        <i class="bi bi-collection me-1"></i> Servicios
+                    <a class="nav-link dropdown-toggle" href="#" id="escuelaDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-school me-1"></i> Escuela
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="serviciosDropdown">
-                        <li><a class="dropdown-item" href="./Pag/log.html"><i class="fas fa-user-plus me-2"></i>
-                            Registrar Estudiante</a></li>
-                        <li><a class="dropdown-item" href="./Pag/E.O.html"><i class="fas fa-info-circle me-2"></i>
-                            Información EduOptima</a></li>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#ubicacion"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</a></li>
+                        <li><a class="dropdown-item" href="#propuesta-educativa"><i class="fas fa-graduation-cap me-2"></i>Propuesta Educativa</a></li>
+                        <li><a class="dropdown-item" href="#compromisos"><i class="fas fa-handshake me-2"></i>Compromisos</a></li>
+                        <li><a class="dropdown-item" href="#infraestructura"><i class="fas fa-building me-2"></i>Infraestructura</a></li>
+                        <li><a class="dropdown-item" href="#mision-vision"><i class="fas fa-eye me-2"></i>Misión y Visión</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="sistemaDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-laptop me-1"></i> Sistema EduOptima
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#sistema-intro"><i class="fas fa-info-circle me-2"></i>Introducción</a></li>
+                        <li><a class="dropdown-item" href="#funcionalidades"><i class="fas fa-cogs me-2"></i>Funcionalidades</a></li>
+                        <li><a class="dropdown-item" href="#beneficios"><i class="fas fa-star me-2"></i>Beneficios</a></li>
+                        <li><a class="dropdown-item" href="#garantias"><i class="fas fa-shield-alt me-2"></i>Garantías</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Dashb.html">
-                        <i class="fas fa-user-graduate me-2"></i> Alumnos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Prof.html">
-                        <i class="fas fa-chalkboard-teacher me-2"></i> Profesores
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Nots.html">
-                        <i class="fas fa-book me-2"></i> Notas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Matri.html">
-                        <i class="fas fa-clipboard-list me-2"></i> Matrículas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./routers/Vista_Profesor_io_Desarrollador/Pag/Cal.html">
-                        <i class="fas fa-calendar-alt me-2"></i> Calendario
-                    </a>
+                    <a class="nav-link" href="#contacto"><i class="fas fa-envelope me-1"></i> Contacto</a>
                 </li>
             </ul>
-            <div class="d-flex">
-                <a href="./routers/Vista_Tutor/DashbTutor.html" class="btn btn-claro">
-                    <i class="fas fa-chalkboard-teacher me-1"></i> Ingresar como Tutor
+            <div class="d-flex align-items-center">
+                <a href="#login" class="btn btn-claro me-2">
+                    <i class="fas fa-sign-in-alt me-1"></i> Login
                 </a>
-            </div>
-            <div class="sidebar-footer mt-auto p-3 text-center">
-                <button class=" btn btn-claro btn-outline-primary">
-                    <i class="fas fa-cog me-1"></i>configuracion
+                <button class="btn btn-outline-primary btn-claro">
+                    <i class="fas fa-cog me-1"></i> Configuración
                 </button>
             </div>
         </div>
     </div>
 </nav>
 
-
-<div class="container-fluid px-0">
+<div class="container-fluid px-0" style="padding-top: 80px;">
     <div class="row mx-0">
         <!-- Contenido principal -->
         <main class="col-12 px-0">  
-            <div class="container-fluid px-4 py-5" id="Menu"> 
+            <div class="container px-4 py-5" id="inicio"> 
                 <!-- Contenido-->
                 <div class="row justify-content-center">
                     <div class="col-12 col-xxl-10"> 
@@ -102,15 +246,15 @@
                                 <h2 class="text-center mb-0">ESCUELA "JESÚS EL BUEN MAESTRO"</h2>
                             </div>
                             
-                            <div class="card-body ">
+                            <div class="card-body">
                                 <!-- Introducción de la escuela -->
-                                <div class="location-section mb-4 p-3 border-bottom">
+                                <div id="ubicacion" class="location-section mb-4 p-3 border-bottom">
                                     <h3 class="text-primary">📍 Ubicación estratégica</h3>
                                     <p class="lead">Situada frente a la iglesia de San Juan de Oriente, en un entorno comunitario accesible.</p>
                                 </div>
                                 
                                 <!-- Oferta de Educacion -->
-                                <div class="education-section mb-4">
+                                <div id="propuesta-educativa" class="education-section mb-4">
                                     <h3 class="text-primary">🎓 Propuesta educativa</h3>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -129,7 +273,7 @@
                                 </div>
                                 
                                 <!-- SECCIÓN DE COMPROMISOS -->
-                                <div class="commitments-section mb-4 p-3 bg-light rounded">
+                                <div id="compromisos" class="commitments-section mb-4 p-3 bg-light rounded">
                                     <h3 class="text-primary">🏆 Compromisos fundamentales</h3>
                                     <div class="row">
                                         <div class="col-md-4">
@@ -151,7 +295,7 @@
                                 </div>
                                 
                                 <!-- TABLA DE INFRAESTRUCTURA -->
-                                <div class="infrastructure-section mb-4">
+                                <div id="infraestructura" class="infrastructure-section mb-4">
                                     <h3 class="text-primary">🏫 Infraestructura disponible</h3>
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
@@ -184,7 +328,7 @@
                                 </div>
                                 
                                 <!-- Mision y Vision -->
-                                <div class="mission-vision-section row">
+                                <div id="mision-vision" class="mission-vision-section row">
                                     <div class="col-md-6 mb-3">
                                         <div class="p-3 h-100 border rounded">
                                             <h3 class="text-primary">✨ Misión</h3>
@@ -201,7 +345,7 @@
                             </div>
                         </div>
                         
-                        <!-- Systema Edu Optima -->
+                        <!-- Sistema Edu Optima -->
                         <div class="card shadow-lg">
                             <div class="card-header bg-info text-white">
                                 <h2 class="text-center mb-0">SISTEMA EDUOPTIMA</h2>
@@ -209,13 +353,13 @@
                             <div class="card-body">
                                 
                                 <!-- Introducción del sistema -->
-                                <div class="system-intro mb-4 text-center">
+                                <div id="sistema-intro" class="system-intro mb-4 text-center">
                                     <h3 class="text-info">💻 Revolución digital educativa</h3>
                                     <p class="lead">Plataforma integrada para la administración académica inteligente que optimiza todos los procesos educativos</p>
                                 </div>
                                 
                                 <!-- CARACTERÍSTICAS CLAVE -->
-                                <div class="features-section mb-4">
+                                <div id="funcionalidades" class="features-section mb-4">
                                     <h3 class="text-info">🔧 Funcionalidades clave</h3>
                                     <div class="row">
                                         <div class="col-md-6">
@@ -254,7 +398,7 @@
                                 </div>
                                 
                                 <!-- Tabla de Beneficios  -->
-                                <div class="benefits-section mb-4">
+                                <div id="beneficios" class="benefits-section mb-4">
                                     <h3 class="text-info">🎯 Beneficios tangibles</h3>
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
@@ -295,7 +439,7 @@
                                 </div>
                                 
                                 <!-- GARANTÍAS DEL SISTEMA -->
-                                <div class="guarantees-section mb-4 p-3 bg-light rounded">
+                                <div id="garantias" class="guarantees-section mb-4 p-3 bg-light rounded">
                                     <h3 class="text-info">🛡️ Garantías del sistema</h3>
                                     <div class="row text-center">
                                         <div class="col-md-4">
@@ -358,8 +502,8 @@
                         </div>
                         
                         <div class="text-center mt-4">
-                            <a href="#" class="btn btn-primary btn-lg px-5 py-3">
-                                <i class="bi bi-arrow-right-circle me-2"></i>Conocer más sobre nuestra institución
+                            <a href="#inicio" class="btn btn-primary btn-lg px-5 py-3 btn-claro">
+                                <i class="bi bi-arrow-up-circle me-2"></i>Volver al inicio
                             </a>
                         </div>
                     </div>
@@ -369,36 +513,131 @@
     </div>
 </div>
 
-                <!-- Contacto -->
-                <section id="contacto" class="my-4 p-4 bg-light rounded">
-                    <h2>Contacto de Emergencia</h2>
+<!-- Contacto -->
+<section id="contacto" class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="text-center mb-0">Contacto de Emergencia</h2>
+                </div>
+                <div class="card-body p-4">
                     <form action="#" method="post">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Ingesar Email:</label>
+                            <label for="email" class="form-label">Ingresar Email:</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div class="mb-3">
                             <label for="mensaje" class="form-label">Mensaje:</label>
                             <textarea class="form-control" id="mensaje" name="mensaje" rows="4" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Enviar</button>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-claro btn-lg px-4">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar
+                            </button>
+                        </div>
                     </form>
-                </section>
+                </div>
             </div>
-        </main>
+        </div>
     </div>
-</div>
+</section>
 
 <!-- Footer -->
-<footer class="bg-dark text-white text-center p-3">
-    <p class="mb-0">&copy; Escuela Jesús El Buen Maestro (Educación Optimizada) 2025 ®</p>
+<footer class="bg-dark text-white text-center p-4">
+    <div class="container">
+        <p class="mb-0">&copy; Escuela Jesús El Buen Maestro (Educación Optimizada) 2025 ®</p>
+        <p class="small mt-2">Sistema EduOptima - Transformando la educación con tecnología</p>
+    </div>
 </footer>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- JS Personalizado -->
+
+<script>
+// Smooth scrolling para enlaces internos
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Cerrar menú móvil al hacer clic en un enlace
+document.querySelectorAll('.navbar-nav .nav-link, .dropdown-item').forEach(link => {
+    link.addEventListener('click', () => {
+        const navbarCollapse = document.getElementById('navbarContent');
+        if (navbarCollapse.classList.contains('show')) {
+            const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+            bsCollapse.hide();
+        }
+    });
+});
+
+// Destacar enlace activo en la navegación
+window.addEventListener('scroll', () => {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('[id]');
+    
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (scrollY >= sectionTop) {
+            current = section.getAttribute('id');
+        }
+    });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Animación de entrada para las tarjetas
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(card);
+});
+
+// Manejo del formulario de contacto
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const mensaje = document.getElementById('mensaje').value;
+    
+    if (email && mensaje) {
+        alert('¡Mensaje enviado correctamente! Te contactaremos pronto.');
+        this.reset();
+    } else {
+        alert('Por favor, completa todos los campos.');
+    }
+});
+</script>
+
 </body>
-<script src="./routers/Vista_Profesor_io_Desarrollador/conex/scriptdash.js"> </script>
 </html>

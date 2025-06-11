@@ -1,286 +1,382 @@
 /**
  * Utilidades generales para el sistema escolar
+ * Funciones auxiliares, validaciones y formateo con integración al sistema de sincronización
  */
 
-// Función para mostrar alertas con SweetAlert2
-const showAlert = {
-    success: (title, text = '') => {
-        Swal.fire({
-            icon: 'success',
-            title: title,
-            text: text,
-            showConfirmButton: false,
-            timer: 1500
-        });
-    },
-    error: (title, text = '') => {
-        Swal.fire({
-            icon: 'error',
-            title: title,
-            text: text
-        });
-    },
-    warning: (title, text = '') => {
-        Swal.fire({
-            icon: 'warning',
-            title: title,
-            text: text
-        });
-    },
-    info: (title, text = '') => {
-        Swal.fire({
-            icon: 'info',
-            title: title,
-            text: text
-        });
-    },
-    confirm: (title, text = '') => {
-        return Swal.fire({
-            title: title,
-            text: text,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, continuar',
-            cancelButtonText: 'Cancelar'
-        });
-    }
-};
+// ===== FORMATEO DE FECHAS =====
 
-// Función para formatear fechas
 function formatDate(dateString, includeTime = false) {
-    if (!dateString) return 'No disponible';
+    if (!dateString) return '';
     
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Fecha inválida';
-    
-    const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    };
-    
-    if (includeTime) {
-        options.hour = '2-digit';
-        options.minute = '2-digit';
+    try {
+        const date = new Date(dateString);
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        };
+        
+        if (includeTime) {
+            options.hour = '2-digit';
+            options.minute = '2-digit';
+        }
+        
+        return date.toLocaleDateString('es-ES', options);
+    } catch (error) {
+        console.error('Error al formatear fecha:', error);
+        return dateString;
     }
-    
-    return date.toLocaleDateString('es-ES', options);
 }
 
-// Función para formatear fecha corta
 function formatDateShort(dateString) {
-    if (!dateString) return 'N/A';
+    if (!dateString) return '';
     
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Fecha inválida';
-    
-    return date.toLocaleDateString('es-ES');
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch (error) {
+        console.error('Error al formatear fecha corta:', error);
+        return dateString;
+    }
 }
 
-// Función para validar email
+function formatDateTime(dateString) {
+    if (!dateString) return '';
+    
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (error) {
+        console.error('Error al formatear fecha y hora:', error);
+        return dateString;
+    }
+}
+
+// ===== VALIDACIONES =====
+
 function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }
 
-// Función para validar teléfono dominicano
 function validatePhone(phone) {
-    // Acepta formatos: 809-000-0000, 8090000000, (809) 000-0000
-    const re = /^(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}$/;
-    return re.test(phone) && phone.length >= 10;
+    // Formato dominicano: 809-000-0000 o variaciones
+    const phoneRegex = /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}$/;
+    return phoneRegex.test(phone);
 }
 
-// Función para validar cédula dominicana
 function validateCedula(cedula) {
-    // Formato: 000-0000000-0 o 00000000000
-    const re = /^\d{3}-?\d{7}-?\d{1}$/;
-    return re.test(cedula.replace(/\s/g, ''));
+    // Formato dominicano: 000-0000000-0
+    const cedulaRegex = /^\d{3}-\d{7}-\d{1}$/;
+    return cedulaRegex.test(cedula);
 }
 
-// Función para generar ID único
+function validateRequired(value) {
+    return value !== null && value !== undefined && value.toString().trim() !== '';
+}
+
+function validateNumeric(value, min = null, max = null) {
+    const num = parseFloat(value);
+    if (isNaN(num)) return false;
+    if (min !== null && num < min) return false;
+    if (max !== null && num > max) return false;
+    return true;
+}
+
+function validateDate(dateString) {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    return date instanceof Date && !isNaN(date);
+}
+
+function validateGrade(grade) {
+    const validGrades = ['1', '2', '3', '4', '5', '6'];
+    return validGrades.includes(grade.toString());
+}
+
+function validateAge(birthDate, minAge = 5, maxAge = 18) {
+    const age = calculateAge(birthDate);
+    return age >= minAge && age <= maxAge;
+}
+
+// ===== GENERADORES =====
+
 function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Función para calcular edad
+function generateCode(prefix = '', length = 6) {
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = prefix;
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+function generateStudentCode(grado, turno) {
+    const year = new Date().getFullYear().toString().slice(-2);
+    const gradeCode = grado.toString().padStart(2, '0');
+    const turnoCode = turno === 'Matutino' ? 'M' : 'V';
+    const randomNum = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+    return `${year}${gradeCode}${turnoCode}${randomNum}`;
+}
+
+// ===== CÁLCULOS =====
+
 function calculateAge(birthDate) {
     if (!birthDate) return 0;
     
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-        age--;
-    }
-    
-    return age;
-}
-
-// Función para obtener clase CSS según calificación
-function getGradeClass(grade) {
-    const nota = parseFloat(grade);
-    if (isNaN(nota)) return 'nota-pendiente';
-    if (nota >= 90) return 'bg-success';
-    if (nota >= 80) return 'bg-info';
-    if (nota >= 70) return 'bg-warning';
-    return 'bg-danger';
-}
-
-// Función para obtener texto según calificación
-function getGradeText(grade) {
-    const nota = parseFloat(grade);
-    if (isNaN(nota)) return 'Sin Calificar';
-    if (nota >= 90) return 'Excelente';
-    if (nota >= 80) return 'Muy Bueno';
-    if (nota >= 70) return 'Bueno';
-    return 'Debe Mejorar';
-}
-
-// Función para obtener texto del grado
-function getGradoText(grado) {
-    const grados = {
-        '1': '1er Grado',
-        '2': '2do Grado',
-        '3': '3er Grado',
-        '4': '4to Grado',
-        '5': '5to Grado',
-        '6': '6to Grado'
-    };
-    return grados[grado] || `Grado ${grado}`;
-}
-
-// Función para exportar a PDF
-function exportToPDF(title, data, columns) {
     try {
-        if (typeof window.jsPDF === 'undefined') {
-            showAlert.error('Error', 'La librería jsPDF no está disponible');
-            return;
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
         }
         
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Título
-        doc.setFontSize(16);
-        doc.text(title, 20, 20);
-        
-        // Fecha de generación
-        doc.setFontSize(10);
-        doc.text(`Generado el: ${formatDate(new Date().toISOString(), true)}`, 20, 30);
-        
-        let yPosition = 50;
-        const lineHeight = 8;
-        
-        // Encabezados
-        doc.setFontSize(12);
-        let xPosition = 20;
-        columns.forEach(col => {
-            doc.text(col.header, xPosition, yPosition);
-            xPosition += col.width || 40;
-        });
-        
-        yPosition += lineHeight;
-        
-        // Datos
-        doc.setFontSize(10);
-        data.forEach(row => {
-            xPosition = 20;
-            columns.forEach(col => {
-                const value = row[col.key] ? row[col.key].toString() : '';
-                doc.text(value.substring(0, 25), xPosition, yPosition); // Limitar texto
-                xPosition += col.width || 40;
-            });
-            yPosition += lineHeight;
-            
-            // Nueva página si es necesario
-            if (yPosition > 280) {
-                doc.addPage();
-                yPosition = 20;
-            }
-        });
-        
-        doc.save(`${title.replace(/\s+/g, '_')}.pdf`);
-        showAlert.success('¡Exportado!', 'El archivo PDF se ha generado correctamente');
+        return age;
     } catch (error) {
-        console.error('Error al exportar PDF:', error);
-        showAlert.error('Error', 'No se pudo generar el archivo PDF');
+        console.error('Error al calcular edad:', error);
+        return 0;
     }
 }
 
-// Función para exportar a Excel
-function exportToExcel(title, data, filename) {
+function calculateGPA(notas) {
+    if (!Array.isArray(notas) || notas.length === 0) return 0;
+    
+    const validNotas = notas.filter(nota => 
+        typeof nota === 'number' && nota >= 0 && nota <= 100
+    );
+    
+    if (validNotas.length === 0) return 0;
+    
+    const suma = validNotas.reduce((acc, nota) => acc + nota, 0);
+    return Math.round((suma / validNotas.length) * 100) / 100;
+}
+
+function calculateAttendancePercentage(presente, total) {
+    if (total === 0) return 0;
+    return Math.round((presente / total) * 100);
+}
+
+// ===== FORMATEO DE DATOS =====
+
+function formatCurrency(amount, currency = 'DOP') {
     try {
-        if (typeof XLSX === 'undefined') {
-            showAlert.error('Error', 'La librería XLSX no está disponible');
-            return;
+        return new Intl.NumberFormat('es-DO', {
+            style: 'currency',
+            currency: currency
+        }).format(amount);
+    } catch (error) {
+        return `${currency} ${amount.toFixed(2)}`;
+    }
+}
+
+function formatNumber(number, decimals = 0) {
+    try {
+        return new Intl.NumberFormat('es-ES', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        }).format(number);
+    } catch (error) {
+        return number.toFixed(decimals);
+    }
+}
+
+function formatPercentage(value) {
+    return `${Math.round(value)}%`;
+}
+
+function formatPhoneNumber(phone) {
+    if (!phone) return '';
+    
+    // Remover caracteres no numéricos
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Formato dominicano
+    if (cleaned.length === 10) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    return phone;
+}
+
+function formatCedula(cedula) {
+    if (!cedula) return '';
+    
+    // Remover caracteres no numéricos
+    const cleaned = cedula.replace(/\D/g, '');
+    
+    // Formato dominicano: 000-0000000-0
+    if (cleaned.length === 11) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 10)}-${cleaned.slice(10)}`;
+    }
+    
+    return cedula;
+}
+
+// ===== MANEJO DE ARRAYS Y OBJETOS =====
+
+function sortArray(array, key, ascending = true) {
+    return [...array].sort((a, b) => {
+        const aVal = getNestedValue(a, key);
+        const bVal = getNestedValue(b, key);
+        
+        if (aVal < bVal) return ascending ? -1 : 1;
+        if (aVal > bVal) return ascending ? 1 : -1;
+        return 0;
+    });
+}
+
+function getNestedValue(obj, path) {
+    return path.split('.').reduce((o, p) => o && o[p], obj);
+}
+
+function groupBy(array, key) {
+    return array.reduce((groups, item) => {
+        const group = getNestedValue(item, key);
+        groups[group] = groups[group] || [];
+        groups[group].push(item);
+        return groups;
+    }, {});
+}
+
+function uniqueBy(array, key) {
+    const seen = new Set();
+    return array.filter(item => {
+        const value = getNestedValue(item, key);
+        if (seen.has(value)) return false;
+        seen.add(value);
+        return true;
+    });
+}
+
+// ===== EXPORTACIÓN DE DATOS =====
+
+function exportToExcel(data, filename, sheetName = 'Datos') {
+    try {
+        if (!window.XLSX) {
+            throw new Error('Librería XLSX no disponible');
         }
         
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, title);
-        XLSX.writeFile(wb, `${filename || title.replace(/\s+/g, '_')}.xlsx`);
-        showAlert.success('¡Exportado!', 'El archivo Excel se ha generado correctamente');
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        
+        const today = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(wb, `${filename}_${today}.xlsx`);
+        
+        // Registrar exportación en logs
+        if (window.db) {
+            window.db.logAction('export', 'excel', filename, `${data.length} registros`);
+        }
+        
+        return true;
     } catch (error) {
-        console.error('Error al exportar Excel:', error);
-        showAlert.error('Error', 'No se pudo generar el archivo Excel');
+        console.error('Error al exportar a Excel:', error);
+        if (window.showGlobalAlert) {
+            window.showGlobalAlert('Error al exportar archivo Excel', 'error');
+        }
+        return false;
     }
 }
 
-// Función para filtrar datos
-function filterData(data, searchTerm, fields) {
-    if (!searchTerm) return data;
+function exportToCSV(data, filename) {
+    try {
+        if (data.length === 0) {
+            throw new Error('No hay datos para exportar');
+        }
+        
+        const headers = Object.keys(data[0]);
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => 
+                headers.map(header => 
+                    `"${(row[header] || '').toString().replace(/"/g, '""')}"`
+                ).join(',')
+            )
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Registrar exportación en logs
+        if (window.db) {
+            window.db.logAction('export', 'csv', filename, `${data.length} registros`);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error al exportar a CSV:', error);
+        if (window.showGlobalAlert) {
+            window.showGlobalAlert('Error al exportar archivo CSV', 'error');
+        }
+        return false;
+    }
+}
+
+// ===== BÚSQUEDA Y FILTRADO =====
+
+function searchInText(text, query) {
+    if (!text || !query) return false;
+    return text.toString().toLowerCase().includes(query.toLowerCase());
+}
+
+function filterByMultipleFields(data, query, fields) {
+    if (!query) return data;
     
+    return data.filter(item => 
+        fields.some(field => 
+            searchInText(getNestedValue(item, field), query)
+        )
+    );
+}
+
+function applyFilters(data, filters) {
     return data.filter(item => {
-        return fields.some(field => {
-            const value = item[field];
-            return value && value.toString().toLowerCase().includes(searchTerm.toLowerCase());
+        return Object.entries(filters).every(([key, value]) => {
+            if (value === '' || value === null || value === undefined) return true;
+            
+            const itemValue = getNestedValue(item, key);
+            
+            // Filtro exacto para la mayoría de casos
+            if (typeof value === 'string' && typeof itemValue === 'string') {
+                return itemValue.toLowerCase().includes(value.toLowerCase());
+            }
+            
+            return itemValue === value;
         });
     });
 }
 
-// Función para ordenar datos
-function sortData(data, field, direction = 'asc') {
-    return [...data].sort((a, b) => {
-        let aVal = a[field];
-        let bVal = b[field];
-        
-        // Manejar valores nulos/undefined
-        if (!aVal && !bVal) return 0;
-        if (!aVal) return direction === 'asc' ? 1 : -1;
-        if (!bVal) return direction === 'asc' ? -1 : 1;
-        
-        // Manejar números
-        if (!isNaN(aVal) && !isNaN(bVal)) {
-            aVal = parseFloat(aVal);
-            bVal = parseFloat(bVal);
-        }
-        
-        // Manejar fechas
-        if (aVal instanceof Date || (typeof aVal === 'string' && aVal.includes('-'))) {
-            aVal = new Date(aVal);
-            bVal = new Date(bVal);
-        }
-        
-        // Manejar strings
-        if (typeof aVal === 'string') {
-            aVal = aVal.toLowerCase();
-            bVal = bVal.toLowerCase();
-        }
-        
-        if (direction === 'asc') {
-            return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-        } else {
-            return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
-        }
-    });
-}
+// ===== PAGINACIÓN =====
 
-// Función para paginar datos
-function paginateData(data, page = 1, itemsPerPage = 10) {
+function paginate(data, page, itemsPerPage) {
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     
@@ -288,179 +384,162 @@ function paginateData(data, page = 1, itemsPerPage = 10) {
         data: data.slice(startIndex, endIndex),
         totalPages: Math.ceil(data.length / itemsPerPage),
         currentPage: page,
-        totalItems: data.length
+        totalItems: data.length,
+        hasNext: endIndex < data.length,
+        hasPrev: page > 1
     };
 }
 
-// Función para crear paginación HTML
-function createPagination(totalPages, currentPage, onPageClick) {
-    if (totalPages <= 1) return '';
-    
-    let paginationHTML = '<nav aria-label="Navegación de páginas"><ul class="pagination justify-content-center">';
-    
-    // Botón anterior
-    if (currentPage > 1) {
-        paginationHTML += `<li class="page-item">
-            <a class="page-link" href="#" onclick="${onPageClick}(${currentPage - 1}); return false;">Anterior</a>
-        </li>`;
-    }
-    
-    // Páginas
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-    
-    if (startPage > 1) {
-        paginationHTML += `<li class="page-item">
-            <a class="page-link" href="#" onclick="${onPageClick}(1); return false;">1</a>
-        </li>`;
-        if (startPage > 2) {
-            paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        }
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-        if (i === currentPage) {
-            paginationHTML += `<li class="page-item active">
-                <span class="page-link">${i}</span>
-            </li>`;
-        } else {
-            paginationHTML += `<li class="page-item">
-                <a class="page-link" href="#" onclick="${onPageClick}(${i}); return false;">${i}</a>
-            </li>`;
-        }
-    }
-    
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        }
-        paginationHTML += `<li class="page-item">
-            <a class="page-link" href="#" onclick="${onPageClick}(${totalPages}); return false;">${totalPages}</a>
-        </li>`;
-    }
-    
-    // Botón siguiente
-    if (currentPage < totalPages) {
-        paginationHTML += `<li class="page-item">
-            <a class="page-link" href="#" onclick="${onPageClick}(${currentPage + 1}); return false;">Siguiente</a>
-        </li>`;
-    }
-    
-    paginationHTML += '</ul></nav>';
-    return paginationHTML;
-}
+// ===== SINCRONIZACIÓN CON BASE DE DATOS =====
 
-// Función para mostrar loading
-function showLoading(element) {
-    if (!element) return;
-    
-    element.innerHTML = `
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-2">Cargando...</p>
-        </div>
-    `;
-}
-
-// Función para mostrar estado vacío
-function showEmptyState(element, message, icon = 'fas fa-inbox') {
-    if (!element) return;
-    
-    element.innerHTML = `
-        <div class="text-center py-5">
-            <i class="${icon} fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">${message}</h5>
-        </div>
-    `;
-}
-
-// Función para validar formulario
-function validateForm(formElement) {
-    if (!formElement) return false;
-    
-    const inputs = formElement.querySelectorAll('[required]');
-    let isValid = true;
-    
-    inputs.forEach(input => {
-        // Limpiar estilos previos
-        input.classList.remove('is-invalid');
+function getRelatedData(collection, recordId, relationField) {
+    try {
+        if (!window.db) return [];
         
-        // Validar campo requerido
-        if (!input.value.trim()) {
-            input.classList.add('is-invalid');
-            isValid = false;
+        const relatedRecords = window.db.read(collection);
+        return relatedRecords.filter(record => record[relationField] === recordId);
+    } catch (error) {
+        console.error('Error al obtener datos relacionados:', error);
+        return [];
+    }
+}
+
+function updateRelatedRecords(collection, foreignKey, oldId, newId) {
+    try {
+        if (!window.db) return false;
+        
+        const records = window.db.read(collection);
+        let updated = 0;
+        
+        records.forEach(record => {
+            if (record[foreignKey] === oldId) {
+                window.db.update(collection, record.id, { [foreignKey]: newId });
+                updated++;
+            }
+        });
+        
+        return updated;
+    } catch (error) {
+        console.error('Error al actualizar registros relacionados:', error);
+        return 0;
+    }
+}
+
+// ===== VALIDACIÓN DE INTEGRIDAD =====
+
+function validateFormData(formData, rules) {
+    const errors = [];
+    
+    Object.entries(rules).forEach(([field, rule]) => {
+        const value = formData[field];
+        
+        // Campo requerido
+        if (rule.required && !validateRequired(value)) {
+            errors.push(`El campo ${rule.label || field} es requerido`);
             return;
         }
         
-        // Validaciones específicas
-        if (input.type === 'email' && input.value && !validateEmail(input.value)) {
-            input.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        if (input.name === 'telefono' && input.value && !validatePhone(input.value)) {
-            input.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        if (input.name === 'cedula' && input.value && !validateCedula(input.value)) {
-            input.classList.add('is-invalid');
-            isValid = false;
-        }
-        
-        // Validar números
-        if (input.type === 'number' && input.value) {
-            const min = parseFloat(input.getAttribute('min'));
-            const max = parseFloat(input.getAttribute('max'));
-            const value = parseFloat(input.value);
-            
-            if (!isNaN(min) && value < min) {
-                input.classList.add('is-invalid');
-                isValid = false;
+        // Solo validar si hay valor
+        if (value) {
+            // Validación de email
+            if (rule.type === 'email' && !validateEmail(value)) {
+                errors.push(`El campo ${rule.label || field} debe ser un email válido`);
             }
             
-            if (!isNaN(max) && value > max) {
-                input.classList.add('is-invalid');
-                isValid = false;
+            // Validación de teléfono
+            if (rule.type === 'phone' && !validatePhone(value)) {
+                errors.push(`El campo ${rule.label || field} debe ser un teléfono válido`);
             }
-        }
-        
-        // Validar fechas
-        if (input.type === 'date' && input.value) {
-            const date = new Date(input.value);
-            if (isNaN(date.getTime())) {
-                input.classList.add('is-invalid');
-                isValid = false;
+            
+            // Validación de cédula
+            if (rule.type === 'cedula' && !validateCedula(value)) {
+                errors.push(`El campo ${rule.label || field} debe ser una cédula válida`);
+            }
+            
+            // Validación numérica
+            if (rule.type === 'number' && !validateNumeric(value, rule.min, rule.max)) {
+                errors.push(`El campo ${rule.label || field} debe ser un número válido`);
+            }
+            
+            // Validación de fecha
+            if (rule.type === 'date' && !validateDate(value)) {
+                errors.push(`El campo ${rule.label || field} debe ser una fecha válida`);
+            }
+            
+            // Validación de longitud
+            if (rule.minLength && value.length < rule.minLength) {
+                errors.push(`El campo ${rule.label || field} debe tener al menos ${rule.minLength} caracteres`);
+            }
+            
+            if (rule.maxLength && value.length > rule.maxLength) {
+                errors.push(`El campo ${rule.label || field} no puede tener más de ${rule.maxLength} caracteres`);
             }
         }
     });
     
-    return isValid;
+    return errors;
 }
 
-// Función para limpiar formulario
-function clearForm(formElement) {
-    if (!formElement) return;
+// ===== UTILIDADES DE UI =====
+
+function showLoading(element, text = 'Cargando...') {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
     
-    formElement.reset();
-    const inputs = formElement.querySelectorAll('.is-invalid');
-    inputs.forEach(input => input.classList.remove('is-invalid'));
+    if (element) {
+        element.innerHTML = `
+            <div class="text-center">
+                <div class="loading-spinner"></div>
+                <p class="text-muted mt-2">${text}</p>
+            </div>
+        `;
+    }
 }
 
-// Función para formatear moneda dominicana
-function formatCurrency(amount) {
-    if (isNaN(amount)) return 'RD$ 0.00';
+function hideLoading(element, content = '') {
+    if (typeof element === 'string') {
+        element = document.getElementById(element);
+    }
     
-    return new Intl.NumberFormat('es-DO', {
-        style: 'currency',
-        currency: 'DOP',
-        minimumFractionDigits: 2
-    }).format(amount);
+    if (element) {
+        element.innerHTML = content;
+    }
 }
 
-// Función para debounce (útil para búsquedas)
+function showToast(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+    `;
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remover
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, duration);
+}
+
+// ===== DEBOUNCE Y THROTTLE =====
+
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -473,182 +552,81 @@ function debounce(func, wait) {
     };
 }
 
-// Función para capitalizar texto
-function capitalize(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
-// Función para capitalizar cada palabra
-function capitalizeWords(str) {
-    if (!str) return '';
-    return str.split(' ').map(word => capitalize(word)).join(' ');
-}
-
-// Función para generar colores aleatorios para gráficos
-function generateColors(count) {
-    const colors = [
-        '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6',
-        '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
-    ];
-    
-    const result = [];
-    for (let i = 0; i < count; i++) {
-        result.push(colors[i % colors.length]);
-    }
-    
-    return result;
-}
-
-// Función para formatear número con separadores de miles
-function formatNumber(num) {
-    if (isNaN(num)) return '0';
-    return new Intl.NumberFormat('es-DO').format(num);
-}
-
-// Función para obtener el año académico actual
-function getCurrentAcademicYear() {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1; // 1-12
-    const currentYear = currentDate.getFullYear();
-    
-    // El año escolar en RD generalmente inicia en agosto/septiembre
-    if (currentMonth >= 8) {
-        return currentYear;
-    } else {
-        return currentYear - 1;
-    }
-}
-
-// Función para validar si una fecha está en el futuro
-function isFutureDate(dateString) {
-    const inputDate = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
-    
-    return inputDate > today;
-}
-
-// Función para calcular días entre fechas
-function daysBetween(date1, date2) {
-    const oneDay = 24 * 60 * 60 * 1000; // milisegundos en un día
-    const firstDate = new Date(date1);
-    const secondDate = new Date(date2);
-    
-    return Math.round(Math.abs((firstDate - secondDate) / oneDay));
-}
-
-// Función para obtener el período académico actual
-function getCurrentAcademicPeriod() {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1; // 1-12
-    
-    if (currentMonth >= 8 && currentMonth <= 12) {
-        return '1er Trimestre';
-    } else if (currentMonth >= 1 && currentMonth <= 4) {
-        return '2do Trimestre';
-    } else {
-        return '3er Trimestre';
-    }
-}
-
-// Función para mostrar notificaciones tipo toast
-function showToast(message, type = 'info') {
-    // Si existe una librería de toast, usarla
-    if (typeof Toastify !== 'undefined') {
-        const backgroundColor = {
-            'success': '#28a745',
-            'error': '#dc3545',
-            'warning': '#ffc107',
-            'info': '#17a2b8'
-        };
-        
-        Toastify({
-            text: message,
-            duration: 3000,
-            gravity: 'top',
-            position: 'right',
-            backgroundColor: backgroundColor[type] || backgroundColor.info
-        }).showToast();
-    } else {
-        // Fallback a console log
-        console.log(`${type.toUpperCase()}: ${message}`);
-    }
-}
-
-// Función para sanitizar HTML (prevenir XSS)
-function sanitizeHTML(str) {
-    const temp = document.createElement('div');
-    temp.textContent = str;
-    return temp.innerHTML;
-}
-
-// Función para truncar texto
-function truncateText(text, maxLength = 50) {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-}
-
-// Función para obtener initiales de un nombre
-function getInitials(firstName, lastName) {
-    const first = firstName ? firstName.charAt(0).toUpperCase() : '';
-    const last = lastName ? lastName.charAt(0).toUpperCase() : '';
-    return first + last;
-}
-
-// Función para verificar si el dispositivo es móvil
-function isMobileDevice() {
-    return window.innerWidth <= 768;
-}
-
-// Función para scroll suave a un elemento
-function scrollToElement(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-// Exportar funciones para uso global
-if (typeof window !== 'undefined') {
-    window.schoolUtils = {
-        showAlert,
-        formatDate,
-        formatDateShort,
-        validateEmail,
-        validatePhone,
-        validateCedula,
-        generateId,
-        calculateAge,
-        getGradeClass,
-        getGradeText,
-        getGradoText,
-        exportToPDF,
-        exportToExcel,
-        filterData,
-        sortData,
-        paginateData,
-        createPagination,
-        showLoading,
-        showEmptyState,
-        validateForm,
-        clearForm,
-        formatCurrency,
-        debounce,
-        capitalize,
-        capitalizeWords,
-        generateColors,
-        formatNumber,
-        getCurrentAcademicYear,
-        isFutureDate,
-        daysBetween,
-        getCurrentAcademicPeriod,
-        showToast,
-        sanitizeHTML,
-        truncateText,
-        getInitials,
-        isMobileDevice,
-        scrollToElement
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
     };
 }
+
+// ===== EXPORTACIÓN DE FUNCIONES =====
+
+// Hacer funciones globalmente disponibles
+window.utils = {
+    // Formateo
+    formatDate,
+    formatDateShort,
+    formatDateTime,
+    formatCurrency,
+    formatNumber,
+    formatPercentage,
+    formatPhoneNumber,
+    formatCedula,
+    
+    // Validaciones
+    validateEmail,
+    validatePhone,
+    validateCedula,
+    validateRequired,
+    validateNumeric,
+    validateDate,
+    validateGrade,
+    validateAge,
+    validateFormData,
+    
+    // Generadores
+    generateId,
+    generateCode,
+    generateStudentCode,
+    
+    // Cálculos
+    calculateAge,
+    calculateGPA,
+    calculateAttendancePercentage,
+    
+    // Arrays y objetos
+    sortArray,
+    getNestedValue,
+    groupBy,
+    uniqueBy,
+    
+    // Exportación
+    exportToExcel,
+    exportToCSV,
+    
+    // Búsqueda y filtrado
+    searchInText,
+    filterByMultipleFields,
+    applyFilters,
+    paginate,
+    
+    // Base de datos
+    getRelatedData,
+    updateRelatedRecords,
+    
+    // UI
+    showLoading,
+    hideLoading,
+    showToast,
+    debounce,
+    throttle
+};
+
+// También hacer funciones individuales disponibles globalmente para compatibilidad
+Object.assign(window, window.utils);
