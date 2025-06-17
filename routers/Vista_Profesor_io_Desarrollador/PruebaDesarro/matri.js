@@ -1,11 +1,12 @@
 /**
  * Módulo de gestión de matrículas
- * Formulario completo de matrícula con información de estudiantes, tutores y documentación
+ * Sistema completo de CRUD para matrículas con validaciones y seguimiento
  */
 
-let matriculasData = [];
 let currentMatriculasPage = 1;
 const matriculasPerPage = 10;
+let matriculasFilters = {};
+let matriculasSearchQuery = '';
 
 // Función principal para cargar la sección de matrículas
 function loadMatriculasSection() {
@@ -14,149 +15,136 @@ function loadMatriculasSection() {
         <div class="page-header">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h1 class="h2">
-                    <i class="fas fa-clipboard-check me-2"></i>
-                    Formulario de Matrícula
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Gestión de Matrículas
                 </h1>
                 <div class="btn-toolbar">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary" onclick="showAddMatriculaModal()">
+                        <button type="button" class="btn btn-primary" onclick="showMatriculaModal()">
                             <i class="fas fa-plus me-1"></i> Nueva Matrícula
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="exportMatriculas()">
-                            <i class="fas fa-download me-1"></i> Exportar
+                        <button type="button" class="btn btn-outline-success" onclick="exportMatriculas()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshMatriculas()">
-                            <i class="fas fa-sync me-1"></i> Actualizar
+                        <button type="button" class="btn btn-outline-info" onclick="generarReporteMatriculas()">
+                            <i class="fas fa-chart-bar me-1"></i> Reporte
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Estadísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card card-success">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Matrículas Activas
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-matriculas-activas">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-clipboard-check fa-2x text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-warning">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Matrículas Este Mes
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="matriculas-este-mes">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar-check fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-info">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Pendientes
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="matriculas-pendientes">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-clock fa-2x text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-primary">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Ingresos
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="ingresos-matriculas">RD$ 0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-dollar-sign fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros -->
-        <div class="filtros-section">
+        <!-- Filtros y búsqueda -->
+        <div class="search-filters">
             <div class="row">
                 <div class="col-md-3">
-                    <label for="searchMatriculas" class="form-label">Buscar:</label>
-                    <input type="text" class="form-control" id="searchMatriculas" 
-                           placeholder="Nombre o cédula..." 
-                           oninput="filterMatriculas()">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="matriculas-search" 
+                               placeholder="Buscar por código o estudiante..."
+                               onkeyup="debounce(searchMatriculas, 300)()">
+                    </div>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterGradoMatricula" class="form-label">Grado:</label>
-                    <select class="form-select" id="filterGradoMatricula" onchange="filterMatriculas()">
-                        <option value="">Todos</option>
-                        <option value="1">1ro</option>
-                        <option value="2">2do</option>
-                        <option value="3">3ro</option>
-                        <option value="4">4to</option>
-                        <option value="5">5to</option>
-                        <option value="6">6to</option>
+                    <select class="form-select" id="filter-grado" onchange="filterMatriculas()">
+                        <option value="">Todos los grados</option>
+                        <option value="1">1° Grado</option>
+                        <option value="2">2° Grado</option>
+                        <option value="3">3° Grado</option>
+                        <option value="4">4° Grado</option>
+                        <option value="5">5° Grado</option>
+                        <option value="6">6° Grado</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterEstadoMatricula" class="form-label">Estado:</label>
-                    <select class="form-select" id="filterEstadoMatricula" onchange="filterMatriculas()">
-                        <option value="">Todos</option>
-                        <option value="Activa">Activa</option>
+                    <select class="form-select" id="filter-turno" onchange="filterMatriculas()">
+                        <option value="">Todos los turnos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-estado" onchange="filterMatriculas()">
+                        <option value="">Todos los estados</option>
                         <option value="Pendiente">Pendiente</option>
-                        <option value="Cancelada">Cancelada</option>
-                        <option value="Retirada">Retirada</option>
+                        <option value="Aprobada">Aprobada</option>
+                        <option value="Rechazada">Rechazada</option>
+                        <option value="Completada">Completada</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="filterAnoLectivo" class="form-label">Año:</label>
-                    <select class="form-select" id="filterAnoLectivo" onchange="filterMatriculas()">
-                        <option value="">Todos</option>
-                        <option value="2024-2025">2024-2025</option>
-                        <option value="2025-2026">2025-2026</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="filterModalidad" class="form-label">Modalidad:</label>
-                    <select class="form-select" id="filterModalidad" onchange="filterMatriculas()">
-                        <option value="">Todas</option>
-                        <option value="Presencial">Presencial</option>
-                        <option value="Semi-presencial">Semi-presencial</option>
+                    <select class="form-select" id="filter-ano" onchange="filterMatriculas()">
+                        <option value="">Todos los años</option>
                     </select>
                 </div>
                 <div class="col-md-1">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="button" class="btn btn-outline-secondary d-block w-100" onclick="clearMatriculasFilters()">
+                    <button type="button" class="btn btn-outline-secondary w-100" onclick="clearMatriculasFilters()">
                         <i class="fas fa-times"></i>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="total-matriculas">0</div>
+                                <div class="small">Total Matrículas</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clipboard-list fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="matriculas-aprobadas">0</div>
+                                <div class="small">Aprobadas</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="matriculas-pendientes">0</div>
+                                <div class="small">Pendientes</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="matriculas-ano-actual">0</div>
+                                <div class="small">Año Actual</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -164,21 +152,44 @@ function loadMatriculasSection() {
         <!-- Tabla de matrículas -->
         <div class="card">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Lista de Matrículas</h6>
+                <h6 class="m-0 font-weight-bold">
+                    Lista de Matrículas
+                    <span class="badge bg-primary ms-2" id="matriculas-count">0</span>
+                </h6>
             </div>
             <div class="card-body">
-                <div id="matriculasTableContainer">
-                    <!-- La tabla se cargará aquí -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Estudiante</th>
+                                <th>Grado</th>
+                                <th>Turno</th>
+                                <th>Año Escolar</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matriculas-tbody">
+                            <!-- Datos se cargan aquí -->
+                        </tbody>
+                    </table>
                 </div>
-                <div id="matriculasPagination" class="mt-3">
-                    <!-- La paginación se cargará aquí -->
-                </div>
+                
+                <!-- Paginación -->
+                <nav aria-label="Paginación de matrículas">
+                    <ul class="pagination justify-content-center" id="matriculas-pagination">
+                        <!-- Paginación se genera aquí -->
+                    </ul>
+                </nav>
             </div>
         </div>
 
-        <!-- Modal para agregar/editar matrícula -->
+        <!-- Modal de matrícula -->
         <div class="modal fade" id="matriculaModal" tabindex="-1">
-            <div class="modal-dialog modal-xl">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="matriculaModalTitle">
@@ -189,1235 +200,906 @@ function loadMatriculasSection() {
                     </div>
                     <div class="modal-body">
                         <form id="matriculaForm">
-                            <input type="hidden" id="matriculaId">
+                            <input type="hidden" id="matricula-id">
                             
-                            <!-- Pestañas del formulario -->
-                            <ul class="nav nav-tabs" id="matriculaTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="estudiante-tab" data-bs-toggle="tab" data-bs-target="#estudiante-pane" type="button" role="tab">
-                                        <i class="fas fa-user-graduate me-1"></i> Estudiante
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tutores-tab" data-bs-toggle="tab" data-bs-target="#tutores-pane" type="button" role="tab">
-                                        <i class="fas fa-users me-1"></i> Tutores
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="academico-tab" data-bs-toggle="tab" data-bs-target="#academico-pane" type="button" role="tab">
-                                        <i class="fas fa-graduation-cap me-1"></i> Académico
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="documentos-tab" data-bs-toggle="tab" data-bs-target="#documentos-pane" type="button" role="tab">
-                                        <i class="fas fa-file-alt me-1"></i> Documentos
-                                    </button>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content mt-3" id="matriculaTabContent">
-                                <!-- Pestaña Estudiante -->
-                                <div class="tab-pane fade show active" id="estudiante-pane" role="tabpanel">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="nombresEst" class="form-label">Nombres *</label>
-                                                <input type="text" class="form-control" id="nombresEst" name="nombres" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="apellidosEst" class="form-label">Apellidos *</label>
-                                                <input type="text" class="form-control" id="apellidosEst" name="apellidos" required>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="cedulaEst" class="form-label">Cédula</label>
-                                                <input type="text" class="form-control" id="cedulaEst" name="cedula" 
-                                                       placeholder="000-0000000-0" data-validate="cedula">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento *</label>
-                                                <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="genero" class="form-label">Género *</label>
-                                                <select class="form-select" id="genero" name="genero" required>
-                                                    <option value="">Seleccionar género</option>
-                                                    <option value="Masculino">Masculino</option>
-                                                    <option value="Femenino">Femenino</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="telefono" class="form-label">Teléfono</label>
-                                                <input type="tel" class="form-control" id="telefono" name="telefono" 
-                                                       placeholder="809-000-0000">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="email" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="email" name="email">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="departamento" class="form-label">Departamento *</label>
-                                                <select class="form-select" id="departamento" name="departamento" onchange="loadMunicipios()" required>
-                                                    <option value="">Seleccionar departamento</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="municipio" class="form-label">Municipio *</label>
-                                                <select class="form-select" id="municipio" name="municipio" required>
-                                                    <option value="">Seleccionar municipio</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="nacionalidad" class="form-label">Nacionalidad</label>
-                                                <input type="text" class="form-control" id="nacionalidad" name="nacionalidad" 
-                                                       value="Dominicana">
-                                            </div>
-                                        </div>
-                                    </div>
-
+                            <!-- Información básica -->
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="direccion" class="form-label">Dirección *</label>
-                                        <textarea class="form-control" id="direccion" name="direccion" rows="2" required></textarea>
+                                        <label for="matricula-codigo" class="form-label">Código de Matrícula</label>
+                                        <input type="text" class="form-control" id="matricula-codigo" readonly>
+                                        <div class="form-text">Se genera automáticamente</div>
                                     </div>
                                 </div>
-
-                                <!-- Pestaña Tutores -->
-                                <div class="tab-pane fade" id="tutores-pane" role="tabpanel">
-                                    <!-- Tutor Principal -->
-                                    <div class="mb-4">
-                                        <h6 class="text-primary border-bottom pb-2">Tutor Principal</h6>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="nombresTutor1" class="form-label">Nombres *</label>
-                                                    <input type="text" class="form-control" id="nombresTutor1" name="nombresTutor1" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="apellidosTutor1" class="form-label">Apellidos *</label>
-                                                    <input type="text" class="form-control" id="apellidosTutor1" name="apellidosTutor1" required>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="cedulaTutor1" class="form-label">Cédula *</label>
-                                                    <input type="text" class="form-control" id="cedulaTutor1" name="cedulaTutor1" 
-                                                           placeholder="000-0000000-0" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="parentescoTutor1" class="form-label">Parentesco *</label>
-                                                    <select class="form-select" id="parentescoTutor1" name="parentescoTutor1" required>
-                                                        <option value="">Seleccionar</option>
-                                                        <option value="Padre">Padre</option>
-                                                        <option value="Madre">Madre</option>
-                                                        <option value="Abuelo">Abuelo</option>
-                                                        <option value="Abuela">Abuela</option>
-                                                        <option value="Tío">Tío</option>
-                                                        <option value="Tía">Tía</option>
-                                                        <option value="Tutor Legal">Tutor Legal</option>
-                                                        <option value="Otro">Otro</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="ocupacionTutor1" class="form-label">Ocupación</label>
-                                                    <select class="form-select" id="ocupacionTutor1" name="ocupacionTutor1">
-                                                        <option value="">Seleccionar</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="telefonoTutor1" class="form-label">Teléfono *</label>
-                                                    <input type="tel" class="form-control" id="telefonoTutor1" name="telefonoTutor1" 
-                                                           placeholder="809-000-0000" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="emailTutor1" class="form-label">Email</label>
-                                                    <input type="email" class="form-control" id="emailTutor1" name="emailTutor1">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tutor Secundario -->
-                                    <div class="mb-4">
-                                        <h6 class="text-secondary border-bottom pb-2">Tutor Secundario (Opcional)</h6>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="nombresTutor2" class="form-label">Nombres</label>
-                                                    <input type="text" class="form-control" id="nombresTutor2" name="nombresTutor2">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="apellidosTutor2" class="form-label">Apellidos</label>
-                                                    <input type="text" class="form-control" id="apellidosTutor2" name="apellidosTutor2">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="cedulaTutor2" class="form-label">Cédula</label>
-                                                    <input type="text" class="form-control" id="cedulaTutor2" name="cedulaTutor2" 
-                                                           placeholder="000-0000000-0">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="parentescoTutor2" class="form-label">Parentesco</label>
-                                                    <select class="form-select" id="parentescoTutor2" name="parentescoTutor2">
-                                                        <option value="">Seleccionar</option>
-                                                        <option value="Padre">Padre</option>
-                                                        <option value="Madre">Madre</option>
-                                                        <option value="Abuelo">Abuelo</option>
-                                                        <option value="Abuela">Abuela</option>
-                                                        <option value="Tío">Tío</option>
-                                                        <option value="Tía">Tía</option>
-                                                        <option value="Tutor Legal">Tutor Legal</option>
-                                                        <option value="Otro">Otro</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="ocupacionTutor2" class="form-label">Ocupación</label>
-                                                    <select class="form-select" id="ocupacionTutor2" name="ocupacionTutor2">
-                                                        <option value="">Seleccionar</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="telefonoTutor2" class="form-label">Teléfono</label>
-                                                    <input type="tel" class="form-control" id="telefonoTutor2" name="telefonoTutor2" 
-                                                           placeholder="809-000-0000">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="emailTutor2" class="form-label">Email</label>
-                                                    <input type="email" class="form-control" id="emailTutor2" name="emailTutor2">
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="matricula-fecha" class="form-label">Fecha de Matrícula *</label>
+                                        <input type="date" class="form-control" id="matricula-fecha" required>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Pestaña Académico -->
-                                <div class="tab-pane fade" id="academico-pane" role="tabpanel">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="gradoMatricula" class="form-label">Grado *</label>
-                                                <select class="form-select" id="gradoMatricula" name="grado" required>
-                                                    <option value="">Seleccionar grado</option>
-                                                    <option value="1">Primer Grado</option>
-                                                    <option value="2">Segundo Grado</option>
-                                                    <option value="3">Tercer Grado</option>
-                                                    <option value="4">Cuarto Grado</option>
-                                                    <option value="5">Quinto Grado</option>
-                                                    <option value="6">Sexto Grado</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="anoLectivo" class="form-label">Año Lectivo *</label>
-                                                <select class="form-select" id="anoLectivo" name="anoLectivo" required>
-                                                    <option value="">Seleccionar año</option>
-                                                    <option value="2024-2025">2024-2025</option>
-                                                    <option value="2025-2026">2025-2026</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="modalidad" class="form-label">Modalidad *</label>
-                                                <select class="form-select" id="modalidad" name="modalidad" required>
-                                                    <option value="">Seleccionar modalidad</option>
-                                                    <option value="Presencial">Presencial</option>
-                                                    <option value="Semi-presencial">Semi-presencial</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="turno" class="form-label">Turno *</label>
-                                                <select class="form-select" id="turno" name="turno" required>
-                                                    <option value="">Seleccionar turno</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="tipoEstudiante" class="form-label">Tipo de Estudiante</label>
-                                                <select class="form-select" id="tipoEstudiante" name="tipoEstudiante">
-                                                    <option value="">Seleccionar</option>
-                                                    <option value="Nuevo">Nuevo</option>
-                                                    <option value="Reingreso">Reingreso</option>
-                                                    <option value="Transferencia">Transferencia</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="jornada" class="form-label">Jornada</label>
-                                                <select class="form-select" id="jornada" name="jornada">
-                                                    <option value="">Seleccionar</option>
-                                                    <option value="Completa">Completa</option>
-                                                    <option value="Extendida">Extendida</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="montoMatricula" class="form-label">Monto de Matrícula</label>
-                                                <input type="number" class="form-control" id="montoMatricula" name="montoMatricula" 
-                                                       step="0.01" min="0" placeholder="0.00">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="metodoPago" class="form-label">Método de Pago</label>
-                                                <select class="form-select" id="metodoPago" name="metodoPago">
-                                                    <option value="">Seleccionar</option>
-                                                    <option value="Efectivo">Efectivo</option>
-                                                    <option value="Transferencia">Transferencia</option>
-                                                    <option value="Cheque">Cheque</option>
-                                                    <option value="Tarjeta">Tarjeta</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label for="fechaMatricula" class="form-label">Fecha de Matrícula *</label>
-                                                <input type="date" class="form-control" id="fechaMatricula" name="fechaMatricula" required>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="estadoMatricula" class="form-label">Estado *</label>
-                                                <select class="form-select" id="estadoMatricula" name="estado" required>
-                                                    <option value="Activa">Activa</option>
-                                                    <option value="Pendiente">Pendiente</option>
-                                                    <option value="Cancelada">Cancelada</option>
-                                                    <option value="Retirada">Retirada</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="observacionesMatricula" class="form-label">Observaciones</label>
-                                                <textarea class="form-control" id="observacionesMatricula" name="observaciones" rows="3"></textarea>
-                                            </div>
-                                        </div>
+                            <!-- Estudiante -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="matricula-estudiante" class="form-label">Estudiante *</label>
+                                        <select class="form-select" id="matricula-estudiante" required onchange="loadEstudianteInfo()">
+                                            <option value="">Seleccionar estudiante...</option>
+                                        </select>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Pestaña Documentos -->
-                                <div class="tab-pane fade" id="documentos-pane" role="tabpanel">
-                                    <h6 class="mb-3">Documentos Requeridos</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="acta_nacimiento" id="doc1" name="documentos">
-                                                <label class="form-check-label" for="doc1">
-                                                    Acta de Nacimiento
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="record_notas" id="doc2" name="documentos">
-                                                <label class="form-check-label" for="doc2">
-                                                    Record de Notas
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="fotos" id="doc3" name="documentos">
-                                                <label class="form-check-label" for="doc3">
-                                                    2 Fotos 2x2
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="certificado_medico" id="doc4" name="documentos">
-                                                <label class="form-check-label" for="doc4">
-                                                    Certificado Médico
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="cedula_tutor1" id="doc5" name="documentos">
-                                                <label class="form-check-label" for="doc5">
-                                                    Cédula del Tutor Principal
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="cedula_tutor2" id="doc6" name="documentos">
-                                                <label class="form-check-label" for="doc6">
-                                                    Cédula del Tutor Secundario
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="certificado_ingresos" id="doc7" name="documentos">
-                                                <label class="form-check-label" for="doc7">
-                                                    Certificado de Ingresos
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="certificado_trabajo" id="doc8" name="documentos">
-                                                <label class="form-check-label" for="doc8">
-                                                    Certificado de Trabajo
-                                                </label>
-                                            </div>
-                                        </div>
+                            <!-- Información del estudiante seleccionado -->
+                            <div id="estudiante-info" class="alert alert-info" style="display: none;">
+                                <!-- Información se carga dinámicamente -->
+                            </div>
+
+                            <!-- Información académica -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="matricula-grado" class="form-label">Grado *</label>
+                                        <select class="form-select" id="matricula-grado" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="1">1° Grado</option>
+                                            <option value="2">2° Grado</option>
+                                            <option value="3">3° Grado</option>
+                                            <option value="4">4° Grado</option>
+                                            <option value="5">5° Grado</option>
+                                            <option value="6">6° Grado</option>
+                                        </select>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="matricula-turno" class="form-label">Turno *</label>
+                                        <select class="form-select" id="matricula-turno" required>
+                                            <!-- Se llena dinámicamente -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="matricula-ano" class="form-label">Año Escolar *</label>
+                                        <select class="form-select" id="matricula-ano" required>
+                                            <!-- Se llena dinámicamente -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="matricula-estado" class="form-label">Estado</label>
+                                        <select class="form-select" id="matricula-estado">
+                                            <option value="Pendiente">Pendiente</option>
+                                            <option value="Aprobada">Aprobada</option>
+                                            <option value="Rechazada">Rechazada</option>
+                                            <option value="Completada">Completada</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Observaciones -->
+                            <div class="mb-3">
+                                <label for="matricula-observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="matricula-observaciones" rows="3"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-info me-1" onclick="previewMatricula()">
-                            <i class="fas fa-eye me-1"></i> Vista Previa
-                        </button>
                         <button type="button" class="btn btn-primary" onclick="saveMatricula()">
-                            <i class="fas fa-save me-1"></i> Guardar Matrícula
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal para vista previa -->
-        <div class="modal fade" id="previewModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            <i class="fas fa-eye me-2"></i>
-                            Vista Previa de Matrícula
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" id="previewContent">
-                        <!-- El contenido de la vista previa se cargará aquí -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-success" onclick="printMatricula()">
-                            <i class="fas fa-print me-1"></i> Imprimir
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="exportMatriculaPDF()">
-                            <i class="fas fa-file-pdf me-1"></i> Exportar PDF
+                            <i class="fas fa-save me-1"></i> Guardar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
+
+    // Cargar datos iniciales
     loadMatriculasData();
+    loadTurnos();
+    loadAnosEscolares();
+    loadEstudiantes();
     updateMatriculasStats();
 }
 
 // Función para cargar datos de matrículas
 function loadMatriculasData() {
-    matriculasData = db.getAll('matriculas') || [];
-    displayMatriculas();
+    try {
+        const allMatriculas = db.read('matriculas');
+        let filteredMatriculas = allMatriculas;
+
+        // Aplicar búsqueda
+        if (matriculasSearchQuery) {
+            filteredMatriculas = filterByMultipleFields(
+                filteredMatriculas, 
+                matriculasSearchQuery, 
+                ['codigo', 'estudiante_nombre']
+            );
+        }
+
+        // Aplicar filtros
+        filteredMatriculas = applyFilters(filteredMatriculas, matriculasFilters);
+
+        // Actualizar contador
+        document.getElementById('matriculas-count').textContent = filteredMatriculas.length;
+
+        // Paginar resultados
+        const paginatedData = paginate(filteredMatriculas, currentMatriculasPage, matriculasPerPage);
+        
+        // Renderizar tabla
+        renderMatriculasTable(paginatedData.data);
+        
+        // Renderizar paginación
+        renderMatriculasPagination(paginatedData);
+
+    } catch (error) {
+        console.error('Error cargando matrículas:', error);
+        showGlobalAlert('Error al cargar datos de matrículas', 'error');
+    }
 }
 
-// Función para mostrar matrículas
-function displayMatriculas() {
-    const container = document.getElementById('matriculasTableContainer');
-    if (!container) return;
-
-    if (matriculasData.length === 0) {
-        showEmptyState(container, 'No hay matrículas registradas', 'fas fa-clipboard-list');
-        document.getElementById('matriculasPagination').innerHTML = '';
+// Función para renderizar tabla de matrículas
+function renderMatriculasTable(matriculas) {
+    const tbody = document.getElementById('matriculas-tbody');
+    
+    if (matriculas.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <h5>No hay matrículas registradas</h5>
+                        <p class="text-muted">Comience agregando una nueva matrícula</p>
+                        <button type="button" class="btn btn-primary" onclick="showMatriculaModal()">
+                            <i class="fas fa-plus me-1"></i> Agregar Matrícula
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
         return;
     }
 
-    // Aplicar filtros
-    let filteredData = applyMatriculasFilters();
+    const estudiantes = db.read('estudiantes');
+    const turnos = db.read('turnos');
     
-    // Paginar datos
-    const paginatedData = paginateData(filteredData, currentMatriculasPage, matriculasPerPage);
-    
-    // Crear tabla
-    let tableHTML = `
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Estudiante</th>
-                        <th>Grado</th>
-                        <th>Año Lectivo</th>
-                        <th>Estado</th>
-                        <th>Fecha Matrícula</th>
-                        <th>Monto</th>
-                        <th>Modalidad</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    paginatedData.data.forEach(matricula => {
-        const nombreCompleto = `${matricula.nombres || ''} ${matricula.apellidos || ''}`;
-        const estadoBadge = getEstadoBadge(matricula.estado);
-        const montoFormateado = formatCurrency(matricula.montoMatricula || 0);
+    tbody.innerHTML = matriculas.map(matricula => {
+        const estudiante = estudiantes.find(e => e.id === matricula.estudiante_id);
+        const turno = turnos.find(t => t.id === matricula.turno_id);
         
-        tableHTML += `
+        return `
             <tr>
                 <td>
-                    <div class="d-flex align-items-center">
-                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
-                            <i class="fas fa-user-graduate text-primary"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold">${nombreCompleto}</div>
-                            <small class="text-muted">${matricula.cedula || 'Sin cédula'}</small>
-                        </div>
-                    </div>
+                    <span class="badge bg-secondary">${matricula.codigo}</span>
                 </td>
                 <td>
-                    <span class="badge bg-primary">${getGradoText(matricula.grado)}</span>
-                </td>
-                <td>${matricula.anoLectivo}</td>
-                <td>${estadoBadge}</td>
-                <td>${formatDateShort(matricula.fechaMatricula)}</td>
-                <td>${montoFormateado}</td>
-                <td>
-                    <small class="text-muted">${matricula.modalidad}</small><br>
-                    <small class="text-muted">${matricula.jornada || ''}</small>
+                    ${estudiante ? 
+                        `<div class="fw-bold">${estudiante.nombre} ${estudiante.apellido}</div>
+                         <small class="text-muted">${estudiante.cedula || 'Sin cédula'}</small>` : 
+                        '<span class="text-danger">Estudiante no encontrado</span>'
+                    }
                 </td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary" onclick="editMatricula('${matricula.id}')" title="Editar">
+                    <span class="badge" style="background-color: ${getGradeColor(matricula.grado)}">
+                        ${matricula.grado}° Grado
+                    </span>
+                </td>
+                <td>${turno ? turno.nombre : 'No asignado'}</td>
+                <td>
+                    <span class="badge bg-info">${matricula.ano_escolar}</span>
+                </td>
+                <td>${formatDateShort(matricula.fecha_matricula)}</td>
+                <td>${getStatusBadge(matricula.estado)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="editMatricula('${matricula.id}')" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-info" onclick="viewMatricula('${matricula.id}')" title="Ver detalles">
+                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                onclick="viewMatricula('${matricula.id}')" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteMatricula('${matricula.id}')" title="Eliminar">
+                        <button type="button" class="btn btn-sm btn-outline-success" 
+                                onclick="imprimirMatricula('${matricula.id}')" title="Imprimir">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteMatricula('${matricula.id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         `;
-    });
-    
-    tableHTML += `
-                </tbody>
-            </table>
-        </div>
-    `;
-    
-    container.innerHTML = tableHTML;
-    
-    // Actualizar paginación
-    document.getElementById('matriculasPagination').innerHTML = 
-        createPagination(paginatedData.totalPages, currentMatriculasPage, 'goToMatriculasPage');
+    }).join('');
 }
 
-// Función para obtener badge del estado
-function getEstadoBadge(estado) {
-    const badges = {
-        'Activa': '<span class="badge bg-success">Activa</span>',
-        'Pendiente': '<span class="badge bg-warning">Pendiente</span>',
-        'Cancelada': '<span class="badge bg-danger">Cancelada</span>',
-        'Retirada': '<span class="badge bg-secondary">Retirada</span>'
-    };
-    return badges[estado] || `<span class="badge bg-secondary">${estado}</span>`;
-}
-
-// Aplicar filtros
-function applyMatriculasFilters() {
-    let filtered = [...matriculasData];
+// Función para renderizar paginación
+function renderMatriculasPagination(paginatedData) {
+    const pagination = document.getElementById('matriculas-pagination');
     
-    const searchTerm = document.getElementById('searchMatriculas')?.value?.toLowerCase() || '';
-    const gradoFilter = document.getElementById('filterGradoMatricula')?.value || '';
-    const estadoFilter = document.getElementById('filterEstadoMatricula')?.value || '';
-    const anoFilter = document.getElementById('filterAnoLectivo')?.value || '';
-    const modalidadFilter = document.getElementById('filterModalidad')?.value || '';
-    
-    if (searchTerm) {
-        filtered = filtered.filter(matricula => {
-            const nombreCompleto = `${matricula.nombres} ${matricula.apellidos}`.toLowerCase();
-            return nombreCompleto.includes(searchTerm) || 
-                   (matricula.cedula && matricula.cedula.includes(searchTerm));
-        });
-    }
-    
-    if (gradoFilter) {
-        filtered = filtered.filter(m => m.grado === gradoFilter);
-    }
-    
-    if (estadoFilter) {
-        filtered = filtered.filter(m => m.estado === estadoFilter);
-    }
-    
-    if (anoFilter) {
-        filtered = filtered.filter(m => m.anoLectivo === anoFilter);
-    }
-    
-    if (modalidadFilter) {
-        filtered = filtered.filter(m => m.modalidad === modalidadFilter);
-    }
-    
-    return filtered;
-}
-
-// Limpiar filtros
-function clearMatriculasFilters() {
-    document.getElementById('searchMatriculas').value = '';
-    document.getElementById('filterGradoMatricula').value = '';
-    document.getElementById('filterEstadoMatricula').value = '';
-    document.getElementById('filterAnoLectivo').value = '';
-    document.getElementById('filterModalidad').value = '';
-    filterMatriculas();
-}
-
-// Filtrar matrículas
-function filterMatriculas() {
-    currentMatriculasPage = 1;
-    displayMatriculas();
-}
-
-// Cambiar página
-function goToMatriculasPage(page) {
-    currentMatriculasPage = page;
-    displayMatriculas();
-}
-
-// Mostrar modal de nueva matrícula
-function showAddMatriculaModal() {
-    const modal = new bootstrap.Modal(document.getElementById('matriculaModal'));
-    document.getElementById('matriculaModalTitle').innerHTML = '<i class="fas fa-clipboard-list me-2"></i>Nueva Matrícula';
-    document.getElementById('matriculaId').value = '';
-    clearForm(document.getElementById('matriculaForm'));
-    
-    // Establecer fecha actual y valores por defecto
-    document.getElementById('fechaMatricula').value = new Date().toISOString().split('T')[0];
-    document.getElementById('anoLectivo').value = getCurrentAcademicYear();
-    document.getElementById('estadoMatricula').value = 'Activa';
-    document.getElementById('nacionalidad').value = 'Dominicana';
-    
-    // Cargar opciones dinámicas
-    loadDepartamentos();
-    loadOcupaciones();
-    loadTurnos();
-    
-    modal.show();
-}
-
-// Cargar departamentos
-function loadDepartamentos() {
-    const departamentos = db.getAll('departamentos');
-    const select = document.getElementById('departamento');
-    
-    if (select) {
-        select.innerHTML = '<option value="">Seleccionar departamento</option>';
-        departamentos.forEach(dept => {
-            select.innerHTML += `<option value="${dept.id}">${dept.nombre}</option>`;
-        });
-    }
-}
-
-// Cargar municipios basados en departamento
-function loadMunicipios() {
-    const departamentoId = document.getElementById('departamento').value;
-    const select = document.getElementById('municipio');
-    
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Seleccionar municipio</option>';
-    
-    if (departamentoId) {
-        const municipios = db.getMunicipiosByDepartamento(departamentoId);
-        municipios.forEach(municipio => {
-            select.innerHTML += `<option value="${municipio.id}">${municipio.nombre}</option>`;
-        });
-    }
-}
-
-// Cargar ocupaciones
-function loadOcupaciones() {
-    const ocupaciones = db.getAll('ocupaciones');
-    const selects = ['ocupacionTutor1', 'ocupacionTutor2'];
-    
-    selects.forEach(selectId => {
-        const select = document.getElementById(selectId);
-        if (select) {
-            select.innerHTML = '<option value="">Seleccionar</option>';
-            ocupaciones.forEach(ocupacion => {
-                select.innerHTML += `<option value="${ocupacion.id}">${ocupacion.nombre}</option>`;
-            });
-        }
-    });
-}
-
-// Cargar turnos
-function loadTurnos() {
-    const turnos = db.getAll('turnos');
-    const select = document.getElementById('turno');
-    
-    if (select) {
-        select.innerHTML = '<option value="">Seleccionar turno</option>';
-        turnos.forEach(turno => {
-            select.innerHTML += `<option value="${turno.id}">${turno.nombre} (${turno.horario})</option>`;
-        });
-    }
-}
-
-// Guardar matrícula
-function saveMatricula() {
-    const form = document.getElementById('matriculaForm');
-    
-    if (!validateForm(form)) {
-        showAlert.error('Error', 'Por favor complete todos los campos requeridos correctamente');
+    if (paginatedData.totalPages <= 1) {
+        pagination.innerHTML = '';
         return;
     }
     
-    const formData = new FormData(form);
-    const matriculaData = {};
+    let paginationHtml = '';
     
-    // Convertir FormData a objeto
-    for (let [key, value] of formData.entries()) {
-        matriculaData[key] = value;
+    // Botón anterior
+    paginationHtml += `
+        <li class="page-item ${!paginatedData.hasPrev ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changeMatriculasPage(${currentMatriculasPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+    `;
+    
+    // Números de página
+    for (let i = 1; i <= paginatedData.totalPages; i++) {
+        if (i === currentMatriculasPage || 
+            i === 1 || 
+            i === paginatedData.totalPages || 
+            (i >= currentMatriculasPage - 1 && i <= currentMatriculasPage + 1)) {
+            
+            paginationHtml += `
+                <li class="page-item ${i === currentMatriculasPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changeMatriculasPage(${i})">${i}</a>
+                </li>
+            `;
+        } else if (i === currentMatriculasPage - 2 || i === currentMatriculasPage + 2) {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
     }
     
-    // Obtener documentos seleccionados
-    const documentos = [];
-    document.querySelectorAll('input[name="documentos"]:checked').forEach(checkbox => {
-        documentos.push(checkbox.value);
-    });
-    matriculaData.documentos = documentos;
+    // Botón siguiente
+    paginationHtml += `
+        <li class="page-item ${!paginatedData.hasNext ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changeMatriculasPage(${currentMatriculasPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    `;
     
-    try {
-        const matriculaId = document.getElementById('matriculaId').value;
+    pagination.innerHTML = paginationHtml;
+}
+
+// Función para cargar estudiantes
+function loadEstudiantes() {
+    const estudiantes = db.read('estudiantes').filter(e => e.estado === 'Activo');
+    const estudianteSelect = document.getElementById('matricula-estudiante');
+    
+    if (estudianteSelect) {
+        estudianteSelect.innerHTML = '<option value="">Seleccionar estudiante...</option>';
         
-        if (matriculaId) {
-            // Actualizar matrícula existente
-            const updatedMatricula = db.update('matriculas', matriculaId, matriculaData);
-            const index = matriculasData.findIndex(m => m.id === parseInt(matriculaId));
-            if (index !== -1) {
-                matriculasData[index] = updatedMatricula;
+        estudiantes.forEach(estudiante => {
+            const option = document.createElement('option');
+            option.value = estudiante.id;
+            option.textContent = `${estudiante.nombre} ${estudiante.apellido} - ${estudiante.cedula || 'Sin cédula'}`;
+            estudianteSelect.appendChild(option);
+        });
+    }
+}
+
+// Función para cargar información del estudiante seleccionado
+function loadEstudianteInfo() {
+    const estudianteId = document.getElementById('matricula-estudiante').value;
+    const infoContainer = document.getElementById('estudiante-info');
+    
+    if (!estudianteId) {
+        infoContainer.style.display = 'none';
+        return;
+    }
+    
+    const estudiante = db.find('estudiantes', estudianteId);
+    if (!estudiante) {
+        infoContainer.style.display = 'none';
+        return;
+    }
+    
+    const tutores = db.read('tutores');
+    const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+    const edad = calculateAge(estudiante.fecha_nacimiento);
+    
+    infoContainer.innerHTML = `
+        <h6><i class="fas fa-info-circle me-2"></i>Información del Estudiante</h6>
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Nombre:</strong> ${estudiante.nombre} ${estudiante.apellido}<br>
+                <strong>Edad:</strong> ${edad} años<br>
+                <strong>Género:</strong> ${estudiante.genero || 'No especificado'}
+            </div>
+            <div class="col-md-6">
+                <strong>Tutor:</strong> ${tutor ? `${tutor.nombre} ${tutor.apellido}` : 'Sin tutor'}<br>
+                <strong>Teléfono:</strong> ${estudiante.telefono || 'No registrado'}<br>
+                <strong>Email:</strong> ${estudiante.email || 'No registrado'}
+            </div>
+        </div>
+    `;
+    
+    infoContainer.style.display = 'block';
+    
+    // Auto-llenar grado si está disponible
+    if (estudiante.grado) {
+        document.getElementById('matricula-grado').value = estudiante.grado;
+    }
+    
+    // Auto-llenar turno si está disponible
+    if (estudiante.turno_id) {
+        document.getElementById('matricula-turno').value = estudiante.turno_id;
+    }
+}
+
+// Función para cargar años escolares
+function loadAnosEscolares() {
+    const currentYear = new Date().getFullYear();
+    const selectElements = [
+        document.getElementById('matricula-ano'),
+        document.getElementById('filter-ano')
+    ];
+    
+    selectElements.forEach(select => {
+        if (select) {
+            const isFilter = select.id === 'filter-ano';
+            if (!isFilter) {
+                select.innerHTML = '<option value="">Seleccionar año...</option>';
             }
-            showAlert.success('¡Éxito!', 'Matrícula actualizada correctamente');
-        } else {
-            // Crear nueva matrícula
-            const newMatricula = db.insert('matriculas', matriculaData);
-            matriculasData.push(newMatricula);
-            showAlert.success('¡Éxito!', 'Matrícula registrada correctamente');
+            
+            // Generar años desde el año anterior hasta 2 años en el futuro
+            for (let year = currentYear - 1; year <= currentYear + 2; year++) {
+                const option = document.createElement('option');
+                option.value = `${year}-${year + 1}`;
+                option.textContent = `${year}-${year + 1}`;
+                if (year === currentYear) {
+                    option.selected = !isFilter;
+                }
+                select.appendChild(option);
+            }
         }
+    });
+}
+
+// Función para actualizar estadísticas de matrículas
+function updateMatriculasStats() {
+    try {
+        const matriculas = db.read('matriculas');
+        const currentYear = new Date().getFullYear();
+        const currentAcademicYear = `${currentYear}-${currentYear + 1}`;
         
-        // Actualizar vista y cerrar modal
-        displayMatriculas();
-        updateMatriculasStats();
-        bootstrap.Modal.getInstance(document.getElementById('matriculaModal')).hide();
+        // Total matrículas
+        document.getElementById('total-matriculas').textContent = matriculas.length;
+        
+        // Matrículas aprobadas
+        const aprobadas = matriculas.filter(m => m.estado === 'Aprobada' || m.estado === 'Completada');
+        document.getElementById('matriculas-aprobadas').textContent = aprobadas.length;
+        
+        // Matrículas pendientes
+        const pendientes = matriculas.filter(m => m.estado === 'Pendiente');
+        document.getElementById('matriculas-pendientes').textContent = pendientes.length;
+        
+        // Matrículas del año actual
+        const anoActual = matriculas.filter(m => m.ano_escolar === currentAcademicYear);
+        document.getElementById('matriculas-ano-actual').textContent = anoActual.length;
         
     } catch (error) {
-        console.error('Error al guardar matrícula:', error);
-        showAlert.error('Error', 'No se pudo guardar la matrícula');
+        console.error('Error actualizando estadísticas:', error);
     }
 }
 
-// Editar matrícula
-function editMatricula(id) {
-    const matricula = matriculasData.find(m => m.id === parseInt(id));
-    if (!matricula) {
-        showAlert.error('Error', 'Matrícula no encontrada');
-        return;
-    }
-    
+// Función para generar código de matrícula
+function generateMatriculaCode() {
+    const year = new Date().getFullYear().toString().slice(-2);
+    const sequence = db.read('matriculas').length + 1;
+    return `MAT${year}${sequence.toString().padStart(4, '0')}`;
+}
+
+// Función para mostrar modal de matrícula
+function showMatriculaModal(matriculaId = null) {
     const modal = new bootstrap.Modal(document.getElementById('matriculaModal'));
-    document.getElementById('matriculaModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Matrícula';
-    document.getElementById('matriculaId').value = matricula.id;
+    const title = document.getElementById('matriculaModalTitle');
+    const form = document.getElementById('matriculaForm');
     
-    // Cargar opciones dinámicas
-    loadDepartamentos();
-    loadOcupaciones();
-    loadTurnos();
+    // Limpiar formulario
+    form.reset();
+    document.getElementById('matricula-id').value = '';
+    document.getElementById('estudiante-info').style.display = 'none';
     
-    // Llenar formulario con datos existentes
-    setTimeout(() => fillMatriculaForm(matricula), 100);
+    if (matriculaId) {
+        // Modo edición
+        title.innerHTML = '<i class="fas fa-clipboard-list me-2"></i>Editar Matrícula';
+        const matricula = db.find('matriculas', matriculaId);
+        
+        if (matricula) {
+            document.getElementById('matricula-id').value = matricula.id;
+            document.getElementById('matricula-codigo').value = matricula.codigo;
+            document.getElementById('matricula-fecha').value = matricula.fecha_matricula;
+            document.getElementById('matricula-estudiante').value = matricula.estudiante_id;
+            document.getElementById('matricula-grado').value = matricula.grado;
+            document.getElementById('matricula-turno').value = matricula.turno_id;
+            document.getElementById('matricula-ano').value = matricula.ano_escolar;
+            document.getElementById('matricula-estado').value = matricula.estado;
+            document.getElementById('matricula-observaciones').value = matricula.observaciones || '';
+            
+            // Cargar información del estudiante
+            loadEstudianteInfo();
+        }
+    } else {
+        // Modo creación
+        title.innerHTML = '<i class="fas fa-clipboard-list me-2"></i>Nueva Matrícula';
+        document.getElementById('matricula-codigo').value = generateMatriculaCode();
+        document.getElementById('matricula-fecha').value = new Date().toISOString().split('T')[0];
+        document.getElementById('matricula-estado').value = 'Pendiente';
+    }
     
     modal.show();
 }
 
-// Llenar formulario con datos existentes
-function fillMatriculaForm(matricula) {
-    // Información del estudiante
-    document.getElementById('nombresEst').value = matricula.nombres || '';
-    document.getElementById('apellidosEst').value = matricula.apellidos || '';
-    document.getElementById('cedulaEst').value = matricula.cedula || '';
-    document.getElementById('fechaNacimiento').value = matricula.fechaNacimiento || '';
-    document.getElementById('genero').value = matricula.genero || '';
-    document.getElementById('direccion').value = matricula.direccion || '';
-    document.getElementById('telefono').value = matricula.telefono || '';
-    document.getElementById('email').value = matricula.email || '';
-    document.getElementById('nacionalidad').value = matricula.nacionalidad || 'Dominicana';
-    
-    // Información académica
-    document.getElementById('gradoMatricula').value = matricula.grado || '';
-    document.getElementById('anoLectivo').value = matricula.anoLectivo || '';
-    document.getElementById('modalidad').value = matricula.modalidad || '';
-    document.getElementById('tipoEstudiante').value = matricula.tipoEstudiante || '';
-    document.getElementById('jornada').value = matricula.jornada || '';
-    document.getElementById('estadoMatricula').value = matricula.estado || '';
-    document.getElementById('montoMatricula').value = matricula.montoMatricula || '';
-    document.getElementById('fechaMatricula').value = matricula.fechaMatricula || '';
-    document.getElementById('metodoPago').value = matricula.metodoPago || '';
-    
-    // Información de tutores
-    document.getElementById('nombresTutor1').value = matricula.nombresTutor1 || '';
-    document.getElementById('apellidosTutor1').value = matricula.apellidosTutor1 || '';
-    document.getElementById('cedulaTutor1').value = matricula.cedulaTutor1 || '';
-    document.getElementById('parentescoTutor1').value = matricula.parentescoTutor1 || '';
-    document.getElementById('telefonoTutor1').value = matricula.telefonoTutor1 || '';
-    document.getElementById('emailTutor1').value = matricula.emailTutor1 || '';
-    
-    document.getElementById('nombresTutor2').value = matricula.nombresTutor2 || '';
-    document.getElementById('apellidosTutor2').value = matricula.apellidosTutor2 || '';
-    document.getElementById('cedulaTutor2').value = matricula.cedulaTutor2 || '';
-    document.getElementById('parentescoTutor2').value = matricula.parentescoTutor2 || '';
-    document.getElementById('telefonoTutor2').value = matricula.telefonoTutor2 || '';
-    document.getElementById('emailTutor2').value = matricula.emailTutor2 || '';
-    
-    // Observaciones
-    document.getElementById('observacionesMatricula').value = matricula.observaciones || '';
-    
-    // Documentos
-    if (matricula.documentos && Array.isArray(matricula.documentos)) {
-        matricula.documentos.forEach(doc => {
-            const checkbox = document.querySelector(`input[value="${doc}"]`);
-            if (checkbox) checkbox.checked = true;
-        });
-    }
-    
-    // Cargar municipios después de establecer departamento
-    setTimeout(() => {
-        document.getElementById('departamento').value = matricula.departamento || '';
-        loadMunicipios();
-        setTimeout(() => {
-            document.getElementById('municipio').value = matricula.municipio || '';
-        }, 100);
-    }, 100);
-}
-
-// Eliminar matrícula
-function deleteMatricula(id) {
-    showAlert.confirm(
-        '¿Está seguro?',
-        'Esta acción no se puede deshacer. ¿Desea eliminar esta matrícula?'
-    ).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                db.delete('matriculas', id);
-                matriculasData = matriculasData.filter(m => m.id !== parseInt(id));
-                displayMatriculas();
-                updateMatriculasStats();
-                showAlert.success('¡Eliminado!', 'La matrícula ha sido eliminada');
-            } catch (error) {
-                console.error('Error al eliminar matrícula:', error);
-                showAlert.error('Error', 'No se pudo eliminar la matrícula');
-            }
-        }
-    });
-}
-
-// Ver detalles de matrícula
-function viewMatricula(id) {
-    const matricula = matriculasData.find(m => m.id === parseInt(id));
-    if (!matricula) {
-        showAlert.error('Error', 'Matrícula no encontrada');
-        return;
-    }
-    
-    generatePreviewContent(matricula);
-    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-    previewModal.show();
-}
-
-// Generar vista previa
-function previewMatricula() {
-    const form = document.getElementById('matriculaForm');
-    const formData = new FormData(form);
-    const matriculaData = {};
-    
-    for (let [key, value] of formData.entries()) {
-        matriculaData[key] = value;
-    }
-    
-    // Obtener documentos seleccionados
-    const documentos = [];
-    document.querySelectorAll('input[name="documentos"]:checked').forEach(checkbox => {
-        documentos.push(checkbox.value);
-    });
-    matriculaData.documentos = documentos;
-    
-    generatePreviewContent(matriculaData);
-    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-    previewModal.show();
-}
-
-// Generar contenido de vista previa
-function generatePreviewContent(matricula) {
-    const departamentos = db.getAll('departamentos');
-    const municipios = db.getAll('municipios');
-    const ocupaciones = db.getAll('ocupaciones');
-    const turnos = db.getAll('turnos');
-    
-    const departamento = departamentos.find(d => d.id == matricula.departamento);
-    const municipio = municipios.find(m => m.id == matricula.municipio);
-    const ocupacion1 = ocupaciones.find(o => o.id == matricula.ocupacionTutor1);
-    const ocupacion2 = ocupaciones.find(o => o.id == matricula.ocupacionTutor2);
-    const turno = turnos.find(t => t.id == matricula.turno);
-    
-    const content = `
-        <div class="container-fluid">
-            <!-- Encabezado del documento -->
-            <div class="text-center mb-4">
-                <h3 class="mb-1">ESCUELA JESÚS EL BUEN MAESTRO</h3>
-                <p class="mb-1">FORMULARIO DE MATRÍCULA</p>
-                <p class="text-muted mb-0">Año Lectivo ${matricula.anoLectivo || '2024-2025'}</p>
-                <hr>
-            </div>
-            
-            <!-- Información del Estudiante -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-primary text-white p-2 rounded">INFORMACIÓN DEL ESTUDIANTE</h5>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Nombres:</strong> ${matricula.nombres || ''}</p>
-                    <p><strong>Apellidos:</strong> ${matricula.apellidos || ''}</p>
-                    <p><strong>Cédula:</strong> ${matricula.cedula || 'No especificada'}</p>
-                    <p><strong>Fecha de Nacimiento:</strong> ${formatDate(matricula.fechaNacimiento) || ''}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Género:</strong> ${matricula.genero || ''}</p>
-                    <p><strong>Teléfono:</strong> ${matricula.telefono || 'No especificado'}</p>
-                    <p><strong>Email:</strong> ${matricula.email || 'No especificado'}</p>
-                    <p><strong>Edad:</strong> ${matricula.fechaNacimiento ? calculateAge(matricula.fechaNacimiento) + ' años' : 'No calculada'}</p>
-                </div>
-                <div class="col-12">
-                    <p><strong>Dirección:</strong> ${matricula.direccion || ''}</p>
-                    <p><strong>Departamento:</strong> ${departamento ? departamento.nombre : 'No especificado'}</p>
-                    <p><strong>Municipio:</strong> ${municipio ? municipio.nombre : 'No especificado'}</p>
-                    <p><strong>Nacionalidad:</strong> ${matricula.nacionalidad || 'No especificada'}</p>
-                </div>
-            </div>
-            
-            <!-- Información Académica -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-success text-white p-2 rounded">INFORMACIÓN ACADÉMICA</h5>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Grado:</strong> ${getGradoText(matricula.grado) || ''}</p>
-                    <p><strong>Año Lectivo:</strong> ${matricula.anoLectivo || ''}</p>
-                    <p><strong>Turno:</strong> ${turno ? turno.nombre + ' (' + turno.horario + ')' : 'No especificado'}</p>
-                    <p><strong>Modalidad:</strong> ${matricula.modalidad || ''}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Tipo de Estudiante:</strong> ${matricula.tipoEstudiante || ''}</p>
-                    <p><strong>Jornada:</strong> ${matricula.jornada || ''}</p>
-                    <p><strong>Estado:</strong> ${matricula.estado || 'Activa'}</p>
-                    <p><strong>Fecha de Matrícula:</strong> ${formatDate(matricula.fechaMatricula) || ''}</p>
-                </div>
-                <div class="col-12">
-                    <p><strong>Monto:</strong> ${formatCurrency(matricula.montoMatricula || 0)}</p>
-                    <p><strong>Método de Pago:</strong> ${matricula.metodoPago || 'No especificado'}</p>
-                </div>
-            </div>
-            
-            <!-- Información de Tutores -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-info text-white p-2 rounded">INFORMACIÓN DE TUTORES</h5>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-primary">Tutor Principal</h6>
-                    <p><strong>Nombres:</strong> ${matricula.nombresTutor1 || ''}</p>
-                    <p><strong>Apellidos:</strong> ${matricula.apellidosTutor1 || ''}</p>
-                    <p><strong>Cédula:</strong> ${matricula.cedulaTutor1 || ''}</p>
-                    <p><strong>Parentesco:</strong> ${matricula.parentescoTutor1 || ''}</p>
-                    <p><strong>Ocupación:</strong> ${ocupacion1 ? ocupacion1.nombre : 'No especificada'}</p>
-                    <p><strong>Teléfono:</strong> ${matricula.telefonoTutor1 || ''}</p>
-                    <p><strong>Email:</strong> ${matricula.emailTutor1 || 'No especificado'}</p>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-secondary">Tutor Secundario</h6>
-                    <p><strong>Nombres:</strong> ${matricula.nombresTutor2 || 'No especificado'}</p>
-                    <p><strong>Apellidos:</strong> ${matricula.apellidosTutor2 || 'No especificado'}</p>
-                    <p><strong>Cédula:</strong> ${matricula.cedulaTutor2 || 'No especificada'}</p>
-                    <p><strong>Parentesco:</strong> ${matricula.parentescoTutor2 || 'No especificado'}</p>
-                    <p><strong>Ocupación:</strong> ${ocupacion2 ? ocupacion2.nombre : 'No especificada'}</p>
-                    <p><strong>Teléfono:</strong> ${matricula.telefonoTutor2 || 'No especificado'}</p>
-                    <p><strong>Email:</strong> ${matricula.emailTutor2 || 'No especificado'}</p>
-                </div>
-            </div>
-            
-            <!-- Documentos entregados -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-warning text-dark p-2 rounded">DOCUMENTOS ENTREGADOS</h5>
-                </div>
-                <div class="col-12">
-                    ${matricula.documentos && matricula.documentos.length > 0 ? 
-                        matricula.documentos.map(doc => {
-                            const docNames = {
-                                'acta_nacimiento': 'Acta de Nacimiento',
-                                'record_notas': 'Record de Notas',
-                                'fotos': '2 Fotos 2x2',
-                                'certificado_medico': 'Certificado Médico',
-                                'cedula_tutor1': 'Cédula Tutor 1',
-                                'cedula_tutor2': 'Cédula Tutor 2',
-                                'certificado_ingresos': 'Certificado de Ingresos',
-                                'certificado_trabajo': 'Certificado de Trabajo'
-                            };
-                            return `<span class="badge bg-success me-1 mb-1">${docNames[doc] || doc}</span>`;
-                        }).join('') 
-                        : '<span class="text-muted">No se han registrado documentos entregados</span>'
-                    }
-                </div>
-            </div>
-            
-            <!-- Observaciones -->
-            ${matricula.observaciones ? `
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h5 class="bg-secondary text-white p-2 rounded">OBSERVACIONES</h5>
-                        <p>${matricula.observaciones}</p>
-                    </div>
-                </div>
-            ` : ''}
-            
-            <!-- Firmas -->
-            <div class="row mt-5">
-                <div class="col-md-4 text-center">
-                    <div style="border-top: 1px solid #000; margin-top: 60px; padding-top: 5px;">
-                        <small>Firma del Tutor</small>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div style="border-top: 1px solid #000; margin-top: 60px; padding-top: 5px;">
-                        <small>Firma del Director</small>
-                    </div>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div style="border-top: 1px solid #000; margin-top: 60px; padding-top: 5px;">
-                        <small>Sello de la Institución</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <small class="text-muted">
-                    Documento generado el ${formatDate(new Date().toISOString(), true)}
-                </small>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('previewContent').innerHTML = content;
-}
-
-// Imprimir matrícula
-function printMatricula() {
-    window.print();
-}
-
-// Exportar matrícula a PDF
-function exportMatriculaPDF() {
-    const content = document.getElementById('previewContent');
-    
+// Función para guardar matrícula
+function saveMatricula() {
     try {
-        if (typeof window.jsPDF === 'undefined') {
-            showAlert.error('Error', 'La librería jsPDF no está disponible');
+        const form = document.getElementById('matriculaForm');
+        
+        const matriculaData = {
+            codigo: document.getElementById('matricula-codigo').value.trim(),
+            estudiante_id: document.getElementById('matricula-estudiante').value,
+            grado: document.getElementById('matricula-grado').value,
+            turno_id: document.getElementById('matricula-turno').value,
+            ano_escolar: document.getElementById('matricula-ano').value,
+            fecha_matricula: document.getElementById('matricula-fecha').value,
+            estado: document.getElementById('matricula-estado').value,
+            observaciones: document.getElementById('matricula-observaciones').value.trim()
+        };
+        
+        // Validaciones
+        const validationRules = {
+            codigo: { required: true, label: 'Código' },
+            estudiante_id: { required: true, label: 'Estudiante' },
+            grado: { required: true, label: 'Grado' },
+            turno_id: { required: true, label: 'Turno' },
+            ano_escolar: { required: true, label: 'Año escolar' },
+            fecha_matricula: { required: true, type: 'date', label: 'Fecha de matrícula' }
+        };
+        
+        const errors = validateFormData(matriculaData, validationRules);
+        
+        if (errors.length > 0) {
+            showGlobalAlert('Errores de validación:<br>• ' + errors.join('<br>• '), 'error');
             return;
         }
         
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        // Verificar que el estudiante no tenga una matrícula activa para el mismo año
+        const matriculaId = document.getElementById('matricula-id').value;
+        const matriculasExistentes = db.read('matriculas');
+        const matriculaConflicto = matriculasExistentes.find(m => 
+            m.estudiante_id === matriculaData.estudiante_id && 
+            m.ano_escolar === matriculaData.ano_escolar &&
+            (m.estado === 'Aprobada' || m.estado === 'Completada' || m.estado === 'Pendiente') &&
+            m.id !== matriculaId
+        );
         
-        // Configurar el documento
-        doc.setFontSize(16);
-        doc.text('FORMULARIO DE MATRÍCULA', 20, 20);
-        doc.setFontSize(12);
-        doc.text('Escuela Jesús El Buen Maestro', 20, 30);
+        if (matriculaConflicto) {
+            showGlobalAlert('El estudiante ya tiene una matrícula activa para este año escolar', 'error');
+            return;
+        }
         
-        // Obtener datos del formulario actual
-        const form = document.getElementById('matriculaForm');
-        const formData = new FormData(form);
+        if (matriculaId) {
+            // Actualizar matrícula existente
+            db.update('matriculas', matriculaId, matriculaData);
+            showGlobalAlert('Matrícula actualizada correctamente', 'success');
+        } else {
+            // Crear nueva matrícula
+            db.create('matriculas', matriculaData);
+            showGlobalAlert('Matrícula creada correctamente', 'success');
+        }
         
-        let yPosition = 50;
-        const lineHeight = 8;
-        
-        // Información del estudiante
-        doc.setFontSize(14);
-        doc.text('INFORMACIÓN DEL ESTUDIANTE', 20, yPosition);
-        yPosition += lineHeight;
-        
-        doc.setFontSize(10);
-        doc.text(`Nombres: ${formData.get('nombres') || ''}`, 20, yPosition);
-        doc.text(`Apellidos: ${formData.get('apellidos') || ''}`, 110, yPosition);
-        yPosition += lineHeight;
-        
-        doc.text(`Cédula: ${formData.get('cedula') || ''}`, 20, yPosition);
-        doc.text(`Género: ${formData.get('genero') || ''}`, 110, yPosition);
-        yPosition += lineHeight;
-        
-        doc.text(`Fecha Nacimiento: ${formData.get('fechaNacimiento') || ''}`, 20, yPosition);
-        yPosition += lineHeight * 2;
-        
-        // Información académica
-        doc.setFontSize(14);
-        doc.text('INFORMACIÓN ACADÉMICA', 20, yPosition);
-        yPosition += lineHeight;
-        
-        doc.setFontSize(10);
-        doc.text(`Grado: ${getGradoText(formData.get('grado')) || ''}`, 20, yPosition);
-        doc.text(`Año Lectivo: ${formData.get('anoLectivo') || ''}`, 110, yPosition);
-        yPosition += lineHeight;
-        
-        doc.text(`Modalidad: ${formData.get('modalidad') || ''}`, 20, yPosition);
-        doc.text(`Monto: ${formatCurrency(formData.get('montoMatricula') || 0)}`, 110, yPosition);
-        yPosition += lineHeight * 2;
-        
-        // Información de tutores
-        doc.setFontSize(14);
-        doc.text('TUTOR PRINCIPAL', 20, yPosition);
-        yPosition += lineHeight;
-        
-        doc.setFontSize(10);
-        doc.text(`Nombres: ${formData.get('nombresTutor1') || ''}`, 20, yPosition);
-        doc.text(`Apellidos: ${formData.get('apellidosTutor1') || ''}`, 110, yPosition);
-        yPosition += lineHeight;
-        
-        doc.text(`Cédula: ${formData.get('cedulaTutor1') || ''}`, 20, yPosition);
-        doc.text(`Parentesco: ${formData.get('parentescoTutor1') || ''}`, 110, yPosition);
-        yPosition += lineHeight;
-        
-        doc.text(`Teléfono: ${formData.get('telefonoTutor1') || ''}`, 20, yPosition);
-        yPosition += lineHeight;
-        
-        const fileName = `matricula_${formData.get('nombres') || 'estudiante'}_${new Date().getTime()}.pdf`;
-        doc.save(fileName);
-        
-        showAlert.success('¡Exportado!', 'El archivo PDF se ha generado correctamente');
+        // Cerrar modal y recargar datos
+        const modal = bootstrap.Modal.getInstance(document.getElementById('matriculaModal'));
+        modal.hide();
+        loadMatriculasData();
+        updateMatriculasStats();
         
     } catch (error) {
-        console.error('Error al exportar PDF:', error);
-        showAlert.error('Error', 'No se pudo generar el archivo PDF');
+        console.error('Error guardando matrícula:', error);
+        showGlobalAlert('Error al guardar matrícula: ' + error.message, 'error');
     }
 }
 
-// Actualizar estadísticas
-function updateMatriculasStats() {
-    const stats = {
-        activas: matriculasData.filter(m => m.estado === 'Activa').length,
-        esteMes: matriculasData.filter(m => {
-            const fecha = new Date(m.fechaMatricula);
-            const hoy = new Date();
-            return fecha.getMonth() === hoy.getMonth() && fecha.getFullYear() === hoy.getFullYear();
-        }).length,
-        pendientes: matriculasData.filter(m => m.estado === 'Pendiente').length,
-        ingresos: matriculasData
-            .filter(m => m.estado === 'Activa')
-            .reduce((total, m) => total + (parseFloat(m.montoMatricula) || 0), 0)
-    };
-    
-    document.getElementById('total-matriculas-activas').textContent = stats.activas;
-    document.getElementById('matriculas-este-mes').textContent = stats.esteMes;
-    document.getElementById('matriculas-pendientes').textContent = stats.pendientes;
-    document.getElementById('ingresos-matriculas').textContent = formatCurrency(stats.ingresos);
+// Función para editar matrícula
+function editMatricula(matriculaId) {
+    showMatriculaModal(matriculaId);
 }
 
-// Exportar todas las matrículas
-function exportMatriculas() {
-    if (matriculasData.length === 0) {
-        showAlert.warning('Sin datos', 'No hay matrículas para exportar');
+// Función para ver detalles de matrícula
+function viewMatricula(matriculaId) {
+    const matricula = db.find('matriculas', matriculaId);
+    if (!matricula) {
+        showGlobalAlert('Matrícula no encontrada', 'error');
         return;
     }
     
-    const dataToExport = matriculasData.map(matricula => ({
-        'Estudiante': `${matricula.nombres} ${matricula.apellidos}`,
-        'Cédula': matricula.cedula || '',
-        'Grado': getGradoText(matricula.grado),
-        'Año Lectivo': matricula.anoLectivo,
-        'Estado': matricula.estado,
-        'Modalidad': matricula.modalidad,
-        'Fecha Matrícula': formatDateShort(matricula.fechaMatricula),
-        'Monto': matricula.montoMatricula,
-        'Tutor Principal': `${matricula.nombresTutor1} ${matricula.apellidosTutor1}`,
-        'Teléfono Tutor': matricula.telefonoTutor1,
-        'Observaciones': matricula.observaciones || ''
-    }));
+    const estudiantes = db.read('estudiantes');
+    const turnos = db.read('turnos');
+    const tutores = db.read('tutores');
     
-    exportToExcel('Registro de Matrículas', dataToExport, 'matriculas_' + new Date().toISOString().split('T')[0]);
+    const estudiante = estudiantes.find(e => e.id === matricula.estudiante_id);
+    const turno = turnos.find(t => t.id === matricula.turno_id);
+    const tutor = estudiante ? tutores.find(t => t.id === estudiante.tutor_id) : null;
+    
+    Swal.fire({
+        title: `Matrícula ${matricula.codigo}`,
+        html: `
+            <div class="text-start">
+                <div class="row">
+                    <div class="col-6"><strong>Código:</strong></div>
+                    <div class="col-6">${matricula.codigo}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Estudiante:</strong></div>
+                    <div class="col-6">${estudiante ? `${estudiante.nombre} ${estudiante.apellido}` : 'No encontrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Grado:</strong></div>
+                    <div class="col-6">${matricula.grado}° Grado</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Turno:</strong></div>
+                    <div class="col-6">${turno ? turno.nombre : 'No asignado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Año Escolar:</strong></div>
+                    <div class="col-6">${matricula.ano_escolar}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Fecha:</strong></div>
+                    <div class="col-6">${formatDate(matricula.fecha_matricula)}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Estado:</strong></div>
+                    <div class="col-6">${getStatusBadge(matricula.estado)}</div>
+                </div>
+                ${tutor ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Tutor:</strong></div>
+                        <div class="col-6">${tutor.nombre} ${tutor.apellido}</div>
+                    </div>
+                ` : ''}
+                ${matricula.observaciones ? `
+                    <div class="row mt-2">
+                        <div class="col-12"><strong>Observaciones:</strong></div>
+                        <div class="col-12">${matricula.observaciones}</div>
+                    </div>
+                ` : ''}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        showCancelButton: true,
+        cancelButtonText: 'Editar',
+        cancelButtonColor: '#007bff'
+    }).then((result) => {
+        if (result.isDismissed) {
+            editMatricula(matriculaId);
+        }
+    });
 }
 
-// Refrescar datos
-function refreshMatriculas() {
-    loadMatriculasData();
-    updateMatriculasStats();
-    showAlert.success('Actualizado', 'Los datos han sido actualizados');
+// Función para imprimir matrícula
+function imprimirMatricula(matriculaId) {
+    const matricula = db.find('matriculas', matriculaId);
+    if (!matricula) {
+        showGlobalAlert('Matrícula no encontrada', 'error');
+        return;
+    }
+    
+    const estudiantes = db.read('estudiantes');
+    const turnos = db.read('turnos');
+    const tutores = db.read('tutores');
+    const sistema = db.find('sistema', 'config');
+    
+    const estudiante = estudiantes.find(e => e.id === matricula.estudiante_id);
+    const turno = turnos.find(t => t.id === matricula.turno_id);
+    const tutor = estudiante ? tutores.find(t => t.id === estudiante.tutor_id) : null;
+    
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Matrícula ${matricula.codigo}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .school-name { font-size: 24px; font-weight: bold; color: #007bff; }
+                .document-title { font-size: 18px; margin: 10px 0; }
+                .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                .info-table td { padding: 8px; border: 1px solid #ddd; }
+                .label { font-weight: bold; background-color: #f8f9fa; width: 30%; }
+                .footer { margin-top: 40px; text-align: center; }
+                .signature { margin: 40px 0; }
+                @media print { body { margin: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="school-name">${sistema ? sistema.nombre : 'Escuela Jesús El Buen Maestro'}</div>
+                <div class="document-title">CERTIFICADO DE MATRÍCULA</div>
+                <div>Año Escolar: ${matricula.ano_escolar}</div>
+            </div>
+            
+            <table class="info-table">
+                <tr>
+                    <td class="label">Código de Matrícula:</td>
+                    <td>${matricula.codigo}</td>
+                </tr>
+                <tr>
+                    <td class="label">Estudiante:</td>
+                    <td>${estudiante ? `${estudiante.nombre} ${estudiante.apellido}` : 'No encontrado'}</td>
+                </tr>
+                <tr>
+                    <td class="label">Cédula:</td>
+                    <td>${estudiante ? (estudiante.cedula || 'No registrada') : '-'}</td>
+                </tr>
+                <tr>
+                    <td class="label">Grado:</td>
+                    <td>${matricula.grado}° Grado de Educación Primaria</td>
+                </tr>
+                <tr>
+                    <td class="label">Turno:</td>
+                    <td>${turno ? turno.nombre : 'No asignado'}</td>
+                </tr>
+                <tr>
+                    <td class="label">Fecha de Matrícula:</td>
+                    <td>${formatDate(matricula.fecha_matricula)}</td>
+                </tr>
+                <tr>
+                    <td class="label">Estado:</td>
+                    <td>${matricula.estado}</td>
+                </tr>
+                ${tutor ? `
+                <tr>
+                    <td class="label">Tutor/Representante:</td>
+                    <td>${tutor.nombre} ${tutor.apellido}</td>
+                </tr>
+                <tr>
+                    <td class="label">Parentesco:</td>
+                    <td>${tutor.parentesco}</td>
+                </tr>
+                <tr>
+                    <td class="label">Teléfono del Tutor:</td>
+                    <td>${tutor.telefono}</td>
+                </tr>
+                ` : ''}
+            </table>
+            
+            ${matricula.observaciones ? `
+                <div style="margin: 20px 0;">
+                    <strong>Observaciones:</strong><br>
+                    ${matricula.observaciones}
+                </div>
+            ` : ''}
+            
+            <div class="footer">
+                <div class="signature">
+                    <div style="margin-bottom: 40px;">_________________________</div>
+                    <div>Firma del Director(a)</div>
+                </div>
+                <div>Fecha de emisión: ${formatDate(new Date().toISOString())}</div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
 }
+
+// Función para eliminar matrícula
+function deleteMatricula(matriculaId) {
+    const matricula = db.find('matriculas', matriculaId);
+    if (!matricula) {
+        showGlobalAlert('Matrícula no encontrada', 'error');
+        return;
+    }
+    
+    confirmAction(
+        '¿Eliminar matrícula?',
+        `¿Está seguro de eliminar la matrícula ${matricula.codigo}? Esta acción no se puede deshacer.`,
+        'Sí, eliminar'
+    ).then((result) => {
+        if (result.isConfirmed) {
+            try {
+                db.delete('matriculas', matriculaId);
+                showGlobalAlert('Matrícula eliminada correctamente', 'success');
+                loadMatriculasData();
+                updateMatriculasStats();
+            } catch (error) {
+                console.error('Error eliminando matrícula:', error);
+                showGlobalAlert('Error al eliminar matrícula', 'error');
+            }
+        }
+    });
+}
+
+// Función de búsqueda
+function searchMatriculas() {
+    matriculasSearchQuery = document.getElementById('matriculas-search').value.trim();
+    currentMatriculasPage = 1;
+    loadMatriculasData();
+}
+
+// Función para filtrar matrículas
+function filterMatriculas() {
+    matriculasFilters = {
+        grado: document.getElementById('filter-grado').value,
+        turno_id: document.getElementById('filter-turno').value,
+        estado: document.getElementById('filter-estado').value,
+        ano_escolar: document.getElementById('filter-ano').value
+    };
+    
+    // Remover filtros vacíos
+    Object.keys(matriculasFilters).forEach(key => {
+        if (!matriculasFilters[key]) {
+            delete matriculasFilters[key];
+        }
+    });
+    
+    currentMatriculasPage = 1;
+    loadMatriculasData();
+}
+
+// Función para limpiar filtros
+function clearMatriculasFilters() {
+    document.getElementById('matriculas-search').value = '';
+    document.getElementById('filter-grado').value = '';
+    document.getElementById('filter-turno').value = '';
+    document.getElementById('filter-estado').value = '';
+    document.getElementById('filter-ano').value = '';
+    
+    matriculasSearchQuery = '';
+    matriculasFilters = {};
+    currentMatriculasPage = 1;
+    loadMatriculasData();
+}
+
+// Función para cambiar página
+function changeMatriculasPage(page) {
+    currentMatriculasPage = page;
+    loadMatriculasData();
+}
+
+// Función para exportar matrículas
+function exportMatriculas() {
+    try {
+        const matriculas = db.read('matriculas');
+        const estudiantes = db.read('estudiantes');
+        const turnos = db.read('turnos');
+        const tutores = db.read('tutores');
+        
+        const exportData = matriculas.map(matricula => {
+            const estudiante = estudiantes.find(e => e.id === matricula.estudiante_id);
+            const turno = turnos.find(t => t.id === matricula.turno_id);
+            const tutor = estudiante ? tutores.find(t => t.id === estudiante.tutor_id) : null;
+            
+            return {
+                'Código': matricula.codigo,
+                'Estudiante': estudiante ? `${estudiante.nombre} ${estudiante.apellido}` : 'No encontrado',
+                'Cédula Estudiante': estudiante ? (estudiante.cedula || '') : '',
+                'Grado': `${matricula.grado}° Grado`,
+                'Turno': turno ? turno.nombre : '',
+                'Año Escolar': matricula.ano_escolar,
+                'Fecha de Matrícula': formatDateShort(matricula.fecha_matricula),
+                'Estado': matricula.estado,
+                'Tutor': tutor ? `${tutor.nombre} ${tutor.apellido}` : '',
+                'Parentesco': tutor ? tutor.parentesco : '',
+                'Teléfono Tutor': tutor ? tutor.telefono : '',
+                'Observaciones': matricula.observaciones || '',
+                'Fecha de Registro': formatDateShort(matricula.created_at)
+            };
+        });
+        
+        exportToExcel(exportData, 'matriculas', 'Lista de Matrículas');
+        
+    } catch (error) {
+        console.error('Error exportando matrículas:', error);
+        showGlobalAlert('Error al exportar datos', 'error');
+    }
+}
+
+// Función para generar reporte de matrículas
+function generarReporteMatriculas() {
+    const matriculas = db.read('matriculas');
+    const currentYear = new Date().getFullYear();
+    const currentAcademicYear = `${currentYear}-${currentYear + 1}`;
+    
+    // Estadísticas por grado
+    const porGrado = {};
+    for (let i = 1; i <= 6; i++) {
+        porGrado[i] = matriculas.filter(m => m.grado === i.toString()).length;
+    }
+    
+    // Estadísticas por estado
+    const porEstado = {
+        'Pendiente': matriculas.filter(m => m.estado === 'Pendiente').length,
+        'Aprobada': matriculas.filter(m => m.estado === 'Aprobada').length,
+        'Completada': matriculas.filter(m => m.estado === 'Completada').length,
+        'Rechazada': matriculas.filter(m => m.estado === 'Rechazada').length
+    };
+    
+    // Estadísticas por año
+    const porAno = {};
+    matriculas.forEach(m => {
+        porAno[m.ano_escolar] = (porAno[m.ano_escolar] || 0) + 1;
+    });
+    
+    Swal.fire({
+        title: 'Reporte de Matrículas',
+        html: `
+            <div class="text-start">
+                <h6>Resumen General</h6>
+                <ul>
+                    <li>Total de matrículas: ${matriculas.length}</li>
+                    <li>Año actual (${currentAcademicYear}): ${matriculas.filter(m => m.ano_escolar === currentAcademicYear).length}</li>
+                </ul>
+                
+                <h6>Por Grado</h6>
+                <ul>
+                    ${Object.entries(porGrado).map(([grado, count]) => 
+                        `<li>${grado}° Grado: ${count} estudiantes</li>`
+                    ).join('')}
+                </ul>
+                
+                <h6>Por Estado</h6>
+                <ul>
+                    ${Object.entries(porEstado).map(([estado, count]) => 
+                        `<li>${estado}: ${count} matrículas</li>`
+                    ).join('')}
+                </ul>
+                
+                <h6>Por Año Escolar</h6>
+                <ul>
+                    ${Object.entries(porAno).map(([ano, count]) => 
+                        `<li>${ano}: ${count} matrículas</li>`
+                    ).join('')}
+                </ul>
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        showCancelButton: true,
+        cancelButtonText: 'Exportar Reporte',
+        cancelButtonColor: '#28a745'
+    }).then((result) => {
+        if (result.isDismissed) {
+            exportMatriculas();
+        }
+    });
+}
+
+// Exportar funciones
+window.loadMatriculasSection = loadMatriculasSection;
+window.showMatriculaModal = showMatriculaModal;
+window.saveMatricula = saveMatricula;
+window.editMatricula = editMatricula;
+window.viewMatricula = viewMatricula;
+window.imprimirMatricula = imprimirMatricula;
+window.deleteMatricula = deleteMatricula;
+window.searchMatriculas = searchMatriculas;
+window.filterMatriculas = filterMatriculas;
+window.clearMatriculasFilters = clearMatriculasFilters;
+window.changeMatriculasPage = changeMatriculasPage;
+window.exportMatriculas = exportMatriculas;
+window.generarReporteMatriculas = generarReporteMatriculas;
+window.loadEstudianteInfo = loadEstudianteInfo;
+
+console.log('✅ Matriculas.js cargado correctamente');

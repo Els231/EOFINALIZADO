@@ -1,437 +1,515 @@
 /**
- * Aplicación principal del sistema escolar
- * Controla la navegación y inicialización general con sincronización automática
+ * Aplicación principal del Sistema de Gestión Escolar
+ * Escuela Jesús El Buen Maestro
  */
 
 // Variables globales
 let currentSection = 'dashboard';
-let dashboardCharts = {};
+let globalAlertCounter = 0;
 
-// Registrar módulo principal en el sistema de sincronización
-window.registerModule('dashboard', handleDashboardSync);
-
-// Inicializar aplicación
+// Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+    console.log('🚀 Iniciando Sistema de Gestión Escolar');
+    
+    // Inicializar base de datos
+    initializeDatabase();
+    
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardSection();
 });
-
-// Función de inicialización
-function initializeApp() {
-    console.log('Inicializando sistema escolar...');
     
-    // Verificar que la base de datos esté disponible
-    if (typeof window.db !== 'undefined') {
-        console.log('Base de datos inicializada correctamente');
-    } else {
-        console.error('Error: Base de datos no disponible');
-        return;
-    }
+    // Inicializar reloj
+    updateClock();
+    setInterval(updateClock, 1000);
     
-    // Verificar que el gestor de sincronización esté disponible
-    if (typeof window.syncManager !== 'undefined') {
-        console.log('Gestor de sincronización inicializado correctamente');
-    } else {
-        console.error('Error: Gestor de sincronización no disponible');
-        return;
-    }
+    // Registrar event listeners
+    registerEventListeners();
     
-    // Cargar dashboard por defecto
-    showSection('dashboard');
-    
-    // Actualizar estadísticas del dashboard
-    updateDashboardStats();
-    
-    // Configurar alertas globales
-    setupGlobalAlerts();
-    
-    // Configurar listeners para estadísticas
-    setupStatsListeners();
-    
-    console.log('Sistema escolar inicializado correctamente');
-}
-
-// Función de sincronización para el dashboard
-function handleDashboardSync(changeData) {
-    const { collection, action, data } = changeData;
-    
-    // Actualizar estadísticas cuando hay cambios en cualquier colección principal
-    if (['estudiantes', 'profesores', 'tutores', 'matriculas', 'inscripciones', 'notas'].includes(collection)) {
-        updateDashboardStats();
-        loadActivityFeed();
-    }
-    
-    // Actualizar estado del sistema
-    updateSystemStatus();
-}
-
+    console.log('✅ Sistema iniciado correctamente');
+});
 // Función para mostrar secciones
 function showSection(sectionName) {
-    // Ocultar todas las secciones
-    const sections = document.querySelectorAll('.section-content');
-    sections.forEach(section => {
-        section.classList.remove('active');
-        section.classList.add('hidden');
+    // Validar entrada
+    if (!sectionName || typeof sectionName !== 'string') {
+        console.error('Nombre de sección no válido:', sectionName);
+        return;
+    }
+
+    // Ocultar todas las secciones con transición suave
+    document.querySelectorAll('.content-section').forEach(section => {
+        if (section.classList.contains('active')) {
+            section.style.opacity = '0';
+            setTimeout(() => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            }, 300); // Coincide con la duración de la transición CSS
+        }
     });
     
     // Actualizar navegación
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
+    document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
+        link.setAttribute('aria-current', 'false');
     });
-    
-    // Activar enlace actual
-    const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
     
     // Mostrar sección seleccionada
     const targetSection = document.getElementById(`${sectionName}-section`);
     if (targetSection) {
-        targetSection.classList.remove('hidden');
-        targetSection.classList.add('active');
+        // Preparar la sección antes de mostrarla
+        targetSection.style.display = 'block';
+        setTimeout(() => {
+            targetSection.classList.add('active');
+            targetSection.style.opacity = '1';
+        }, 10);
+        
         currentSection = sectionName;
         
-        // Cargar contenido específico de la sección
-        loadSectionContent(sectionName);
+        // Activar enlace de navegación correspondiente
+        const navLink = document.querySelector(`.nav-link[onclick*="${sectionName}"]`);
+        if (navLink) {
+            navLink.classList.add('active');
+            navLink.setAttribute('aria-current', 'page');
+        }
+        
+        // Cargar contenido de la sección solo si es necesario
+        if (!targetSection.dataset.loaded) {
+            loadSectionContent(sectionName);
+            targetSection.dataset.loaded = 'true';
+        }
+        
+        // Actualizar título de la página
+        updatePageTitle(sectionName);
+        
+        // Desplazamiento suave al inicio
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    } else {
+        console.error(`Sección ${sectionName} no encontrada`);
+        // Fallback: mostrar dashboard si la sección no existe
+        if (sectionName !== 'dashboard') {
+            showSection('dashboard');
+        }
     }
 }
 
-// Función para cargar contenido específico de cada sección
+// Función auxiliar para actualizar el título de la página
+function updatePageTitle(sectionName) {
+    const sectionTitles = {
+        'dashboard': 'Dashboard',
+        'estudiantes': 'Estudiantes',
+        'profesores': 'Profesores',
+        'tutores': 'Tutores',
+        'matriculas': 'Matrículas',
+        'inscripciones': 'Inscripciones',
+        'notas': 'Notas',
+        'calendario': 'Calendario',
+        'reportes': 'Reportes',
+        'sistema': 'Sistema'
+    };
+    
+    const title = sectionTitles[sectionName] || 'Sistema de Gestión Escolar';
+    document.title = `${title} | Escuela Jesús El Buen Maestro`;
+}
+
+// Función para cargar contenido dinámico
 function loadSectionContent(sectionName) {
-    switch (sectionName) {
-        case 'dashboard':
-            updateDashboardStats();
-            loadActivityFeed();
-            updateSystemStatus();
-            break;
-        case 'estudiantes':
-            if (typeof loadEstudiantesSection === 'function') {
+    const loader = {
+        'dashboard': loadDashboardSection,
+        'estudiantes': loadEstudiantesSection,
+        'profesores': loadProfesoresSection,
+        'tutores': loadTutoresSection,
+        'matriculas': loadMatriculasSection,
+        'inscripciones': loadInscripcionesSection,
+        'notas': loadNotasSection,
+        'calendario': loadCalendarioSection,
+        'reportes': loadReportesSection,
+        'sistema': loadSistemaSection
+    };
+    
+    if (loader[sectionName]) {
+        try {
+            loader[sectionName]();
+        } catch (error) {
+            console.error(`Error al cargar la sección ${sectionName}:`, error);
+            showGlobalAlert(`Error al cargar ${sectionName}`, 'error');
+        }
+    }
+}
+
+// Función para cargar contenido de secciones
+function loadSectionContent(sectionName) {
+    try {
+        switch(sectionName) {
+            case 'dashboard':
+                loadDashboardSection();
+                break;
+            case 'estudiantes':
                 loadEstudiantesSection();
-            }
-            break;
-        case 'profesores':
-            if (typeof loadProfesoresSection === 'function') {
+                break;
+            case 'profesores':
                 loadProfesoresSection();
-            }
-            break;
-        case 'notas':
-            if (typeof loadNotasSection === 'function') {
-                loadNotasSection();
-            }
-            break;
-        case 'matriculas':
-            if (typeof loadMatriculasSection === 'function') {
-                loadMatriculasSection();
-            }
-            break;
-        case 'inscripciones':
-            if (typeof loadInscripcionesSection === 'function') {
-                loadInscripcionesSection();
-            }
-            break;
-        case 'tutores':
-            if (typeof loadTutoresSection === 'function') {
+                break;
+            case 'tutores':
                 loadTutoresSection();
-            }
-            break;
-        case 'calendario':
-            if (typeof loadCalendarioSection === 'function') {
+                break;
+            case 'matriculas':
+                loadMatriculasSection();
+                break;
+            case 'inscripciones':
+                loadInscripcionesSection();
+                break;
+            case 'notas':
+                loadNotasSection();
+                break;
+            case 'calendario':
                 loadCalendarioSection();
-            }
-            break;
-        case 'analytics':
-            if (typeof loadAnalyticsSection === 'function') {
-                loadAnalyticsSection();
-            }
-            break;
-        case 'reportes':
-            if (typeof loadReportesSection === 'function') {
+                break;
+            case 'reportes':
                 loadReportesSection();
-            }
-            break;
-        case 'sistema':
-            if (typeof loadSistemaSection === 'function') {
+                break;
+            case 'sistema':
                 loadSistemaSection();
-            }
-            break;
-    }
-}
-
-// Actualizar estadísticas del dashboard
-function updateDashboardStats() {
-    try {
-        const stats = window.syncManager.getCrossModuleStats();
-        
-        // Actualizar contadores principales
-        document.getElementById('dashboard-estudiantes').textContent = stats.estudiantes.total || 0;
-        document.getElementById('dashboard-profesores').textContent = stats.profesores.total || 0;
-        document.getElementById('dashboard-tutores').textContent = stats.tutores.total || 0;
-        document.getElementById('dashboard-matriculas').textContent = stats.matriculas.total || 0;
-        
+                break;
+            default:
+                console.warn(`Sección no encontrada: ${sectionName}`);
+        }
     } catch (error) {
-        console.error('Error al actualizar estadísticas del dashboard:', error);
-        // Mostrar valores por defecto
-        document.getElementById('dashboard-estudiantes').textContent = '0';
-        document.getElementById('dashboard-profesores').textContent = '0';
-        document.getElementById('dashboard-tutores').textContent = '0';
-        document.getElementById('dashboard-matriculas').textContent = '0';
+        console.error(`Error cargando sección ${sectionName}:`, error);
+        showGlobalAlert(`Error cargando la sección ${sectionName}`, 'error');
     }
 }
-
-// Cargar feed de actividad
-function loadActivityFeed() {
-    try {
-        const activityContainer = document.getElementById('activity-feed');
-        if (!activityContainer) return;
-
-        const logs = window.db.read('system_logs')
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-            .slice(0, 10);
-
-        if (logs.length === 0) {
-            activityContainer.innerHTML = '<p class="text-muted">No hay actividad reciente</p>';
-            return;
-        }
-
-        const activityHtml = logs.map(log => {
-            const timeAgo = getTimeAgo(log.timestamp);
-            const actionIcon = getActionIcon(log.action);
-            const actionText = getActionText(log.action, log.collection);
-            
-            return `
-                <div class="d-flex align-items-center mb-3">
-                    <div class="icon-circle ${getActionColor(log.action)} me-3" style="width: 35px; height: 35px; font-size: 0.8rem;">
-                        <i class="${actionIcon}"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="fw-medium">${actionText}</div>
-                        <small class="text-muted">${timeAgo}</small>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        activityContainer.innerHTML = activityHtml;
-        
-    } catch (error) {
-        console.error('Error al cargar feed de actividad:', error);
-        const activityContainer = document.getElementById('activity-feed');
-        if (activityContainer) {
-            activityContainer.innerHTML = '<p class="text-danger">Error al cargar actividad</p>';
-        }
-    }
-}
-
-// Actualizar estado del sistema
-function updateSystemStatus() {
-    try {
-        const syncReport = window.syncManager.getSyncReport();
-        
-        // Estado de sincronización
-        const syncStatus = document.getElementById('sync-status');
-        if (syncStatus) {
-            if (syncReport.pendingChanges === 0) {
-                syncStatus.textContent = 'OK';
-                syncStatus.className = 'badge bg-success';
-            } else {
-                syncStatus.textContent = `${syncReport.pendingChanges} pendientes`;
-                syncStatus.className = 'badge bg-warning';
-            }
-        }
-        
-        // Módulos activos
-        const modulesStatus = document.getElementById('modules-status');
-        if (modulesStatus) {
-            modulesStatus.textContent = `${syncReport.activeModules}/${syncReport.totalModules}`;
-            modulesStatus.className = syncReport.activeModules === syncReport.totalModules 
-                ? 'badge bg-success' 
-                : 'badge bg-warning';
-        }
-        
-    } catch (error) {
-        console.error('Error al actualizar estado del sistema:', error);
-    }
-}
-
-// Configurar listeners para estadísticas
-function setupStatsListeners() {
-    window.addEventListener('statsUpdated', (event) => {
-        const { module, stats } = event.detail;
-        
-        // Actualizar estadísticas del dashboard si es necesario
-        if (currentSection === 'dashboard') {
-            updateDashboardStats();
-        }
+function updateActiveMenu(activeSection) {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
     });
-}
-
-// Configurar alertas globales
-function setupGlobalAlerts() {
-    // Listener para errores globales
-    window.addEventListener('error', (event) => {
-        console.error('Error global:', event.error);
-        showGlobalAlert('Ha ocurrido un error en el sistema', 'error');
-    });
-
-    // Listener para promesas rechazadas
-    window.addEventListener('unhandledrejection', (event) => {
-        console.error('Promesa rechazada:', event.reason);
-        showGlobalAlert('Error de conexión o procesamiento', 'warning');
-    });
-
-    // Verificar integridad de datos periódicamente
-    setInterval(() => {
-        const issues = window.syncManager.validateDataIntegrity();
-        if (issues.length > 0) {
-            console.warn('Problemas de integridad de datos detectados:', issues);
-            // Solo mostrar alerta si hay muchos problemas
-            if (issues.length > 5) {
-                showGlobalAlert(`Se detectaron ${issues.length} problemas de integridad de datos`, 'warning');
-            }
-        }
-    }, 300000); // Cada 5 minutos
-}
-
-// Mostrar alerta global
-function showGlobalAlert(message, type = 'info') {
-    // Crear elemento de alerta
-    const alertElement = document.createElement('div');
-    alertElement.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-    alertElement.style.cssText = `
-        top: 90px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        max-width: 400px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    `;
     
-    alertElement.innerHTML = `
-        <i class="${getAlertIcon(type)} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-    document.body.appendChild(alertElement);
-
-    // Auto-remover después de 5 segundos
-    setTimeout(() => {
-        if (alertElement.parentNode) {
-            alertElement.remove();
-        }
-    }, 5000);
+    const activeLink = document.querySelector(`[onclick="showSection('${activeSection}')"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
 }
 
-// Funciones auxiliares
-function getTimeAgo(timestamp) {
+// Función para actualizar el título de la página
+function updatePageTitle(sectionName) {
+    const titles = {
+        dashboard: 'Dashboard',
+        estudiantes: 'Gestión de Estudiantes',
+        profesores: 'Gestión de Profesores',
+        tutores: 'Gestión de Tutores',
+        matriculas: 'Gestión de Matrículas',
+        inscripciones: 'Gestión de Inscripciones',
+        notas: 'Sistema de Notas',
+        calendario: 'Calendario Escolar',
+        reportes: 'Reportes y Exportación',
+        sistema: 'Configuración del Sistema'
+    };
+    
+    const title = titles[sectionName] || 'Sistema Escolar';
+    document.title = `${title} - Escuela Jesús El Buen Maestro`;
+}
+
+// Función para actualizar el reloj
+function updateClock() {
     const now = new Date();
-    const time = new Date(timestamp);
-    const diffMs = now - time;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Hace un momento';
-    if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
-    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
-    return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+    const timeString = now.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    const clockElement = document.getElementById('current-time');
+    if (clockElement) {
+        clockElement.textContent = timeString;
+    }
 }
 
-function getActionIcon(action) {
-    const icons = {
-        created: 'fas fa-plus',
-        updated: 'fas fa-edit',
-        deleted: 'fas fa-trash',
-        import: 'fas fa-upload',
-        export: 'fas fa-download',
-        clear: 'fas fa-broom'
-    };
-    return icons[action] || 'fas fa-info';
-}
-
-function getActionColor(action) {
-    const colors = {
-        created: 'success',
-        updated: 'primary',
-        deleted: 'danger',
-        import: 'info',
-        export: 'warning',
-        clear: 'danger'
-    };
-    return colors[action] || 'primary';
-}
-
-function getActionText(action, collection) {
-    const actions = {
-        created: 'Creado',
-        updated: 'Actualizado',
-        deleted: 'Eliminado',
-        import: 'Importado',
-        export: 'Exportado',
-        clear: 'Limpiado'
+// Función para mostrar alertas globales
+function showGlobalAlert(message, type = 'info', duration = 5000) {
+    const alertId = `alert-${++globalAlertCounter}`;
+    const alertContainer = document.getElementById('global-alerts');
+    
+    if (!alertContainer) return;
+    
+    const alertTypes = {
+        'success': 'alert-success',
+        'error': 'alert-danger',
+        'warning': 'alert-warning',
+        'info': 'alert-info'
     };
     
-    const collections = {
-        estudiantes: 'estudiante',
-        profesores: 'profesor',
-        tutores: 'tutor',
-        matriculas: 'matrícula',
-        inscripciones: 'inscripción',
-        notas: 'nota',
-        eventos: 'evento',
-        system: 'sistema'
-    };
-
-    const actionText = actions[action] || action;
-    const collectionText = collections[collection] || collection;
+    const alertClass = alertTypes[type] || alertTypes.info;
     
-    return `${actionText} ${collectionText}`;
+    const alertHtml = `
+        <div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            <i class="fas fa-${getAlertIcon(type)} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto-remover después del tiempo especificado
+    if (duration > 0) {
+        setTimeout(() => {
+            const alertElement = document.getElementById(alertId);
+            if (alertElement) {
+                const bsAlert = new bootstrap.Alert(alertElement);
+                bsAlert.close();
+            }
+        }, duration);
+    }
 }
 
+// Función para obtener el icono de alerta
 function getAlertIcon(type) {
     const icons = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-exclamation-circle',
-        warning: 'fas fa-exclamation-triangle',
-        info: 'fas fa-info-circle'
+        'success': 'check-circle',
+        'error': 'exclamation-circle',
+        'warning': 'exclamation-triangle',
+        'info': 'info-circle'
     };
-    return icons[type] || 'fas fa-info-circle';
+    return icons[type] || icons.info;
 }
 
-// Funciones globales para uso en otros módulos
-window.showGlobalAlert = showGlobalAlert;
-window.updateDashboardStats = updateDashboardStats;
+// Función para registrar event listeners
+function registerEventListeners() {
+    // Listener para teclas de acceso rápido
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + teclas numéricas para cambiar secciones
+        if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+            e.preventDefault();
+            const sections = ['dashboard', 'estudiantes', 'profesores', 'tutores', 'matriculas', 'inscripciones', 'notas', 'calendario', 'reportes'];
+            const sectionIndex = parseInt(e.key) - 1;
+            if (sections[sectionIndex]) {
+                showSection(sections[sectionIndex]);
+            }
+        }
+        
+        // ESC para cerrar modales
+        if (e.key === 'Escape') {
+            const openModal = document.querySelector('.modal.show');
+            if (openModal) {
+                const bsModal = bootstrap.Modal.getInstance(openModal);
+                if (bsModal) {
+                    bsModal.hide();
+                }
+            }
+        }
+    });
+    
+    // Listener para cambios en localStorage (sincronización entre pestañas)
+    window.addEventListener('storage', function(e) {
+        if (e.key && e.key.startsWith('escuela_')) {
+            // Recargar datos si han cambiado en otra pestaña
+            loadSectionContent(currentSection);
+        }
+    });
+    
+    // Listener para detectar cambios de conectividad
+    window.addEventListener('online', function() {
+        showGlobalAlert('Conexión a internet restaurada', 'success');
+    });
+    
+    window.addEventListener('offline', function() {
+        showGlobalAlert('Sin conexión a internet. Trabajando en modo local.', 'warning');
+    });
+}
 
-// Función para refrescar toda la aplicación
-function refreshApplication() {
+// Función para crear respaldo
+function createBackup() {
     try {
-        // Forzar sincronización completa
-        window.syncManager.forceSyncAll();
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            version: '1.0',
+            school: 'Escuela Jesús El Buen Maestro',
+            data: {
+                estudiantes: db.read('estudiantes'),
+                profesores: db.read('profesores'),
+                tutores: db.read('tutores'),
+                matriculas: db.read('matriculas'),
+                inscripciones: db.read('inscripciones'),
+                notas: db.read('notas'),
+                eventos: db.read('eventos'),
+                sistema: db.read('sistema')
+            }
+        };
         
-        // Recargar sección actual
-        loadSectionContent(currentSection);
+        const dataStr = JSON.stringify(backupData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
         
-        showGlobalAlert('Sistema actualizado correctamente', 'success');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `backup_escuela_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Registrar en logs
+        db.logAction('backup', 'export', 'sistema', 'Backup completo creado');
+        
+        showGlobalAlert('Respaldo creado correctamente', 'success');
+        
     } catch (error) {
-        console.error('Error al refrescar aplicación:', error);
-        showGlobalAlert('Error al actualizar el sistema', 'error');
+        console.error('Error creando respaldo:', error);
+        showGlobalAlert('Error al crear respaldo', 'error');
     }
 }
 
-// Función para obtener información del sistema
-function getSystemInfo() {
+// Función para mostrar modal de importación
+function showImportModal() {
+    const modal = new bootstrap.Modal(document.getElementById('importModal'));
+    modal.show();
+}
+
+// Función para importar datos
+function importData() {
+    const fileInput = document.getElementById('importFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showGlobalAlert('Por favor seleccione un archivo', 'warning');
+        return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        try {
+            let importedData;
+            
+            if (file.name.endsWith('.json')) {
+                importedData = JSON.parse(e.target.result);
+                
+                if (importedData.data) {
+                    // Confirmar importación
+                    Swal.fire({
+                        title: '¿Confirmar importación?',
+                        text: 'Esta acción sobrescribirá todos los datos existentes',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, importar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Importar datos
+                            Object.entries(importedData.data).forEach(([collection, data]) => {
+                                if (Array.isArray(data)) {
+                                    // Limpiar colección existente
+                                    const existing = db.read(collection);
+                                    existing.forEach(item => db.delete(collection, item.id));
+                                    
+                                    // Importar nuevos datos
+                                    data.forEach(item => db.create(collection, item));
+                                }
+                            });
+                            
+                            // Cerrar modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
+                            modal.hide();
+                            
+                            // Recargar sección actual
+                            loadSectionContent(currentSection);
+                            
+                            showGlobalAlert('Datos importados correctamente', 'success');
+                            
+                            // Registrar en logs
+                            db.logAction('import', 'restore', 'sistema', 'Datos importados desde backup');
+                        }
+                    });
+                } else {
+                    throw new Error('Formato de archivo inválido');
+                }
+            } else {
+                throw new Error('Tipo de archivo no soportado');
+            }
+            
+        } catch (error) {
+            console.error('Error importando datos:', error);
+            showGlobalAlert('Error al importar datos: ' + error.message, 'error');
+        }
+    };
+    
+    reader.readAsText(file);
+}
+
+// Función para confirmar acciones peligrosas
+function confirmAction(title, text, confirmText = 'Confirmar') {
+    return Swal.fire({
+        title: title,
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: confirmText,
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545'
+    });
+}
+
+// Función para mostrar loading
+function showLoading(message = 'Cargando...') {
+    Swal.fire({
+        title: message,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+}
+
+// Función para ocultar loading
+function hideLoading() {
+    Swal.close();
+}
+
+// Función para formatear números
+function formatNumber(num) {
+    return new Intl.NumberFormat('es-ES').format(num);
+}
+
+// Función para obtener estadísticas generales
+function getSystemStats() {
     return {
-        currentSection,
-        totalModules: window.syncManager.getSyncReport().totalModules,
-        activeModules: window.syncManager.getSyncReport().activeModules,
-        databaseStatus: 'OK',
-        lastUpdate: new Date().toISOString()
+        estudiantes: db.count('estudiantes'),
+        profesores: db.count('profesores'),
+        tutores: db.count('tutores'),
+        matriculas: db.count('matriculas'),
+        inscripciones: db.count('inscripciones'),
+        notas: db.count('notas'),
+        eventos: db.count('eventos')
     };
 }
 
-// Exportar funciones principales
-window.showSection = showSection;
-window.refreshApplication = refreshApplication;
-window.getSystemInfo = getSystemInfo;
+// Función para filtrar datos por fecha
+function filterByDateRange(data, dateField, startDate, endDate) {
+    if (!startDate && !endDate) return data;
+    
+    return data.filter(item => {
+        const itemDate = new Date(item[dateField]);
+        if (!itemDate || isNaN(itemDate)) return false;
+        
+        if (startDate && itemDate < new Date(startDate)) return false;
+        if (endDate && itemDate > new Date(endDate)) return false;
+        
+        return true;
+    });
+}
 
+// Exportar funciones globales
+window.showSection = showSection;
+window.showGlobalAlert = showGlobalAlert;
+window.createBackup = createBackup;
+window.showImportModal = showImportModal;
+window.importData = importData;
+window.confirmAction = confirmAction;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+window.formatNumber = formatNumber;
+window.getSystemStats = getSystemStats;
+window.filterByDateRange = filterByDateRange;
+
+console.log('✅ App.js cargado correctamente');

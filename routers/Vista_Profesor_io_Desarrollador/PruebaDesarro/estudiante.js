@@ -1,30 +1,12 @@
 /**
  * Módulo de gestión de estudiantes
- * Funcionalidades CRUD para estudiantes con sincronización automática
+ * Sistema completo de CRUD para estudiantes con validaciones
  */
 
-let estudiantesData = [];
-let currentPage = 1;
-const itemsPerPage = 10;
-
-// Registrar módulo en el sistema de sincronización
-window.registerModule('estudiantes', handleDataSync);
-
-// Función de sincronización con otros módulos
-function handleDataSync(changeData) {
-    const { collection, action, data } = changeData;
-    
-    // Actualizar datos locales cuando hay cambios en estudiantes o datos relacionados
-    if (collection === 'estudiantes' || collection === 'tutores' || collection === 'matriculas') {
-        refreshEstudiantesData();
-        if (typeof updateEstudiantesTable === 'function') {
-            updateEstudiantesTable();
-        }
-        if (typeof updateEstudiantesStats === 'function') {
-            updateEstudiantesStats();
-        }
-    }
-}
+let currentEstudiantesPage = 1;
+const estudiantesPerPage = 10;
+let estudiantesFilters = {};
+let estudiantesSearchQuery = '';
 
 // Función principal para cargar la sección de estudiantes
 function loadEstudiantesSection() {
@@ -38,124 +20,55 @@ function loadEstudiantesSection() {
                 </h1>
                 <div class="btn-toolbar">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary" onclick="showAddEstudianteModal()">
+                        <button type="button" class="btn btn-primary" onclick="showEstudianteModal()">
                             <i class="fas fa-plus me-1"></i> Nuevo Estudiante
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="exportEstudiantes()">
-                            <i class="fas fa-download me-1"></i> Exportar
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshEstudiantes()">
-                            <i class="fas fa-sync me-1"></i> Actualizar
+                        <button type="button" class="btn btn-outline-success" onclick="exportEstudiantes()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Estadísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card card-primary">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Estudiantes
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-estudiantes">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-user-graduate fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-success">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Estudiantes Activos
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="estudiantes-activos">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-check-circle fa-2x text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-warning">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Nuevos Este Mes
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="estudiantes-mes">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-user-plus fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-info">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Promedio de Edad
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="promedio-edad">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-birthday-cake fa-2x text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros -->
-        <div class="filtros-section">
+        <!-- Filtros y búsqueda -->
+        <div class="search-filters">
             <div class="row">
                 <div class="col-md-4">
-                    <label for="searchEstudiantes" class="form-label">Buscar:</label>
-                    <input type="text" class="form-control" id="searchEstudiantes" 
-                           placeholder="Nombre, apellido o cédula..." 
-                           oninput="filterEstudiantes()">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="estudiantes-search" 
+                               placeholder="Buscar por nombre, apellido o código estudiantil..."
+                               onkeyup="debounce(searchEstudiantes, 300)()">
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="filterGrado" class="form-label">Grado:</label>
-                    <select class="form-select" id="filterGrado" onchange="filterEstudiantes()">
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-grado" onchange="filterEstudiantes()">
                         <option value="">Todos los grados</option>
-                        <option value="1">Primer Grado</option>
-                        <option value="2">Segundo Grado</option>
-                        <option value="3">Tercer Grado</option>
-                        <option value="4">Cuarto Grado</option>
-                        <option value="5">Quinto Grado</option>
-                        <option value="6">Sexto Grado</option>
+                        <option value="1">1° Grado</option>
+                        <option value="2">2° Grado</option>
+                        <option value="3">3° Grado</option>
+                        <option value="4">4° Grado</option>
+                        <option value="5">5° Grado</option>
+                        <option value="6">6° Grado</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="filterEstado" class="form-label">Estado:</label>
-                    <select class="form-select" id="filterEstado" onchange="filterEstudiantes()">
-                        <option value="">Todos</option>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-turno" onchange="filterEstudiantes()">
+                        <option value="">Todos los turnos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-estado" onchange="filterEstudiantes()">
+                        <option value="">Todos los estados</option>
                         <option value="Activo">Activo</option>
                         <option value="Inactivo">Inactivo</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="button" class="btn btn-outline-secondary d-block w-100" onclick="clearFilters()">
+                    <button type="button" class="btn btn-outline-secondary w-100" onclick="clearEstudiantesFilters()">
                         <i class="fas fa-times me-1"></i> Limpiar
                     </button>
                 </div>
@@ -163,59 +76,86 @@ function loadEstudiantesSection() {
         </div>
 
         <!-- Tabla de estudiantes -->
-        <div class="table-section">
-            <div class="table-responsive">
-                <table class="table table-striped" id="estudiantesTable">
-                    <thead>
-                        <tr>
-                            <th>Foto</th>
-                            <th>Nombre Completo</th>
-                            <th>Cédula</th>
-                            <th>Grado</th>
-                            <th>Tutor</th>
-                            <th>Teléfono</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="estudiantesTableBody">
-                        <!-- Contenido dinámico -->
-                    </tbody>
-                </table>
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">
+                    Lista de Estudiantes
+                    <span class="badge bg-primary ms-2" id="estudiantes-count">0</span>
+                </h6>
             </div>
-            
-            <!-- Paginación -->
-            <nav aria-label="Paginación de estudiantes">
-                <ul class="pagination justify-content-center" id="estudiantesPagination">
-                    <!-- Contenido dinámico -->
-                </ul>
-            </nav>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre Completo</th>
+                                <th>Código Estudiantil</th>
+                                <th>Edad</th>
+                                <th>Grado</th>
+                                <th>Turno</th>
+                                <th>Tutor</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="estudiantes-tbody">
+                            <!-- Datos se cargan aquí -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Paginación -->
+                <nav aria-label="Paginación de estudiantes">
+                    <ul class="pagination justify-content-center" id="estudiantes-pagination">
+                        <!-- Paginación se genera aquí -->
+                    </ul>
+                </nav>
+            </div>
         </div>
 
-        <!-- Modal para agregar/editar estudiante -->
+        <!-- Modal de estudiante -->
         <div class="modal fade" id="estudianteModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="estudianteModalTitle">Nuevo Estudiante</h5>
+                        <h5 class="modal-title" id="estudianteModalTitle">
+                            <i class="fas fa-user-graduate me-2"></i>
+                            Nuevo Estudiante
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="estudianteForm">
-                            <input type="hidden" id="estudianteId">
+                            <input type="hidden" id="estudiante-id">
                             
-                            <!-- Datos personales -->
+                            <!-- Información personal -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nombre" class="form-label">Nombre *</label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                        <label for="estudiante-nombre" class="form-label">Nombre *</label>
+                                        <input type="text" class="form-control" id="estudiante-nombre" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="apellido" class="form-label">Apellido *</label>
-                                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                                        <label for="estudiante-apellido" class="form-label">Apellido *</label>
+                                        <input type="text" class="form-control" id="estudiante-apellido" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estudiante-codigo" class="form-label">Código Estudiantil</label>
+                                        <input type="text" class="form-control" id="estudiante-codigo" 
+                                               placeholder="Ej: EST-2023-001">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estudiante-fecha-nacimiento" class="form-label">Fecha de Nacimiento *</label>
+                                        <input type="date" class="form-control" id="estudiante-fecha-nacimiento" required>
                                     </div>
                                 </div>
                             </div>
@@ -223,58 +163,108 @@ function loadEstudiantesSection() {
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="cedula" class="form-label">Cédula</label>
-                                        <input type="text" class="form-control" id="cedula" name="cedula" 
-                                               placeholder="000-0000000-0">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento *</label>
-                                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="genero" class="form-label">Género *</label>
-                                        <select class="form-select" id="genero" name="genero" required>
+                                        <label for="estudiante-genero" class="form-label">Género *</label>
+                                        <select class="form-select" id="estudiante-genero" required>
                                             <option value="">Seleccionar...</option>
                                             <option value="Masculino">Masculino</option>
                                             <option value="Femenino">Femenino</option>
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="estudiante-grado" class="form-label">Grado *</label>
+                                        <select class="form-select" id="estudiante-grado" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="1">1° Grado</option>
+                                            <option value="2">2° Grado</option>
+                                            <option value="3">3° Grado</option>
+                                            <option value="4">4° Grado</option>
+                                            <option value="5">5° Grado</option>
+                                            <option value="6">6° Grado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="estudiante-turno" class="form-label">Turno *</label>
+                                        <select class="form-select" id="estudiante-turno" required>
+                                            <!-- Se llena dinámicamente -->
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Información académica -->
-                            <h6 class="mt-4 mb-3">Información Académica</h6>
+                            <!-- Información de contacto -->
+                            <h6 class="border-bottom pb-2 mb-3">Información de Contacto</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estudiante-telefono" class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="estudiante-telefono" 
+                                               placeholder="809-000-0000">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estudiante-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="estudiante-email">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dirección -->
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="grado" class="form-label">Grado *</label>
-                                        <select class="form-select" id="grado" name="grado" required>
+                                        <label for="estudiante-departamento" class="form-label">Departamento</label>
+                                        <select class="form-select" id="estudiante-departamento" onchange="loadMunicipios('estudiante')">
                                             <option value="">Seleccionar...</option>
-                                            <option value="1">Primer Grado</option>
-                                            <option value="2">Segundo Grado</option>
-                                            <option value="3">Tercer Grado</option>
-                                            <option value="4">Cuarto Grado</option>
-                                            <option value="5">Quinto Grado</option>
-                                            <option value="6">Sexto Grado</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="turno_id" class="form-label">Turno *</label>
-                                        <select class="form-select" id="turno_id" name="turno_id" required>
-                                            <!-- Opciones cargadas dinámicamente -->
+                                        <label for="estudiante-municipio" class="form-label">Municipio</label>
+                                        <select class="form-select" id="estudiante-municipio" onchange="loadSectores('estudiante')">
+                                            <option value="">Seleccionar...</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="estado" class="form-label">Estado *</label>
-                                        <select class="form-select" id="estado" name="estado" required>
+                                        <label for="estudiante-sector" class="form-label">Sector</label>
+                                        <select class="form-select" id="estudiante-sector">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="estudiante-direccion" class="form-label">Dirección Completa</label>
+                                <textarea class="form-control" id="estudiante-direccion" rows="2"></textarea>
+                            </div>
+
+                            <!-- Tutor -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="estudiante-tutor" class="form-label">Tutor/Representante</label>
+                                        <select class="form-select" id="estudiante-tutor">
+                                            <option value="">Seleccionar tutor...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estado y observaciones -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="estudiante-estado" class="form-label">Estado</label>
+                                        <select class="form-select" id="estudiante-estado">
                                             <option value="Activo">Activo</option>
                                             <option value="Inactivo">Inactivo</option>
                                         </select>
@@ -282,574 +272,461 @@ function loadEstudiantesSection() {
                                 </div>
                             </div>
 
-                            <!-- Información de contacto -->
-                            <h6 class="mt-4 mb-3">Información de Contacto</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="telefono" class="form-label">Teléfono</label>
-                                        <input type="tel" class="form-control" id="telefono" name="telefono" 
-                                               placeholder="809-000-0000">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email" name="email">
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="mb-3">
-                                <label for="direccion" class="form-label">Dirección</label>
-                                <textarea class="form-control" id="direccion" name="direccion" rows="2"></textarea>
-                            </div>
-
-                            <!-- Tutor -->
-                            <h6 class="mt-4 mb-3">Información del Tutor</h6>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="tutor_id" class="form-label">Tutor Responsable</label>
-                                        <select class="form-select" id="tutor_id" name="tutor_id">
-                                            <option value="">Seleccionar tutor...</option>
-                                            <!-- Opciones cargadas dinámicamente -->
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Observaciones -->
-                            <div class="mb-3">
-                                <label for="observaciones" class="form-label">Observaciones</label>
-                                <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                                <label for="estudiante-observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="estudiante-observaciones" rows="3"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="saveEstudiante()">Guardar</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEstudiante()">
+                            <i class="fas fa-save me-1"></i> Guardar
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    // Inicializar datos y tabla
-    refreshEstudiantesData();
-    loadTurnosOptions();
-    loadTutoresOptions();
-    updateEstudiantesTable();
-    updateEstudiantesStats();
+    // Cargar datos iniciales
+    loadEstudiantesData();
+    loadTurnos();
+    loadDepartamentos('estudiante');
+    loadTutores();
 }
 
-// Refrescar datos de estudiantes desde la base de datos
-function refreshEstudiantesData() {
-    estudiantesData = window.db.read('estudiantes');
-}
-
-// Cargar opciones de turnos
-function loadTurnosOptions() {
-    const turnos = window.db.read('turnos').filter(t => t.activo);
-    const select = document.getElementById('turno_id');
-    if (select) {
-        select.innerHTML = '<option value="">Seleccionar turno...</option>';
-        turnos.forEach(turno => {
-            const option = document.createElement('option');
-            option.value = turno.id;
-            option.textContent = `${turno.nombre} (${turno.hora_inicio} - ${turno.hora_fin})`;
-            select.appendChild(option);
-        });
-    }
-}
-
-// Cargar opciones de tutores
-function loadTutoresOptions() {
-    const tutores = window.db.read('tutores').filter(t => t.estado === 'Activo');
-    const select = document.getElementById('tutor_id');
-    if (select) {
-        select.innerHTML = '<option value="">Seleccionar tutor...</option>';
-        tutores.forEach(tutor => {
-            const option = document.createElement('option');
-            option.value = tutor.id;
-            option.textContent = `${tutor.nombre} ${tutor.apellido} - ${tutor.parentesco}`;
-            select.appendChild(option);
-        });
-    }
-}
-
-// Actualizar estadísticas
-function updateEstudiantesStats() {
-    const stats = window.db.getStats('estudiantes');
-    const edades = estudiantesData.map(e => calculateAge(e.fecha_nacimiento)).filter(edad => edad > 0);
-    const promedioEdad = edades.length > 0 ? Math.round(edades.reduce((a, b) => a + b, 0) / edades.length) : 0;
-
-    document.getElementById('total-estudiantes').textContent = stats.total;
-    document.getElementById('estudiantes-activos').textContent = stats.active;
-    document.getElementById('estudiantes-mes').textContent = stats.created_this_month;
-    document.getElementById('promedio-edad').textContent = promedioEdad;
-
-    // Actualizar estadísticas del módulo
-    window.updateModuleStats('estudiantes', {
-        ...stats,
-        promedio_edad: promedioEdad
-    });
-}
-
-// Actualizar tabla de estudiantes
-function updateEstudiantesTable() {
-    const tbody = document.getElementById('estudiantesTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = '';
-
-    // Aplicar filtros
-    let filteredData = [...estudiantesData];
-    
-    const searchTerm = document.getElementById('searchEstudiantes')?.value.toLowerCase() || '';
-    const gradoFilter = document.getElementById('filterGrado')?.value || '';
-    const estadoFilter = document.getElementById('filterEstado')?.value || '';
-
-    if (searchTerm) {
-        filteredData = filteredData.filter(estudiante =>
-            estudiante.nombre.toLowerCase().includes(searchTerm) ||
-            estudiante.apellido.toLowerCase().includes(searchTerm) ||
-            (estudiante.cedula && estudiante.cedula.includes(searchTerm))
-        );
-    }
-
-    if (gradoFilter) {
-        filteredData = filteredData.filter(estudiante => estudiante.grado === gradoFilter);
-    }
-
-    if (estadoFilter) {
-        filteredData = filteredData.filter(estudiante => estudiante.estado === estadoFilter);
-    }
-
-    // Paginación
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedData = filteredData.slice(startIndex, endIndex);
-
-    // Obtener datos relacionados
-    const tutores = window.db.read('tutores');
-    const turnos = window.db.read('turnos');
-
-    // Generar filas de la tabla
-    paginatedData.forEach(estudiante => {
-        const tutor = tutores.find(t => t.id === estudiante.tutor_id);
-        const turno = turnos.find(t => t.id === estudiante.turno_id);
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                <div class="avatar-circle">
-                    ${estudiante.nombre.charAt(0)}${estudiante.apellido.charAt(0)}
-                </div>
-            </td>
-            <td>
-                <strong>${estudiante.nombre} ${estudiante.apellido}</strong><br>
-                <small class="text-muted">Edad: ${calculateAge(estudiante.fecha_nacimiento)} años</small>
-            </td>
-            <td>${estudiante.cedula || 'N/A'}</td>
-            <td>
-                <span class="badge bg-primary">${getGradoName(estudiante.grado)}</span><br>
-                <small class="text-muted">${turno ? turno.nombre : 'N/A'}</small>
-            </td>
-            <td>${tutor ? `${tutor.nombre} ${tutor.apellido}` : 'Sin asignar'}</td>
-            <td>${estudiante.telefono || 'N/A'}</td>
-            <td>
-                <span class="badge ${estudiante.estado === 'Activo' ? 'bg-success' : 'bg-secondary'}">
-                    ${estudiante.estado}
-                </span>
-            </td>
-            <td>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewEstudiante('${estudiante.id}')" title="Ver">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="editEstudiante('${estudiante.id}')" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteEstudiante('${estudiante.id}')" title="Eliminar">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-
-    // Actualizar paginación
-    updatePagination(totalPages, filteredData.length);
-}
-
-// Actualizar paginación
-function updatePagination(totalPages, totalItems) {
-    const pagination = document.getElementById('estudiantesPagination');
-    if (!pagination) return;
-
-    pagination.innerHTML = '';
-
-    if (totalPages <= 1) return;
-
-    // Botón anterior
-    const prevLi = document.createElement('li');
-    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-    prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePageEstudiantes(${currentPage - 1})">Anterior</a>`;
-    pagination.appendChild(prevLi);
-
-    // Números de página
-    for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-            const li = document.createElement('li');
-            li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-            li.innerHTML = `<a class="page-link" href="#" onclick="changePageEstudiantes(${i})">${i}</a>`;
-            pagination.appendChild(li);
-        } else if (i === currentPage - 3 || i === currentPage + 3) {
-            const li = document.createElement('li');
-            li.className = 'page-item disabled';
-            li.innerHTML = '<span class="page-link">...</span>';
-            pagination.appendChild(li);
-        }
-    }
-
-    // Botón siguiente
-    const nextLi = document.createElement('li');
-    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-    nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePageEstudiantes(${currentPage + 1})">Siguiente</a>`;
-    pagination.appendChild(nextLi);
-}
-
-// Cambiar página
-function changePageEstudiantes(page) {
-    const totalPages = Math.ceil(estudiantesData.length / itemsPerPage);
-    if (page >= 1 && page <= totalPages) {
-        currentPage = page;
-        updateEstudiantesTable();
-    }
-}
-
-// Mostrar modal para agregar estudiante
-function showAddEstudianteModal() {
-    document.getElementById('estudianteModalTitle').textContent = 'Nuevo Estudiante';
-    document.getElementById('estudianteForm').reset();
-    document.getElementById('estudianteId').value = '';
-    document.getElementById('estado').value = 'Activo';
-    
-    const modal = new bootstrap.Modal(document.getElementById('estudianteModal'));
-    modal.show();
-}
-
-// Editar estudiante
-function editEstudiante(id) {
-    const estudiante = estudiantesData.find(e => e.id === id);
-    if (!estudiante) return;
-
-    document.getElementById('estudianteModalTitle').textContent = 'Editar Estudiante';
-    document.getElementById('estudianteId').value = estudiante.id;
-    
-    // Llenar formulario
-    Object.keys(estudiante).forEach(key => {
-        const field = document.getElementById(key);
-        if (field) {
-            field.value = estudiante[key] || '';
-        }
-    });
-
-    const modal = new bootstrap.Modal(document.getElementById('estudianteModal'));
-    modal.show();
-}
-
-// Guardar estudiante
-function saveEstudiante() {
-    const form = document.getElementById('estudianteForm');
-    const formData = new FormData(form);
-    const id = document.getElementById('estudianteId').value;
-
-    // Validar campos requeridos
-    if (!formData.get('nombre') || !formData.get('apellido') || !formData.get('fecha_nacimiento')) {
-        alert('Por favor complete todos los campos requeridos.');
-        return;
-    }
-
-    // Validar email si se proporciona
-    const email = formData.get('email');
-    if (email && !validateEmail(email)) {
-        alert('Por favor ingrese un email válido.');
-        return;
-    }
-
-    // Validar cédula si se proporciona
-    const cedula = formData.get('cedula');
-    if (cedula && !validateCedula(cedula)) {
-        alert('Por favor ingrese una cédula válida (formato: 000-0000000-0).');
-        return;
-    }
-
-    const estudianteData = {};
-    for (let [key, value] of formData.entries()) {
-        estudianteData[key] = value;
-    }
-
+// Función para cargar datos de estudiantes
+function loadEstudiantesData() {
     try {
-        if (id) {
-            // Actualizar estudiante existente
-            window.db.update('estudiantes', id, estudianteData);
-        } else {
-            // Crear nuevo estudiante
-            window.db.create('estudiantes', estudianteData);
+        const allEstudiantes = db.read('estudiantes');
+        let filteredEstudiantes = allEstudiantes;
+
+        // Aplicar búsqueda
+        if (estudiantesSearchQuery) {
+            filteredEstudiantes = filterByMultipleFields(
+                filteredEstudiantes, 
+                estudiantesSearchQuery, 
+                ['nombre', 'apellido', 'codigo']
+            );
         }
 
-        // Cerrar modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('estudianteModal'));
-        modal.hide();
+        // Aplicar filtros
+        filteredEstudiantes = applyFilters(filteredEstudiantes, estudiantesFilters);
 
-        // Los datos se actualizarán automáticamente por sincronización
+        // Actualizar contador
+        document.getElementById('estudiantes-count').textContent = filteredEstudiantes.length;
+
+        // Paginar resultados
+        const paginatedData = paginate(filteredEstudiantes, currentEstudiantesPage, estudiantesPerPage);
         
+        // Renderizar tabla
+        renderEstudiantesTable(paginatedData.data);
+        
+        // Renderizar paginación
+        renderEstudiantesPagination(paginatedData);
+
     } catch (error) {
-        console.error('Error al guardar estudiante:', error);
-        alert('Error al guardar el estudiante. Por favor intente nuevamente.');
+        console.error('Error cargando estudiantes:', error);
+        showGlobalAlert('Error al cargar datos de estudiantes', 'error');
     }
 }
 
-// Ver detalles del estudiante
-function viewEstudiante(id) {
-    const estudiante = estudiantesData.find(e => e.id === id);
-    if (!estudiante) return;
-
-    const tutores = window.db.read('tutores');
-    const tutor = tutores.find(t => t.id === estudiante.tutor_id);
-    const turnos = window.db.read('turnos');
-    const turno = turnos.find(t => t.id === estudiante.turno_id);
-
-    const modalContent = `
-        <div class="modal fade" id="viewEstudianteModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Información del Estudiante</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+// Función para renderizar tabla de estudiantes
+function renderEstudiantesTable(estudiantes) {
+    const tbody = document.getElementById('estudiantes-tbody');
+    
+    if (estudiantes.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <div class="empty-state">
+                        <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                        <h5>No hay estudiantes registrados</h5>
+                        <p class="text-muted">Comience agregando un nuevo estudiante</p>
+                        <button type="button" class="btn btn-primary" onclick="showEstudianteModal()">
+                            <i class="fas fa-plus me-1"></i> Agregar Estudiante
+                        </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <div class="avatar-circle-large mx-auto mb-3">
-                                    ${estudiante.nombre.charAt(0)}${estudiante.apellido.charAt(0)}
-                                </div>
-                                <h5>${estudiante.nombre} ${estudiante.apellido}</h5>
-                                <span class="badge ${estudiante.estado === 'Activo' ? 'bg-success' : 'bg-secondary'}">
-                                    ${estudiante.estado}
-                                </span>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <strong>Cédula:</strong><br>
-                                        ${estudiante.cedula || 'N/A'}
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <strong>Fecha de Nacimiento:</strong><br>
-                                        ${formatDate(estudiante.fecha_nacimiento)}
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-6">
-                                        <strong>Edad:</strong><br>
-                                        ${calculateAge(estudiante.fecha_nacimiento)} años
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <strong>Género:</strong><br>
-                                        ${estudiante.genero}
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-6">
-                                        <strong>Grado:</strong><br>
-                                        ${getGradoName(estudiante.grado)}
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <strong>Turno:</strong><br>
-                                        ${turno ? turno.nombre : 'N/A'}
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-6">
-                                        <strong>Teléfono:</strong><br>
-                                        ${estudiante.telefono || 'N/A'}
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <strong>Email:</strong><br>
-                                        ${estudiante.email || 'N/A'}
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-12">
-                                        <strong>Dirección:</strong><br>
-                                        ${estudiante.direccion || 'N/A'}
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-12">
-                                        <strong>Tutor:</strong><br>
-                                        ${tutor ? `${tutor.nombre} ${tutor.apellido} (${tutor.parentesco})` : 'Sin asignar'}
-                                    </div>
-                                </div>
-                                ${estudiante.observaciones ? `
-                                <div class="row mt-2">
-                                    <div class="col-12">
-                                        <strong>Observaciones:</strong><br>
-                                        ${estudiante.observaciones}
-                                    </div>
-                                </div>
-                                ` : ''}
-                            </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const turnos = db.read('turnos');
+    const tutores = db.read('tutores');
+    
+    tbody.innerHTML = estudiantes.map(estudiante => {
+        const turno = turnos.find(t => t.id === estudiante.turno_id);
+        const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+        const edad = calculateAge(estudiante.fecha_nacimiento);
+        
+        return `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar me-3" style="background-color: ${getGradeColor(estudiante.grado)}">
+                            ${estudiante.nombre.charAt(0)}${estudiante.apellido.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="fw-bold">${estudiante.nombre} ${estudiante.apellido}</div>
+                            <small class="text-muted">${estudiante.email || 'Sin email'}</small>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" onclick="editEstudiante('${estudiante.id}')" data-bs-dismiss="modal">Editar</button>
+                </td>
+                <td>${estudiante.codigo || 'No registrado'}</td>
+                <td>${edad} años</td>
+                <td>
+                    <span class="badge" style="background-color: ${getGradeColor(estudiante.grado)}">
+                        ${estudiante.grado}° Grado
+                    </span>
+                </td>
+                <td>${turno ? turno.nombre : 'No asignado'}</td>
+                <td>${tutor ? `${tutor.nombre} ${tutor.apellido}` : 'Sin tutor'}</td>
+                <td>${getStatusBadge(estudiante.estado || 'Activo')}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="editEstudiante('${estudiante.id}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                onclick="viewEstudiante('${estudiante.id}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteEstudiante('${estudiante.id}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Remover modal existente si existe
-    const existingModal = document.getElementById('viewEstudianteModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-
-    // Agregar nuevo modal
-    document.body.insertAdjacentHTML('beforeend', modalContent);
-    const modal = new bootstrap.Modal(document.getElementById('viewEstudianteModal'));
-    modal.show();
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
-// Eliminar estudiante
-function deleteEstudiante(id) {
-    const estudiante = estudiantesData.find(e => e.id === id);
-    if (!estudiante) return;
-
-    // Verificar si el estudiante tiene registros relacionados
-    if (!window.db.validateReferences('estudiantes', id)) {
-        alert('No se puede eliminar este estudiante porque tiene registros relacionados (notas, matrículas, etc.).');
-        return;
-    }
-
-    if (confirm(`¿Está seguro de que desea eliminar a ${estudiante.nombre} ${estudiante.apellido}?`)) {
-        try {
-            window.db.delete('estudiantes', id);
-            // Los datos se actualizarán automáticamente por sincronización
-        } catch (error) {
-            console.error('Error al eliminar estudiante:', error);
-            alert('Error al eliminar el estudiante. Por favor intente nuevamente.');
+// Función para guardar estudiante
+function saveEstudiante() {
+    try {
+        const form = document.getElementById('estudianteForm');
+        const formData = new FormData(form);
+        
+        const estudianteData = {
+            nombre: document.getElementById('estudiante-nombre').value.trim(),
+            apellido: document.getElementById('estudiante-apellido').value.trim(),
+            codigo: document.getElementById('estudiante-codigo').value.trim(),
+            fecha_nacimiento: document.getElementById('estudiante-fecha-nacimiento').value,
+            genero: document.getElementById('estudiante-genero').value,
+            grado: document.getElementById('estudiante-grado').value,
+            turno_id: document.getElementById('estudiante-turno').value,
+            telefono: document.getElementById('estudiante-telefono').value.trim(),
+            email: document.getElementById('estudiante-email').value.trim(),
+            departamento: document.getElementById('estudiante-departamento').value,
+            municipio: document.getElementById('estudiante-municipio').value,
+            sector: document.getElementById('estudiante-sector').value,
+            direccion: document.getElementById('estudiante-direccion').value.trim(),
+            tutor_id: document.getElementById('estudiante-tutor').value,
+            estado: document.getElementById('estudiante-estado').value,
+            observaciones: document.getElementById('estudiante-observaciones').value.trim()
+        };
+        
+        // Validaciones
+        const validationRules = {
+            nombre: { required: true, label: 'Nombre' },
+            apellido: { required: true, label: 'Apellido' },
+            fecha_nacimiento: { required: true, type: 'date', label: 'Fecha de nacimiento' },
+            genero: { required: true, label: 'Género' },
+            grado: { required: true, label: 'Grado' },
+            turno_id: { required: true, label: 'Turno' }
+        };
+        
+        if (estudianteData.email) {
+            validationRules.email = { type: 'email', label: 'Email' };
         }
+        
+        if (estudianteData.telefono) {
+            validationRules.telefono = { type: 'phone', label: 'Teléfono' };
+        }
+        
+        if (estudianteData.codigo) {
+            validationRules.codigo = { type: 'codigo', label: 'Código Estudiantil' };
+        }
+        
+        const errors = validateFormData(estudianteData, validationRules);
+        
+        if (errors.length > 0) {
+            showGlobalAlert('Errores de validación:<br>• ' + errors.join('<br>• '), 'error');
+            return;
+        }
+        
+        // Validar edad
+        if (!validateAge(estudianteData.fecha_nacimiento, 5, 18)) {
+            showGlobalAlert('La edad del estudiante debe estar entre 5 y 18 años', 'error');
+            return;
+        }
+        
+        // Formatear datos
+        if (estudianteData.telefono) {
+            estudianteData.telefono = formatPhoneNumber(estudianteData.telefono);
+        }
+        
+        const estudianteId = document.getElementById('estudiante-id').value;
+        
+        if (estudianteId) {
+            // Actualizar estudiante existente
+            db.update('estudiantes', estudianteId, estudianteData);
+            showGlobalAlert('Estudiante actualizado correctamente', 'success');
+        } else {
+            // Crear nuevo estudiante
+            db.create('estudiantes', estudianteData);
+            showGlobalAlert('Estudiante creado correctamente', 'success');
+        }
+        
+        // Cerrar modal y recargar datos
+        const modal = bootstrap.Modal.getInstance(document.getElementById('estudianteModal'));
+        modal.hide();
+        loadEstudiantesData();
+        
+    } catch (error) {
+        console.error('Error guardando estudiante:', error);
+        showGlobalAlert('Error al guardar estudiante: ' + error.message, 'error');
     }
 }
 
-// Filtrar estudiantes
-function filterEstudiantes() {
-    currentPage = 1;
-    updateEstudiantesTable();
+// Función para cargar departamentos
+function loadDepartamentos(prefix) {
+    const departamentoSelect = document.getElementById(`${prefix}-departamento`);
+    if (!departamentoSelect) return;
+    
+    const departamentos = nicaraguaData.getDepartments();
+    departamentoSelect.innerHTML = '<option value="">Seleccionar departamento...</option>';
+    
+    departamentos.forEach(departamento => {
+        const option = document.createElement('option');
+        option.value = departamento;
+        option.textContent = departamento;
+        departamentoSelect.appendChild(option);
+    });
 }
 
-// Limpiar filtros
-function clearFilters() {
-    document.getElementById('searchEstudiantes').value = '';
-    document.getElementById('filterGrado').value = '';
-    document.getElementById('filterEstado').value = '';
-    filterEstudiantes();
-}
-
-// Exportar estudiantes
+// Función para exportar estudiantes
 function exportEstudiantes() {
     try {
-        const data = estudiantesData.map(estudiante => {
-            const tutores = window.db.read('tutores');
+        const estudiantes = db.read('estudiantes');
+        const turnos = db.read('turnos');
+        const tutores = db.read('tutores');
+        
+        const exportData = estudiantes.map(estudiante => {
+            const turno = turnos.find(t => t.id === estudiante.turno_id);
             const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+            const edad = calculateAge(estudiante.fecha_nacimiento);
             
             return {
                 'Nombre': estudiante.nombre,
                 'Apellido': estudiante.apellido,
-                'Cédula': estudiante.cedula || '',
-                'Fecha de Nacimiento': estudiante.fecha_nacimiento,
-                'Edad': calculateAge(estudiante.fecha_nacimiento),
-                'Género': estudiante.genero,
-                'Grado': getGradoName(estudiante.grado),
-                'Estado': estudiante.estado,
+                'Código Estudiantil': estudiante.codigo || '',
+                'Fecha de Nacimiento': formatDateShort(estudiante.fecha_nacimiento),
+                'Edad': edad,
+                'Género': estudiante.genero || '',
+                'Grado': `${estudiante.grado}° Grado`,
+                'Turno': turno ? turno.nombre : '',
                 'Teléfono': estudiante.telefono || '',
                 'Email': estudiante.email || '',
+                'Departamento': estudiante.departamento || '',
+                'Municipio': estudiante.municipio || '',
+                'Sector': estudiante.sector || '',
                 'Dirección': estudiante.direccion || '',
                 'Tutor': tutor ? `${tutor.nombre} ${tutor.apellido}` : '',
-                'Observaciones': estudiante.observaciones || ''
+                'Estado': estudiante.estado || 'Activo',
+                'Observaciones': estudiante.observaciones || '',
+                'Fecha de Registro': formatDateShort(estudiante.created_at)
             };
         });
-
-        exportToExcel(data, 'estudiantes');
+        
+        exportToExcel(exportData, 'estudiantes', 'Lista de Estudiantes');
+        
     } catch (error) {
-        console.error('Error al exportar estudiantes:', error);
-        alert('Error al exportar los datos.');
+        console.error('Error exportando estudiantes:', error);
+        showGlobalAlert('Error al exportar datos', 'error');
     }
 }
 
-// Refrescar datos
-function refreshEstudiantes() {
-    refreshEstudiantesData();
-    updateEstudiantesTable();
-    updateEstudiantesStats();
-}
-
-// Funciones auxiliares
-function getGradoName(grado) {
-    const grados = {
-        '1': 'Primer Grado',
-        '2': 'Segundo Grado',
-        '3': 'Tercer Grado',
-        '4': 'Cuarto Grado',
-        '5': 'Quinto Grado',
-        '6': 'Sexto Grado'
-    };
-    return grados[grado] || grado;
-}
-
-function calculateAge(birthDate) {
-    if (!birthDate) return 0;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-        age--;
+// Actualiza las funciones relacionadas con provincias/municipios
+function loadMunicipios(prefix) {
+    const departamentoSelect = document.getElementById(`${prefix}-departamento`);
+    const municipioSelect = document.getElementById(`${prefix}-municipio`);
+    const sectorSelect = document.getElementById(`${prefix}-sector`);
+    
+    if (!departamentoSelect || !municipioSelect) return;
+    
+    const departamento = departamentoSelect.value;
+    municipioSelect.innerHTML = '<option value="">Seleccionar municipio...</option>';
+    sectorSelect.innerHTML = '<option value="">Seleccionar sector...</option>';
+    
+    if (departamento) {
+        const municipios = nicaraguaData.getMunicipalities(departamento);
+        municipios.forEach(municipio => {
+            const option = document.createElement('option');
+            option.value = municipio;
+            option.textContent = municipio;
+            municipioSelect.appendChild(option);
+        });
     }
-    return age;
 }
 
-function formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+// Función para mostrar modal de estudiante (actualizada)
+function showEstudianteModal(estudianteId = null) {
+    const modal = new bootstrap.Modal(document.getElementById('estudianteModal'));
+    const title = document.getElementById('estudianteModalTitle');
+    const form = document.getElementById('estudianteForm');
+    
+    // Limpiar formulario
+    form.reset();
+    document.getElementById('estudiante-id').value = '';
+    
+    if (estudianteId) {
+        // Modo edición
+        title.innerHTML = '<i class="fas fa-user-graduate me-2"></i>Editar Estudiante';
+        const estudiante = db.find('estudiantes', estudianteId);
+        
+        if (estudiante) {
+            document.getElementById('estudiante-id').value = estudiante.id;
+            document.getElementById('estudiante-nombre').value = estudiante.nombre || '';
+            document.getElementById('estudiante-apellido').value = estudiante.apellido || '';
+            document.getElementById('estudiante-codigo').value = estudiante.codigo || '';
+            document.getElementById('estudiante-fecha-nacimiento').value = estudiante.fecha_nacimiento || '';
+            document.getElementById('estudiante-genero').value = estudiante.genero || '';
+            document.getElementById('estudiante-grado').value = estudiante.grado || '';
+            document.getElementById('estudiante-turno').value = estudiante.turno_id || '';
+            document.getElementById('estudiante-telefono').value = estudiante.telefono || '';
+            document.getElementById('estudiante-email').value = estudiante.email || '';
+            document.getElementById('estudiante-departamento').value = estudiante.departamento || '';
+            
+            // Cargar municipios y sectores si hay departamento
+            if (estudiante.departamento) {
+                loadMunicipios('estudiante');
+                setTimeout(() => {
+                    document.getElementById('estudiante-municipio').value = estudiante.municipio || '';
+                    if (estudiante.municipio) {
+                        loadSectores('estudiante');
+                        setTimeout(() => {
+                            document.getElementById('estudiante-sector').value = estudiante.sector || '';
+                        }, 100);
+                    }
+                }, 100);
+            }
+            
+            document.getElementById('estudiante-direccion').value = estudiante.direccion || '';
+            document.getElementById('estudiante-tutor').value = estudiante.tutor_id || '';
+            document.getElementById('estudiante-estado').value = estudiante.estado || 'Activo';
+            document.getElementById('estudiante-observaciones').value = estudiante.observaciones || '';
+        }
+    } else {
+        // Modo creación
+        title.innerHTML = '<i class="fas fa-user-graduate me-2"></i>Nuevo Estudiante';
+        document.getElementById('estudiante-estado').value = 'Activo';
+    }
+    
+    modal.show();
+}
+
+// Función para ver detalles de estudiante (actualizada)
+function viewEstudiante(estudianteId) {
+    const estudiante = db.find('estudiantes', estudianteId);
+    if (!estudiante) {
+        showGlobalAlert('Estudiante no encontrado', 'error');
+        return;
+    }
+    
+    const turnos = db.read('turnos');
+    const tutores = db.read('tutores');
+    const turno = turnos.find(t => t.id === estudiante.turno_id);
+    const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+    const edad = calculateAge(estudiante.fecha_nacimiento);
+    
+    Swal.fire({
+        title: `${estudiante.nombre} ${estudiante.apellido}`,
+        html: `
+            <div class="text-start">
+                <div class="row">
+                    <div class="col-6"><strong>Código Estudiantil:</strong></div>
+                    <div class="col-6">${estudiante.codigo || 'No registrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Edad:</strong></div>
+                    <div class="col-6">${edad} años</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Género:</strong></div>
+                    <div class="col-6">${estudiante.genero || 'No especificado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Grado:</strong></div>
+                    <div class="col-6">${estudiante.grado}° Grado</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Turno:</strong></div>
+                    <div class="col-6">${turno ? turno.nombre : 'No asignado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Teléfono:</strong></div>
+                    <div class="col-6">${estudiante.telefono || 'No registrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Email:</strong></div>
+                    <div class="col-6">${estudiante.email || 'No registrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Departamento:</strong></div>
+                    <div class="col-6">${estudiante.departamento || 'No registrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Municipio:</strong></div>
+                    <div class="col-6">${estudiante.municipio || 'No registrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Tutor:</strong></div>
+                    <div class="col-6">${tutor ? `${tutor.nombre} ${tutor.apellido}` : 'Sin tutor'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Estado:</strong></div>
+                    <div class="col-6">${getStatusBadge(estudiante.estado || 'Activo')}</div>
+                </div>
+                ${estudiante.observaciones ? `
+                    <div class="row mt-2">
+                        <div class="col-12"><strong>Observaciones:</strong></div>
+                        <div class="col-12">${estudiante.observaciones}</div>
+                    </div>
+                ` : ''}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        showCancelButton: true,
+        cancelButtonText: 'Editar',
+        cancelButtonColor: '#007bff'
+    }).then((result) => {
+        if (result.isDismissed) {
+            editEstudiante(estudianteId);
+        }
     });
 }
 
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
+// Exportar funciones actualizadas
+window.loadEstudiantesSection = loadEstudiantesSection;
+window.showEstudianteModal = showEstudianteModal;
+window.saveEstudiante = saveEstudiante;
+window.editEstudiante = editEstudiante;
+window.viewEstudiante = viewEstudiante;
+window.deleteEstudiante = deleteEstudiante;
+window.searchEstudiantes = searchEstudiantes;
+window.filterEstudiantes = filterEstudiantes;
+window.clearEstudiantesFilters = clearEstudiantesFilters;
+window.changeEstudiantesPage = changeEstudiantesPage;
+window.exportEstudiantes = exportEstudiantes;
+window.loadMunicipios = loadMunicipios;
+window.loadSectores = loadSectores;
+window.loadDepartamentos = loadDepartamentos;
 
-function validateCedula(cedula) {
-    const cedulaRegex = /^\d{3}-\d{7}-\d{1}$/;
-    return cedulaRegex.test(cedula);
-}
-
-function exportToExcel(data, filename) {
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Estudiantes");
-    XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
-}
+console.log('✅ Estudiantes.js cargado correctamente');

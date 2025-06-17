@@ -1,7 +1,10 @@
 /**
  * Módulo de reportes y exportación
- * Sistema completo de exportación e impresión basado en el código proporcionado
+ * Sistema completo de exportación e impresión
  */
+
+let reportesCharts = {};
+let currentReportData = null;
 
 // Función principal para cargar la sección de reportes
 function loadReportesSection() {
@@ -29,68 +32,68 @@ function loadReportesSection() {
         <!-- Estadísticas generales -->
         <div class="row mb-4">
             <div class="col-md-3">
-                <div class="card card-primary">
+                <div class="card bg-primary text-white">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">
                                     Total de Registros
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-registros">0</div>
+                                <div class="h5 mb-0 font-weight-bold" id="total-registros">0</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-database fa-2x text-primary"></i>
+                                <i class="fas fa-database fa-2x"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card card-success">
+                <div class="card bg-success text-white">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">
                                     Último Backup
                                 </div>
-                                <div class="h6 mb-0 font-weight-bold text-gray-800" id="ultimo-backup">Nunca</div>
+                                <div class="h6 mb-0 font-weight-bold" id="ultimo-backup">Nunca</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-save fa-2x text-success"></i>
+                                <i class="fas fa-save fa-2x"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card card-warning">
+                <div class="card bg-warning text-white">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">
                                     Tamaño de Datos
                                 </div>
-                                <div class="h6 mb-0 font-weight-bold text-gray-800" id="tamano-datos">0 KB</div>
+                                <div class="h6 mb-0 font-weight-bold" id="tamano-datos">0 KB</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-hdd fa-2x text-warning"></i>
+                                <i class="fas fa-hdd fa-2x"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card card-info">
+                <div class="card bg-info text-white">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">
                                     Reportes Generados
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="reportes-generados">0</div>
+                                <div class="h5 mb-0 font-weight-bold" id="reportes-generados">0</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-chart-bar fa-2x text-info"></i>
+                                <i class="fas fa-chart-bar fa-2x"></i>
                             </div>
                         </div>
                     </div>
@@ -110,1118 +113,1204 @@ function loadReportesSection() {
                         </h6>
                     </div>
                     <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" onclick="exportEstudiantesReport()">
-                                <i class="fas fa-file-excel me-2"></i>
-                                Lista Completa de Estudiantes
-                            </button>
-                            <button class="btn btn-outline-success" onclick="exportEstudiantesActivos()">
-                                <i class="fas fa-user-check me-2"></i>
-                                Estudiantes Activos
-                            </button>
-                            <button class="btn btn-outline-info" onclick="exportEstudiantesPorGrado()">
-                                <i class="fas fa-layer-group me-2"></i>
-                                Estudiantes por Grado
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="generateEstudiantesStatistics()">
-                                <i class="fas fa-chart-pie me-2"></i>
-                                Estadísticas de Estudiantes
-                            </button>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Lista completa de estudiantes
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportEstudiantesCompleto()">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Estudiantes por grado
+                                <button class="btn btn-sm btn-outline-primary" onclick="showReporteEstudiantesPorGrado()">
+                                    <i class="fas fa-chart-bar"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Estudiantes por turno
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportEstudiantesPorTurno()">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Reporte de edades
+                                <button class="btn btn-sm btn-outline-primary" onclick="generateEdadesReport()">
+                                    <i class="fas fa-birthday-cake"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Reportes de matrículas -->
+            <!-- Reportes de profesores -->
             <div class="col-lg-6 col-md-12 mb-4">
                 <div class="card">
                     <div class="card-header">
                         <h6 class="m-0 font-weight-bold text-success">
-                            <i class="fas fa-clipboard-list me-2"></i>
-                            Reportes de Matrículas
+                            <i class="fas fa-chalkboard-teacher me-2"></i>
+                            Reportes de Profesores
                         </h6>
                     </div>
                     <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" onclick="exportMatriculasReport()">
-                                <i class="fas fa-file-excel me-2"></i>
-                                Registro de Matrículas
-                            </button>
-                            <button class="btn btn-outline-success" onclick="exportMatriculasActivas()">
-                                <i class="fas fa-clipboard-check me-2"></i>
-                                Matrículas Activas
-                            </button>
-                            <button class="btn btn-outline-info" onclick="exportIngresosPorMatricula()">
-                                <i class="fas fa-dollar-sign me-2"></i>
-                                Reporte de Ingresos
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="generateMatriculasStatistics()">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                Estadísticas de Matrículas
-                            </button>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Lista de profesores activos
+                                <button class="btn btn-sm btn-outline-success" onclick="exportProfesoresActivos()">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Profesores por especialidad
+                                <button class="btn btn-sm btn-outline-success" onclick="reporteProfesoresPorEspecialidad()">
+                                    <i class="fas fa-chart-pie"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Asignaciones de materias
+                                <button class="btn btn-sm btn-outline-success" onclick="reporteAsignacionesMaterias()">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Directorio completo
+                                <button class="btn btn-sm btn-outline-success" onclick="generateDirectorioProfesores()">
+                                    <i class="fas fa-address-book"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Reportes de inscripciones -->
-            <div class="col-lg-6 col-md-12 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="m-0 font-weight-bold text-info">
-                            <i class="fas fa-file-signature me-2"></i>
-                            Reportes de Inscripciones
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" onclick="exportInscripcionesReport()">
-                                <i class="fas fa-file-excel me-2"></i>
-                                Lista de Inscripciones
-                            </button>
-                            <button class="btn btn-outline-success" onclick="exportInscripcionesPorAno()">
-                                <i class="fas fa-calendar me-2"></i>
-                                Inscripciones por Año
-                            </button>
-                            <button class="btn btn-outline-info" onclick="exportInscripcionesPorModalidad()">
-                                <i class="fas fa-tags me-2"></i>
-                                Inscripciones por Modalidad
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="generateInscripcionesStatistics()">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Estadísticas de Inscripciones
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reportes de tutores -->
+        <div class="row">
+            <!-- Reportes académicos -->
             <div class="col-lg-6 col-md-12 mb-4">
                 <div class="card">
                     <div class="card-header">
                         <h6 class="m-0 font-weight-bold text-warning">
-                            <i class="fas fa-users me-2"></i>
-                            Reportes de Tutores
+                            <i class="fas fa-star me-2"></i>
+                            Reportes Académicos
                         </h6>
                     </div>
                     <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" onclick="exportTutoresReport()">
-                                <i class="fas fa-file-excel me-2"></i>
-                                Lista de Tutores
-                            </button>
-                            <button class="btn btn-outline-success" onclick="exportTutoresPorParentesco()">
-                                <i class="fas fa-family me-2"></i>
-                                Tutores por Parentesco
-                            </button>
-                            <button class="btn btn-outline-info" onclick="exportContactosEmergencia()">
-                                <i class="fas fa-phone me-2"></i>
-                                Contactos de Emergencia
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="generateTutoresStatistics()">
-                                <i class="fas fa-chart-donut me-2"></i>
-                                Estadísticas de Tutores
-                            </button>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Registro de notas completo
+                                <button class="btn btn-sm btn-outline-warning" onclick="exportNotasCompleto()">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Promedios por estudiante
+                                <button class="btn btn-sm btn-outline-warning" onclick="reportePromediosPorEstudiante()">
+                                    <i class="fas fa-calculator"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Estadísticas por materia
+                                <button class="btn btn-sm btn-outline-warning" onclick="reporteEstadisticasPorMateria()">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Boletines masivos
+                                <button class="btn btn-sm btn-outline-warning" onclick="generateBoletinesMasivos()">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Reportes de notas -->
+            <!-- Reportes administrativos -->
             <div class="col-lg-6 col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-info">
+                            <i class="fas fa-clipboard-check me-2"></i>
+                            Reportes Administrativos
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Estado de matrículas
+                                <button class="btn btn-sm btn-outline-info" onclick="reporteEstadoMatriculas()">
+                                    <i class="fas fa-chart-donut"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Inscripciones pendientes
+                                <button class="btn btn-sm btn-outline-info" onclick="reporteInscripcionesPendientes()">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Directorio de tutores
+                                <button class="btn btn-sm btn-outline-info" onclick="exportTutoresDirectorio()">
+                                    <i class="fas fa-users"></i>
+                                </button>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Calendario de eventos
+                                <button class="btn btn-sm btn-outline-info" onclick="exportCalendarioEventos()">
+                                    <i class="fas fa-calendar"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generador de reportes personalizado -->
+        <div class="row">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
                         <h6 class="m-0 font-weight-bold text-danger">
-                            <i class="fas fa-star me-2"></i>
-                            Reportes de Notas
+                            <i class="fas fa-cog me-2"></i>
+                            Generador de Reportes Personalizado
                         </h6>
                     </div>
                     <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" onclick="exportNotasReport()">
-                                <i class="fas fa-file-excel me-2"></i>
-                                Registro de Notas
-                            </button>
-                            <button class="btn btn-outline-success" onclick="exportBoletinPorGrado()">
-                                <i class="fas fa-graduation-cap me-2"></i>
-                                Boletín por Grado
-                            </button>
-                            <button class="btn btn-outline-info" onclick="exportPromediosPorMateria()">
-                                <i class="fas fa-calculator me-2"></i>
-                                Promedios por Materia
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="generateNotasStatistics()">
-                                <i class="fas fa-chart-area me-2"></i>
-                                Estadísticas de Notas
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reportes del calendario -->
-            <div class="col-lg-6 col-md-12 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="m-0 font-weight-bold text-secondary">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            Reportes del Calendario
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary" onclick="exportEventosReport()">
-                                <i class="fas fa-file-excel me-2"></i>
-                                Lista de Eventos
-                            </button>
-                            <button class="btn btn-outline-success" onclick="exportEventosPorTipo()">
-                                <i class="fas fa-tags me-2"></i>
-                                Eventos por Tipo
-                            </button>
-                            <button class="btn btn-outline-info" onclick="exportCalendarioMensual()">
-                                <i class="fas fa-calendar me-2"></i>
-                                Calendario Mensual
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="generateEventosStatistics()">
-                                <i class="fas fa-chart-calendar me-2"></i>
-                                Estadísticas del Calendario
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal para importar datos -->
-        <div class="modal fade" id="importModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            <i class="fas fa-upload me-2"></i>
-                            Importar Datos
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="importFile" class="form-label">Seleccionar archivo Excel (.xlsx)</label>
-                            <input type="file" class="form-control" id="importFile" accept=".xlsx,.xls">
-                        </div>
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Advertencia:</strong> La importación puede sobrescribir datos existentes. 
-                            Se recomienda crear un backup antes de proceder.
-                        </div>
-                        <div id="importProgress" class="d-none">
-                            <div class="progress mb-3">
-                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        <form id="reportePersonalizadoForm">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="reporte-modulo" class="form-label">Módulo</label>
+                                        <select class="form-select" id="reporte-modulo" onchange="updateReporteFields()">
+                                            <option value="">Seleccionar módulo...</option>
+                                            <option value="estudiantes">Estudiantes</option>
+                                            <option value="profesores">Profesores</option>
+                                            <option value="tutores">Tutores</option>
+                                            <option value="matriculas">Matrículas</option>
+                                            <option value="inscripciones">Inscripciones</option>
+                                            <option value="notas">Notas</option>
+                                            <option value="eventos">Eventos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="reporte-formato" class="form-label">Formato</label>
+                                        <select class="form-select" id="reporte-formato">
+                                            <option value="excel">Excel (.xlsx)</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="json">JSON</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="reporte-fecha-desde" class="form-label">Desde</label>
+                                        <input type="date" class="form-control" id="reporte-fecha-desde">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="reporte-fecha-hasta" class="form-label">Hasta</label>
+                                        <input type="date" class="form-control" id="reporte-fecha-hasta">
+                                    </div>
+                                </div>
                             </div>
-                            <div id="importStatus">Procesando...</div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="importData()">
-                            <i class="fas fa-upload me-1"></i> Importar
-                        </button>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Campos a incluir</label>
+                                        <div id="reporte-campos" class="row">
+                                            <!-- Los campos se cargan dinámicamente -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="reporte-filtros" class="form-label">Filtros adicionales</label>
+                                        <div id="reporte-filtros-container">
+                                            <!-- Filtros se cargan dinámicamente -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="button" class="btn btn-danger" onclick="generateReportePersonalizado()">
+                                    <i class="fas fa-file-export me-1"></i> Generar Reporte
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal para resultados de importación -->
-        <div class="modal fade" id="importResultsModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Resultados de la Importación
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" id="importResultsContent">
-                        <!-- El contenido se cargará aquí -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+        <!-- Vista previa de reportes -->
+        <div id="reporte-preview" class="mt-4" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">Vista Previa del Reporte</h6>
+                </div>
+                <div class="card-body">
+                    <div id="reporte-content">
+                        <!-- Contenido del reporte -->
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
+
+    // Cargar estadísticas
     updateReportesStats();
 }
 
-// Actualizar estadísticas de reportes
+// Función para actualizar estadísticas de reportes
 function updateReportesStats() {
-    const estudiantes = db.getAll('estudiantes') || [];
-    const matriculas = db.getAll('matriculas') || [];
-    const inscripciones = db.getAll('inscripciones') || [];
-    const tutores = db.getAll('tutores') || [];
-    const notas = db.getAll('notas') || [];
-    const eventos = db.getAll('eventos') || [];
-    const profesores = db.getAll('profesores') || [];
-
-    const totalRegistros = estudiantes.length + matriculas.length + inscripciones.length + 
-                          tutores.length + notas.length + eventos.length + profesores.length;
-
-    // Calcular tamaño aproximado de los datos
-    const dataSize = JSON.stringify({
-        estudiantes, matriculas, inscripciones, tutores, notas, eventos, profesores
-    }).length;
-    
-    const sizeInKB = Math.round(dataSize / 1024);
-
-    // Obtener fecha del último backup
-    const ultimoBackup = localStorage.getItem('ultimo_backup') || 'Nunca';
-    
-    // Obtener número de reportes generados
-    const reportesGenerados = localStorage.getItem('reportes_generados') || '0';
-
-    document.getElementById('total-registros').textContent = totalRegistros;
-    document.getElementById('tamano-datos').textContent = `${sizeInKB} KB`;
-    document.getElementById('ultimo-backup').textContent = ultimoBackup !== 'Nunca' ? 
-        formatDateShort(ultimoBackup) : 'Nunca';
-    document.getElementById('reportes-generados').textContent = reportesGenerados;
-}
-
-// Incrementar contador de reportes generados
-function incrementReportCounter() {
-    const current = parseInt(localStorage.getItem('reportes_generados') || '0');
-    localStorage.setItem('reportes_generados', (current + 1).toString());
-    updateReportesStats();
-}
-
-// Exportar todos los datos del sistema
-function exportAllData() {
-    const estudiantes = db.getAll('estudiantes') || [];
-    const matriculas = db.getAll('matriculas') || [];
-    const inscripciones = db.getAll('inscripciones') || [];
-    const tutores = db.getAll('tutores') || [];
-    const notas = db.getAll('notas') || [];
-    const eventos = db.getAll('eventos') || [];
-    const profesores = db.getAll('profesores') || [];
-
-    if (estudiantes.length === 0 && matriculas.length === 0 && inscripciones.length === 0 && 
-        tutores.length === 0 && notas.length === 0 && eventos.length === 0 && profesores.length === 0) {
-        showAlert.warning('Sin datos', 'No hay datos para exportar');
-        return;
-    }
-
     try {
-        // Crear libro de Excel con múltiples hojas
-        const wb = XLSX.utils.book_new();
-
-        // Hoja de resumen
-        const summary = {
-            'Fecha de Exportación': new Date().toLocaleString('es-ES'),
-            'Total de Estudiantes': estudiantes.length,
-            'Total de Matrículas': matriculas.length,
-            'Total de Inscripciones': inscripciones.length,
-            'Total de Tutores': tutores.length,
-            'Total de Notas': notas.length,
-            'Total de Eventos': eventos.length,
-            'Total de Profesores': profesores.length
-        };
-        const wsSummary = XLSX.utils.json_to_sheet([summary]);
-        XLSX.utils.book_append_sheet(wb, wsSummary, "Resumen");
-
-        // Exportar estudiantes
-        if (estudiantes.length > 0) {
-            const studentsData = estudiantes.map(student => ({
-                'ID': student.id,
-                'Nombres': student.nombres,
-                'Apellidos': student.apellidos,
-                'Cédula': student.cedula || '',
-                'Fecha de Nacimiento': student.fechaNacimiento || '',
-                'Género': student.genero || '',
-                'Teléfono': student.telefono || '',
-                'Email': student.email || '',
-                'Dirección': student.direccion || '',
-                'Estado': student.estado || '',
-                'Nacionalidad': student.nacionalidad || '',
-                'Fecha de Registro': student.fechaRegistro ? formatDate(student.fechaRegistro) : ''
-            }));
-            const wsStudents = XLSX.utils.json_to_sheet(studentsData);
-            XLSX.utils.book_append_sheet(wb, wsStudents, "Estudiantes");
-        }
-
-        // Exportar matrículas
-        if (matriculas.length > 0) {
-            const matriculasData = matriculas.map(matricula => ({
-                'ID': matricula.id,
-                'Código': matricula.codigo || '',
-                'Estudiante': `${matricula.nombres || ''} ${matricula.apellidos || ''}`,
-                'Cédula': matricula.cedula || '',
-                'Grado': getGradoText(matricula.grado),
-                'Año Lectivo': matricula.anoLectivo || '',
-                'Modalidad': matricula.modalidad || '',
-                'Estado': matricula.estado || '',
-                'Fecha Matrícula': formatDate(matricula.fechaMatricula) || '',
-                'Monto': matricula.montoMatricula || '',
-                'Tutor Principal': `${matricula.nombresTutor1 || ''} ${matricula.apellidosTutor1 || ''}`,
-                'Teléfono Tutor': matricula.telefonoTutor1 || '',
-                'Observaciones': matricula.observaciones || ''
-            }));
-            const wsMatriculas = XLSX.utils.json_to_sheet(matriculasData);
-            XLSX.utils.book_append_sheet(wb, wsMatriculas, "Matrículas");
-        }
-
-        // Exportar inscripciones
-        if (inscripciones.length > 0) {
-            const inscripcionesData = inscripciones.map(inscripcion => {
-                const estudiante = estudiantes.find(e => e.id === inscripcion.estudianteId);
-                return {
-                    'ID': inscripcion.id,
-                    'Código': inscripcion.codigo || '',
-                    'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-                    'Cédula': estudiante ? (estudiante.cedula || '') : '',
-                    'Grado': getGradoText(inscripcion.grado),
-                    'Año Lectivo': inscripcion.anoLectivo || '',
-                    'Modalidad': inscripcion.modalidad || '',
-                    'Estado': inscripcion.estado || '',
-                    'Fecha Inscripción': formatDate(inscripcion.fechaInscripcion) || '',
-                    'Monto': inscripcion.monto || '',
-                    'Observaciones': inscripcion.observaciones || ''
-                };
-            });
-            const wsInscripciones = XLSX.utils.json_to_sheet(inscripcionesData);
-            XLSX.utils.book_append_sheet(wb, wsInscripciones, "Inscripciones");
-        }
-
-        // Exportar tutores
-        if (tutores.length > 0) {
-            const tutoresData = tutores.map(tutor => ({
-                'ID': tutor.id,
-                'Nombres': tutor.nombres,
-                'Apellidos': tutor.apellidos,
-                'Cédula': tutor.cedula,
-                'Parentesco': tutor.parentesco,
-                'Teléfono': tutor.telefono,
-                'Email': tutor.email || '',
-                'Dirección': tutor.direccion,
-                'Ocupación': tutor.ocupacion || '',
-                'Estado': tutor.estado,
-                'Fecha de Registro': tutor.fechaRegistro ? formatDate(tutor.fechaRegistro) : ''
-            }));
-            const wsTutores = XLSX.utils.json_to_sheet(tutoresData);
-            XLSX.utils.book_append_sheet(wb, wsTutores, "Tutores");
-        }
-
-        // Exportar notas
-        if (notas.length > 0) {
-            const notasData = notas.map(nota => {
-                const estudiante = estudiantes.find(e => e.id === nota.estudianteId);
-                return {
-                    'ID': nota.id,
-                    'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-                    'Materia': nota.materia || '',
-                    'Período': nota.periodo || '',
-                    'Calificación': nota.calificacion,
-                    'Fecha': formatDate(nota.fechaEvaluacion) || '',
-                    'Observaciones': nota.observaciones || ''
-                };
-            });
-            const wsNotas = XLSX.utils.json_to_sheet(notasData);
-            XLSX.utils.book_append_sheet(wb, wsNotas, "Notas");
-        }
-
-        // Exportar eventos
-        if (eventos.length > 0) {
-            const eventosData = eventos.map(evento => ({
-                'ID': evento.id,
-                'Título': evento.title,
-                'Tipo': getEventTypeText(evento.type),
-                'Descripción': evento.description || '',
-                'Fecha de Inicio': formatDateTime(evento.start),
-                'Fecha de Fin': evento.end ? formatDateTime(evento.end) : '',
-                'Ubicación': evento.location || '',
-                'Todo el día': evento.allDay ? 'Sí' : 'No',
-                'Notas': evento.notes || ''
-            }));
-            const wsEventos = XLSX.utils.json_to_sheet(eventosData);
-            XLSX.utils.book_append_sheet(wb, wsEventos, "Eventos");
-        }
-
-        // Exportar profesores
-        if (profesores.length > 0) {
-            const profesoresData = profesores.map(profesor => ({
-                'ID': profesor.id,
-                'Nombres': profesor.nombres,
-                'Apellidos': profesor.apellidos,
-                'Cédula': profesor.cedula || '',
-                'Especialidad': profesor.especialidad || '',
-                'Teléfono': profesor.telefono || '',
-                'Email': profesor.email || '',
-                'Estado': profesor.estado || '',
-                'Fecha de Registro': profesor.fechaRegistro ? formatDate(profesor.fechaRegistro) : ''
-            }));
-            const wsProfesores = XLSX.utils.json_to_sheet(profesoresData);
-            XLSX.utils.book_append_sheet(wb, wsProfesores, "Profesores");
-        }
-
-        // Descargar archivo
-        const filename = `backup_completo_${new Date().toISOString().split('T')[0]}.xlsx`;
-        XLSX.writeFile(wb, filename);
-
-        // Actualizar fecha del último backup
-        localStorage.setItem('ultimo_backup', new Date().toISOString());
-        incrementReportCounter();
-        updateReportesStats();
-
-        showAlert.success('¡Éxito!', 'Backup completo exportado correctamente');
-
-    } catch (error) {
-        console.error('Error al exportar datos:', error);
-        showAlert.error('Error', 'No se pudo exportar el backup completo');
-    }
-}
-
-// Funciones específicas de exportación por módulo
-
-// Reportes de estudiantes
-function exportEstudiantesReport() {
-    const estudiantes = db.getAll('estudiantes') || [];
-    if (estudiantes.length === 0) {
-        showAlert.warning('Sin datos', 'No hay estudiantes para exportar');
-        return;
-    }
-    
-    const dataToExport = estudiantes.map(estudiante => ({
-        'Nombres': estudiante.nombres,
-        'Apellidos': estudiante.apellidos,
-        'Cédula': estudiante.cedula || '',
-        'Fecha Nacimiento': formatDateShort(estudiante.fechaNacimiento) || '',
-        'Edad': estudiante.fechaNacimiento ? calculateAge(estudiante.fechaNacimiento) : '',
-        'Género': estudiante.genero || '',
-        'Nacionalidad': estudiante.nacionalidad || '',
-        'Estado': estudiante.estado || '',
-        'Teléfono': estudiante.telefono || '',
-        'Email': estudiante.email || '',
-        'Dirección': estudiante.direccion || '',
-        'Fecha Registro': formatDateShort(estudiante.fechaRegistro) || '',
-        'Observaciones': estudiante.observaciones || ''
-    }));
-    
-    exportToExcel('Lista Completa de Estudiantes', dataToExport, 'estudiantes_completo_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-function exportEstudiantesActivos() {
-    const estudiantes = db.getAll('estudiantes') || [];
-    const activos = estudiantes.filter(e => e.estado === 'Activo');
-    
-    if (activos.length === 0) {
-        showAlert.warning('Sin datos', 'No hay estudiantes activos para exportar');
-        return;
-    }
-    
-    const dataToExport = activos.map(estudiante => ({
-        'Nombres': estudiante.nombres,
-        'Apellidos': estudiante.apellidos,
-        'Cédula': estudiante.cedula || '',
-        'Fecha Nacimiento': formatDateShort(estudiante.fechaNacimiento) || '',
-        'Género': estudiante.genero || '',
-        'Teléfono': estudiante.telefono || '',
-        'Email': estudiante.email || '',
-        'Dirección': estudiante.direccion || ''
-    }));
-    
-    exportToExcel('Estudiantes Activos', dataToExport, 'estudiantes_activos_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-function exportEstudiantesPorGrado() {
-    const matriculas = db.getAll('matriculas') || [];
-    const estudiantes = db.getAll('estudiantes') || [];
-    
-    if (matriculas.length === 0) {
-        showAlert.warning('Sin datos', 'No hay matrículas para generar el reporte por grado');
-        return;
-    }
-    
-    const dataToExport = matriculas.map(matricula => {
-        const estudiante = estudiantes.find(e => e.id === matricula.estudianteId);
-        return {
-            'Grado': getGradoText(matricula.grado),
-            'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : `${matricula.nombres || ''} ${matricula.apellidos || ''}`,
-            'Cédula': estudiante ? (estudiante.cedula || '') : (matricula.cedula || ''),
-            'Año Lectivo': matricula.anoLectivo,
-            'Estado Matrícula': matricula.estado,
-            'Modalidad': matricula.modalidad
-        };
-    }).sort((a, b) => a.Grado.localeCompare(b.Grado));
-    
-    exportToExcel('Estudiantes por Grado', dataToExport, 'estudiantes_por_grado_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-function generateEstudiantesStatistics() {
-    const estudiantes = db.getAll('estudiantes') || [];
-    
-    if (estudiantes.length === 0) {
-        showAlert.warning('Sin datos', 'No hay estudiantes para generar estadísticas');
-        return;
-    }
-    
-    const stats = {
-        total: estudiantes.length,
-        activos: estudiantes.filter(e => e.estado === 'Activo').length,
-        inactivos: estudiantes.filter(e => e.estado === 'Inactivo').length,
-        masculinos: estudiantes.filter(e => e.genero === 'Masculino').length,
-        femeninos: estudiantes.filter(e => e.genero === 'Femenino').length,
-        conTelefono: estudiantes.filter(e => e.telefono).length,
-        conEmail: estudiantes.filter(e => e.email).length
-    };
-    
-    const dataToExport = [
-        { 'Estadística': 'Total de Estudiantes', 'Cantidad': stats.total },
-        { 'Estadística': 'Estudiantes Activos', 'Cantidad': stats.activos },
-        { 'Estadística': 'Estudiantes Inactivos', 'Cantidad': stats.inactivos },
-        { 'Estadística': 'Estudiantes Masculinos', 'Cantidad': stats.masculinos },
-        { 'Estadística': 'Estudiantes Femeninos', 'Cantidad': stats.femeninos },
-        { 'Estadística': 'Con Teléfono Registrado', 'Cantidad': stats.conTelefono },
-        { 'Estadística': 'Con Email Registrado', 'Cantidad': stats.conEmail }
-    ];
-    
-    exportToExcel('Estadísticas de Estudiantes', dataToExport, 'estadisticas_estudiantes_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-// Reportes de matrículas
-function exportMatriculasReport() {
-    const matriculas = db.getAll('matriculas') || [];
-    if (matriculas.length === 0) {
-        showAlert.warning('Sin datos', 'No hay matrículas para exportar');
-        return;
-    }
-    
-    const dataToExport = matriculas.map(matricula => ({
-        'Código': matricula.codigo || '',
-        'Estudiante': `${matricula.nombres || ''} ${matricula.apellidos || ''}`,
-        'Cédula': matricula.cedula || '',
-        'Grado': getGradoText(matricula.grado),
-        'Año Lectivo': matricula.anoLectivo,
-        'Modalidad': matricula.modalidad,
-        'Estado': matricula.estado,
-        'Fecha Matrícula': formatDateShort(matricula.fechaMatricula),
-        'Monto': matricula.montoMatricula || 0,
-        'Tutor Principal': `${matricula.nombresTutor1 || ''} ${matricula.apellidosTutor1 || ''}`,
-        'Teléfono Tutor': matricula.telefonoTutor1 || '',
-        'Observaciones': matricula.observaciones || ''
-    }));
-    
-    exportToExcel('Registro de Matrículas', dataToExport, 'matriculas_completo_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-function exportMatriculasActivas() {
-    const matriculas = db.getAll('matriculas') || [];
-    const activas = matriculas.filter(m => m.estado === 'Activa');
-    
-    if (activas.length === 0) {
-        showAlert.warning('Sin datos', 'No hay matrículas activas para exportar');
-        return;
-    }
-    
-    const dataToExport = activas.map(matricula => ({
-        'Código': matricula.codigo || '',
-        'Estudiante': `${matricula.nombres || ''} ${matricula.apellidos || ''}`,
-        'Grado': getGradoText(matricula.grado),
-        'Año Lectivo': matricula.anoLectivo,
-        'Modalidad': matricula.modalidad,
-        'Fecha Matrícula': formatDateShort(matricula.fechaMatricula),
-        'Monto': matricula.montoMatricula || 0,
-        'Tutor Principal': `${matricula.nombresTutor1 || ''} ${matricula.apellidosTutor1 || ''}`,
-        'Teléfono Tutor': matricula.telefonoTutor1 || ''
-    }));
-    
-    exportToExcel('Matrículas Activas', dataToExport, 'matriculas_activas_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-function exportIngresosPorMatricula() {
-    const matriculas = db.getAll('matriculas') || [];
-    const inscripciones = db.getAll('inscripciones') || [];
-    
-    if (matriculas.length === 0 && inscripciones.length === 0) {
-        showAlert.warning('Sin datos', 'No hay datos de ingresos para exportar');
-        return;
-    }
-    
-    const ingresosPorMes = {};
-    
-    // Procesar matrículas
-    matriculas.forEach(matricula => {
-        if (matricula.estado === 'Activa' && matricula.montoMatricula) {
-            const fecha = new Date(matricula.fechaMatricula);
-            const mesAno = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
-            if (!ingresosPorMes[mesAno]) {
-                ingresosPorMes[mesAno] = { matriculas: 0, inscripciones: 0, total: 0 };
-            }
-            ingresosPorMes[mesAno].matriculas += parseFloat(matricula.montoMatricula) || 0;
-            ingresosPorMes[mesAno].total += parseFloat(matricula.montoMatricula) || 0;
-        }
-    });
-    
-    // Procesar inscripciones
-    inscripciones.forEach(inscripcion => {
-        if (inscripcion.estado === 'activa' && inscripcion.monto) {
-            const fecha = new Date(inscripcion.fechaInscripcion);
-            const mesAno = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
-            if (!ingresosPorMes[mesAno]) {
-                ingresosPorMes[mesAno] = { matriculas: 0, inscripciones: 0, total: 0 };
-            }
-            ingresosPorMes[mesAno].inscripciones += parseFloat(inscripcion.monto) || 0;
-            ingresosPorMes[mesAno].total += parseFloat(inscripcion.monto) || 0;
-        }
-    });
-    
-    const dataToExport = Object.keys(ingresosPorMes).sort().map(mesAno => ({
-        'Mes/Año': mesAno,
-        'Ingresos Matrículas': formatCurrency(ingresosPorMes[mesAno].matriculas),
-        'Ingresos Inscripciones': formatCurrency(ingresosPorMes[mesAno].inscripciones),
-        'Total Mensual': formatCurrency(ingresosPorMes[mesAno].total)
-    }));
-    
-    exportToExcel('Reporte de Ingresos', dataToExport, 'ingresos_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-function generateMatriculasStatistics() {
-    const matriculas = db.getAll('matriculas') || [];
-    
-    if (matriculas.length === 0) {
-        showAlert.warning('Sin datos', 'No hay matrículas para generar estadísticas');
-        return;
-    }
-    
-    const stats = {
-        total: matriculas.length,
-        activas: matriculas.filter(m => m.estado === 'Activa').length,
-        pendientes: matriculas.filter(m => m.estado === 'Pendiente').length,
-        canceladas: matriculas.filter(m => m.estado === 'Cancelada').length,
-        ingresoTotal: matriculas.reduce((total, m) => total + (parseFloat(m.montoMatricula) || 0), 0)
-    };
-    
-    const dataToExport = [
-        { 'Estadística': 'Total de Matrículas', 'Cantidad': stats.total },
-        { 'Estadística': 'Matrículas Activas', 'Cantidad': stats.activas },
-        { 'Estadística': 'Matrículas Pendientes', 'Cantidad': stats.pendientes },
-        { 'Estadística': 'Matrículas Canceladas', 'Cantidad': stats.canceladas },
-        { 'Estadística': 'Ingreso Total', 'Cantidad': formatCurrency(stats.ingresoTotal) }
-    ];
-    
-    exportToExcel('Estadísticas de Matrículas', dataToExport, 'estadisticas_matriculas_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
-}
-
-// Mostrar modal de importación
-function showImportModal() {
-    const modal = new bootstrap.Modal(document.getElementById('importModal'));
-    document.getElementById('importFile').value = '';
-    document.getElementById('importProgress').classList.add('d-none');
-    modal.show();
-}
-
-// Importar datos desde archivo Excel
-function importData() {
-    const fileInput = document.getElementById('importFile');
-    const file = fileInput.files[0];
-    
-    if (!file) {
-        showAlert.error('Error', 'Por favor seleccione un archivo');
-        return;
-    }
-    
-    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-        showAlert.error('Error', 'El archivo debe ser de formato Excel (.xlsx o .xls)');
-        return;
-    }
-    
-    showAlert.confirm(
-        '¿Está seguro?',
-        'La importación puede sobrescribir datos existentes. ¿Desea continuar?'
-    ).then((result) => {
-        if (result.isConfirmed) {
-            processImportFile(file);
-        }
-    });
-}
-
-// Procesar archivo de importación
-function processImportFile(file) {
-    const progressContainer = document.getElementById('importProgress');
-    const progressBar = progressContainer.querySelector('.progress-bar');
-    const statusText = document.getElementById('importStatus');
-    
-    progressContainer.classList.remove('d-none');
-    progressBar.style.width = '10%';
-    statusText.textContent = 'Leyendo archivo...';
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            
-            progressBar.style.width = '50%';
-            statusText.textContent = 'Procesando datos...';
-            
-            setTimeout(() => {
-                processImportedData(workbook, progressBar, statusText);
-            }, 500);
-            
-        } catch (error) {
-            console.error('Error al procesar archivo:', error);
-            showAlert.error('Error', 'Error al procesar el archivo. Verifique el formato.');
-            progressContainer.classList.add('d-none');
-        }
-    };
-    
-    reader.readAsArrayBuffer(file);
-}
-
-// Procesar datos importados
-function processImportedData(workbook, progressBar, statusText) {
-    let importResults = {
-        estudiantes: 0,
-        matriculas: 0,
-        inscripciones: 0,
-        tutores: 0,
-        notas: 0,
-        eventos: 0,
-        profesores: 0,
-        errors: []
-    };
-
-    try {
-        // Procesar cada hoja del archivo
-        workbook.SheetNames.forEach(sheetName => {
-            const sheet = workbook.Sheets[sheetName];
-            const data = XLSX.utils.sheet_to_json(sheet);
-            
-            switch (sheetName.toLowerCase()) {
-                case 'estudiantes':
-                    importResults.estudiantes = importEstudiantesData(data, importResults.errors);
-                    break;
-                case 'matriculas':
-                case 'matrículas':
-                    importResults.matriculas = importMatriculasData(data, importResults.errors);
-                    break;
-                case 'inscripciones':
-                    importResults.inscripciones = importInscripcionesData(data, importResults.errors);
-                    break;
-                case 'tutores':
-                    importResults.tutores = importTutoresData(data, importResults.errors);
-                    break;
-                case 'notas':
-                    importResults.notas = importNotasData(data, importResults.errors);
-                    break;
-                case 'eventos':
-                    importResults.eventos = importEventosData(data, importResults.errors);
-                    break;
-                case 'profesores':
-                    importResults.profesores = importProfesoresData(data, importResults.errors);
-                    break;
-            }
-        });
-
-        progressBar.style.width = '100%';
-        statusText.textContent = 'Completado';
+        const collections = ['estudiantes', 'profesores', 'tutores', 'matriculas', 'inscripciones', 'notas', 'eventos'];
+        const totalRegistros = collections.reduce((total, collection) => total + db.count(collection), 0);
         
-        setTimeout(() => {
-            showImportResults(importResults);
-            document.getElementById('importProgress').classList.add('d-none');
-            bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
-        }, 1000);
-
+        document.getElementById('total-registros').textContent = formatNumber(totalRegistros);
+        
+        // Tamaño de datos
+        const storageStats = db.getStorageStats();
+        if (storageStats) {
+            document.getElementById('tamano-datos').textContent = storageStats.totalSizeFormatted;
+        }
+        
+        // Último backup (simulado)
+        const logs = db.getLogs(100);
+        const lastBackup = logs.find(log => log.action === 'export' || log.action === 'backup');
+        if (lastBackup) {
+            document.getElementById('ultimo-backup').textContent = formatDateShort(lastBackup.timestamp);
+        }
+        
+        // Reportes generados (simulado)
+        const reportesGenerados = logs.filter(log => log.action === 'export').length;
+        document.getElementById('reportes-generados').textContent = reportesGenerados;
+        
     } catch (error) {
-        console.error('Error al importar datos:', error);
-        showAlert.error('Error', 'Error al importar los datos');
-        document.getElementById('importProgress').classList.add('d-none');
+        console.error('Error actualizando estadísticas de reportes:', error);
     }
 }
 
-// Funciones auxiliares de importación (simplificadas)
-function importEstudiantesData(data, errors) {
-    let imported = 0;
-    data.forEach((row, index) => {
-        try {
-            if (row.Nombres && row.Apellidos) {
-                const estudianteData = {
-                    nombres: row.Nombres,
-                    apellidos: row.Apellidos,
-                    cedula: row.Cédula || '',
-                    fechaNacimiento: row['Fecha de Nacimiento'] || '',
-                    genero: row.Género || '',
-                    telefono: row.Teléfono || '',
-                    email: row.Email || '',
-                    direccion: row.Dirección || '',
-                    estado: row.Estado || 'Activo',
-                    nacionalidad: row.Nacionalidad || 'Dominicana'
-                };
-                db.insert('estudiantes', estudianteData);
-                imported++;
+// ===== REPORTES DE ESTUDIANTES =====
+
+function exportEstudiantesCompleto() {
+    try {
+        const estudiantes = db.read('estudiantes');
+        const turnos = db.read('turnos');
+        const tutores = db.read('tutores');
+        
+        const exportData = estudiantes.map(estudiante => {
+            const turno = turnos.find(t => t.id === estudiante.turno_id);
+            const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+            const edad = calculateAge(estudiante.fecha_nacimiento);
+            
+            return {
+                'Nombre': estudiante.nombre,
+                'Apellido': estudiante.apellido,
+                'Cédula': estudiante.cedula || '',
+                'Fecha de Nacimiento': formatDateShort(estudiante.fecha_nacimiento),
+                'Edad': edad,
+                'Género': estudiante.genero || '',
+                'Grado': `${estudiante.grado}° Grado`,
+                'Turno': turno ? turno.nombre : '',
+                'Teléfono': estudiante.telefono || '',
+                'Email': estudiante.email || '',
+                'Dirección': estudiante.direccion || '',
+                'Tutor': tutor ? `${tutor.nombre} ${tutor.apellido}` : '',
+                'Teléfono Tutor': tutor ? tutor.telefono : '',
+                'Estado': estudiante.estado || 'Activo',
+                'Fecha de Registro': formatDateShort(estudiante.created_at)
+            };
+        });
+        
+        exportToExcel(exportData, 'estudiantes_completo', 'Estudiantes');
+        showGlobalAlert('Reporte de estudiantes exportado correctamente', 'success');
+        
+    } catch (error) {
+        console.error('Error exportando estudiantes:', error);
+        showGlobalAlert('Error al exportar reporte', 'error');
+    }
+}
+
+function showReporteEstudiantesPorGrado() {
+    const estudiantes = db.read('estudiantes');
+    const estudiantesPorGrado = {};
+    
+    // Inicializar contadores
+    for (let i = 1; i <= 6; i++) {
+        estudiantesPorGrado[i] = {
+            total: 0,
+            masculino: 0,
+            femenino: 0,
+            estudiantes: []
+        };
+    }
+    
+    // Contar estudiantes
+    estudiantes.forEach(estudiante => {
+        const grado = parseInt(estudiante.grado);
+        if (grado >= 1 && grado <= 6) {
+            estudiantesPorGrado[grado].total++;
+            if (estudiante.genero === 'Masculino') {
+                estudiantesPorGrado[grado].masculino++;
+            } else if (estudiante.genero === 'Femenino') {
+                estudiantesPorGrado[grado].femenino++;
             }
-        } catch (error) {
-            errors.push(`Error en estudiante fila ${index + 1}: ${error.message}`);
+            estudiantesPorGrado[grado].estudiantes.push(estudiante);
         }
     });
-    return imported;
-}
-
-function importMatriculasData(data, errors) {
-    let imported = 0;
-    data.forEach((row, index) => {
-        try {
-            if (row.Estudiante && row.Grado) {
-                const matriculaData = {
-                    codigo: row.Código || '',
-                    nombres: row.Estudiante.split(' ')[0] || '',
-                    apellidos: row.Estudiante.split(' ').slice(1).join(' ') || '',
-                    cedula: row.Cédula || '',
-                    grado: extractGradoNumber(row.Grado),
-                    anoLectivo: row['Año Lectivo'] || getCurrentAcademicYear(),
-                    modalidad: row.Modalidad || 'Presencial',
-                    estado: row.Estado || 'Activa',
-                    fechaMatricula: row['Fecha Matrícula'] || new Date().toISOString().split('T')[0],
-                    montoMatricula: parseFloat(row.Monto) || 0
-                };
-                db.insert('matriculas', matriculaData);
-                imported++;
-            }
-        } catch (error) {
-            errors.push(`Error en matrícula fila ${index + 1}: ${error.message}`);
-        }
+    
+    // Crear reporte detallado
+    let reporteHtml = `
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Grado</th>
+                        <th>Total</th>
+                        <th>Masculino</th>
+                        <th>Femenino</th>
+                        <th>Promedio de Edad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    Object.entries(estudiantesPorGrado).forEach(([grado, data]) => {
+        const promedioEdad = data.estudiantes.length > 0 ? 
+            data.estudiantes.reduce((sum, e) => sum + calculateAge(e.fecha_nacimiento), 0) / data.estudiantes.length : 0;
+        
+        reporteHtml += `
+            <tr>
+                <td>${grado}° Grado</td>
+                <td><strong>${data.total}</strong></td>
+                <td>${data.masculino}</td>
+                <td>${data.femenino}</td>
+                <td>${promedioEdad.toFixed(1)} años</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportGradoDetallado('${grado}')">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </td>
+            </tr>
+        `;
     });
-    return imported;
-}
-
-function importInscripcionesData(data, errors) {
-    // Implementación simplificada para inscripciones
-    return 0;
-}
-
-function importTutoresData(data, errors) {
-    // Implementación simplificada para tutores
-    return 0;
-}
-
-function importNotasData(data, errors) {
-    // Implementación simplificada para notas
-    return 0;
-}
-
-function importEventosData(data, errors) {
-    // Implementación simplificada para eventos
-    return 0;
-}
-
-function importProfesoresData(data, errors) {
-    // Implementación simplificada para profesores
-    return 0;
-}
-
-// Función auxiliar para extraer número de grado
-function extractGradoNumber(gradoText) {
-    const match = gradoText.match(/(\d+)/);
-    return match ? match[1] : '1';
-}
-
-// Mostrar resultados de importación
-function showImportResults(results) {
-    const content = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Registros Importados:</h6>
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Estudiantes:</span>
-                        <span class="badge bg-primary">${results.estudiantes}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Matrículas:</span>
-                        <span class="badge bg-success">${results.matriculas}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Inscripciones:</span>
-                        <span class="badge bg-info">${results.inscripciones}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Tutores:</span>
-                        <span class="badge bg-warning">${results.tutores}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Notas:</span>
-                        <span class="badge bg-danger">${results.notas}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Eventos:</span>
-                        <span class="badge bg-secondary">${results.eventos}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Profesores:</span>
-                        <span class="badge bg-dark">${results.profesores}</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h6>Errores Encontrados:</h6>
-                ${results.errors.length > 0 ? `
-                    <div class="alert alert-warning">
-                        <small>${results.errors.slice(0, 5).join('<br>')}</small>
-                        ${results.errors.length > 5 ? `<br><small>... y ${results.errors.length - 5} errores más</small>` : ''}
-                    </div>
-                ` : '<div class="alert alert-success">No se encontraron errores</div>'}
-            </div>
+    
+    reporteHtml += `
+                </tbody>
+            </table>
         </div>
     `;
     
-    document.getElementById('importResultsContent').innerHTML = content;
-    
-    const resultsModal = new bootstrap.Modal(document.getElementById('importResultsModal'));
-    resultsModal.show();
-    
-    // Actualizar interfaz si se importaron datos
-    const totalImported = results.estudiantes + results.matriculas + results.inscripciones + 
-                         results.tutores + results.notas + results.eventos + results.profesores;
-    
-    if (totalImported > 0) {
-        updateReportesStats();
-        showAlert.success('¡Importación completada!', `Se importaron ${totalImported} registros correctamente`);
-    }
+    showReportePreview('Estudiantes por Grado', reporteHtml);
 }
 
-// Funciones auxiliares para obtener textos de tipos de eventos (si no están definidas)
-function getEventTypeText(type) {
-    const types = {
-        'clase': 'Clase',
-        'examen': 'Examen',
-        'reunion': 'Reunión',
-        'evento': 'Evento Especial',
-        'feriado': 'Feriado',
-        'actividad': 'Actividad Escolar'
-    };
-    return types[type] || type;
-}
-
-function formatDateTime(dateString) {
-    return new Date(dateString).toLocaleString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-// Continuar con las funciones de reportes restantes...
-function exportInscripcionesReport() {
-    const inscripciones = db.getAll('inscripciones') || [];
-    if (inscripciones.length === 0) {
-        showAlert.warning('Sin datos', 'No hay inscripciones para exportar');
-        return;
-    }
+function exportGradoDetallado(grado) {
+    const estudiantes = db.read('estudiantes').filter(e => e.grado === grado);
+    const turnos = db.read('turnos');
+    const tutores = db.read('tutores');
     
-    const estudiantes = db.getAll('estudiantes') || [];
-    const dataToExport = inscripciones.map(inscripcion => {
-        const estudiante = estudiantes.find(e => e.id === inscripcion.estudianteId);
+    const exportData = estudiantes.map(estudiante => {
+        const turno = turnos.find(t => t.id === estudiante.turno_id);
+        const tutor = tutores.find(t => t.id === estudiante.tutor_id);
+        const edad = calculateAge(estudiante.fecha_nacimiento);
+        
         return {
-            'Código': inscripcion.codigo || '',
-            'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-            'Cédula': estudiante ? (estudiante.cedula || '') : '',
-            'Grado': getGradoText(inscripcion.grado),
-            'Año Lectivo': inscripcion.anoLectivo,
-            'Modalidad': inscripcion.modalidad,
-            'Estado': inscripcion.estado,
-            'Fecha Inscripción': formatDateShort(inscripcion.fechaInscripcion),
-            'Monto': inscripcion.monto || 0,
-            'Observaciones': inscripcion.observaciones || ''
+            'Nombre Completo': `${estudiante.nombre} ${estudiante.apellido}`,
+            'Edad': edad,
+            'Género': estudiante.genero,
+            'Turno': turno ? turno.nombre : '',
+            'Tutor': tutor ? `${tutor.nombre} ${tutor.apellido}` : '',
+            'Teléfono': estudiante.telefono || '',
+            'Estado': estudiante.estado
         };
     });
     
-    exportToExcel('Lista de Inscripciones', dataToExport, 'inscripciones_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
+    exportToExcel(exportData, `estudiantes_${grado}_grado`, `${grado}° Grado`);
 }
 
-function exportTutoresReport() {
-    const tutores = db.getAll('tutores') || [];
-    if (tutores.length === 0) {
-        showAlert.warning('Sin datos', 'No hay tutores para exportar');
-        return;
-    }
+function exportEstudiantesPorTurno() {
+    const estudiantes = db.read('estudiantes');
+    const turnos = db.read('turnos');
     
-    const ocupaciones = db.getAll('ocupaciones') || [];
-    const dataToExport = tutores.map(tutor => {
-        const ocupacion = ocupaciones.find(o => o.id == tutor.ocupacion);
+    const exportData = [];
+    
+    turnos.forEach(turno => {
+        const estudiantesTurno = estudiantes.filter(e => e.turno_id === turno.id);
+        
+        estudiantesTurno.forEach(estudiante => {
+            const edad = calculateAge(estudiante.fecha_nacimiento);
+            exportData.push({
+                'Turno': turno.nombre,
+                'Horario': `${turno.hora_inicio} - ${turno.hora_fin}`,
+                'Nombre': estudiante.nombre,
+                'Apellido': estudiante.apellido,
+                'Grado': `${estudiante.grado}° Grado`,
+                'Edad': edad,
+                'Género': estudiante.genero
+            });
+        });
+    });
+    
+    exportToExcel(exportData, 'estudiantes_por_turno', 'Estudiantes por Turno');
+}
+
+function generateEdadesReport() {
+    const estudiantes = db.read('estudiantes');
+    const rangoEdades = {
+        '5-6': 0,
+        '7-8': 0,
+        '9-10': 0,
+        '11-12': 0,
+        '13-14': 0,
+        '15+': 0
+    };
+    
+    estudiantes.forEach(estudiante => {
+        const edad = calculateAge(estudiante.fecha_nacimiento);
+        if (edad <= 6) rangoEdades['5-6']++;
+        else if (edad <= 8) rangoEdades['7-8']++;
+        else if (edad <= 10) rangoEdades['9-10']++;
+        else if (edad <= 12) rangoEdades['11-12']++;
+        else if (edad <= 14) rangoEdades['13-14']++;
+        else rangoEdades['15+']++;
+    });
+    
+    const exportData = Object.entries(rangoEdades).map(([rango, cantidad]) => ({
+        'Rango de Edad': rango + ' años',
+        'Cantidad de Estudiantes': cantidad,
+        'Porcentaje': ((cantidad / estudiantes.length) * 100).toFixed(1) + '%'
+    }));
+    
+    exportToExcel(exportData, 'reporte_edades', 'Distribución de Edades');
+}
+
+// ===== REPORTES DE PROFESORES =====
+
+function exportProfesoresActivos() {
+    const profesores = db.read('profesores').filter(p => p.estado === 'Activo');
+    
+    const exportData = profesores.map(profesor => ({
+        'Nombre Completo': `${profesor.nombre} ${profesor.apellido}`,
+        'Cédula': profesor.cedula,
+        'Teléfono': profesor.telefono,
+        'Email': profesor.email,
+        'Especialidad': profesor.especialidad,
+        'Título': profesor.titulo || '',
+        'Experiencia': profesor.experiencia ? `${profesor.experiencia} años` : '',
+        'Fecha de Ingreso': profesor.fecha_ingreso ? formatDateShort(profesor.fecha_ingreso) : '',
+        'Estado': profesor.estado
+    }));
+    
+    exportToExcel(exportData, 'profesores_activos', 'Profesores Activos');
+}
+
+function reporteProfesoresPorEspecialidad() {
+    const profesores = db.read('profesores');
+    const especialidades = {};
+    
+    profesores.forEach(profesor => {
+        if (profesor.especialidad) {
+            especialidades[profesor.especialidad] = (especialidades[profesor.especialidad] || 0) + 1;
+        }
+    });
+    
+    const exportData = Object.entries(especialidades).map(([especialidad, cantidad]) => ({
+        'Especialidad': especialidad,
+        'Cantidad de Profesores': cantidad,
+        'Porcentaje': ((cantidad / profesores.length) * 100).toFixed(1) + '%'
+    }));
+    
+    exportToExcel(exportData, 'profesores_por_especialidad', 'Profesores por Especialidad');
+}
+
+function reporteAsignacionesMaterias() {
+    const profesores = db.read('profesores');
+    const materias = db.read('materias');
+    
+    const exportData = profesores.map(profesor => {
+        // Simular asignaciones basadas en especialidad
+        const materiasAsignadas = materias.filter(materia => {
+            if (profesor.especialidad === 'Educación Básica') return true;
+            if (profesor.especialidad === 'Lengua Española' && materia.codigo === 'ESP') return true;
+            if (profesor.especialidad === 'Matemáticas' && materia.codigo === 'MAT') return true;
+            if (profesor.especialidad === 'Ciencias Naturales' && materia.codigo === 'CN') return true;
+            if (profesor.especialidad === 'Ciencias Sociales' && materia.codigo === 'CS') return true;
+            if (profesor.especialidad === 'Inglés' && materia.codigo === 'ING') return true;
+            if (profesor.especialidad === 'Educación Física' && materia.codigo === 'EF') return true;
+            return false;
+        });
+        
         return {
-            'Nombres': tutor.nombres,
-            'Apellidos': tutor.apellidos,
+            'Profesor': `${profesor.nombre} ${profesor.apellido}`,
+            'Especialidad': profesor.especialidad,
+            'Materias Asignadas': materiasAsignadas.map(m => m.nombre).join(', '),
+            'Cantidad de Materias': materiasAsignadas.length,
+            'Estado': profesor.estado
+        };
+    });
+    
+    exportToExcel(exportData, 'asignaciones_materias', 'Asignaciones de Materias');
+}
+
+function generateDirectorioProfesores() {
+    const profesores = db.read('profesores').filter(p => p.estado === 'Activo');
+    
+    const exportData = profesores.map(profesor => ({
+        'Nombre': profesor.nombre,
+        'Apellido': profesor.apellido,
+        'Teléfono': profesor.telefono,
+        'Email': profesor.email,
+        'Especialidad': profesor.especialidad,
+        'Dirección': profesor.direccion || '',
+        'Provincia': profesor.provincia || '',
+        'Municipio': profesor.municipio || ''
+    }));
+    
+    exportToExcel(exportData, 'directorio_profesores', 'Directorio de Profesores');
+}
+
+// ===== REPORTES ACADÉMICOS =====
+
+function exportNotasCompleto() {
+    const notas = db.read('notas');
+    const estudiantes = db.read('estudiantes');
+    const materias = db.read('materias');
+    const profesores = db.read('profesores');
+    
+    const exportData = notas.map(nota => {
+        const estudiante = estudiantes.find(e => e.id === nota.estudiante_id);
+        const materia = materias.find(m => m.id === nota.materia_id);
+        const profesor = profesores.find(p => p.id === nota.profesor_id);
+        
+        return {
+            'Estudiante': estudiante ? `${estudiante.nombre} ${estudiante.apellido}` : 'No encontrado',
+            'Grado': estudiante ? `${estudiante.grado}° Grado` : '',
+            'Materia': materia ? materia.nombre : 'No encontrada',
+            'Profesor': profesor ? `${profesor.nombre} ${profesor.apellido}` : 'No asignado',
+            'Período': nota.periodo,
+            'Nota': parseFloat(nota.nota).toFixed(1),
+            'Literal': getNotaLiteral(nota.nota),
+            'Fecha de Registro': formatDateShort(nota.fecha_registro),
+            'Comentarios': nota.comentarios || ''
+        };
+    });
+    
+    exportToExcel(exportData, 'notas_completo', 'Registro de Notas');
+}
+
+function reportePromediosPorEstudiante() {
+    const notas = db.read('notas');
+    const estudiantes = db.read('estudiantes');
+    const materias = db.read('materias');
+    
+    const promediosPorEstudiante = {};
+    
+    // Calcular promedios por estudiante
+    notas.forEach(nota => {
+        if (!promediosPorEstudiante[nota.estudiante_id]) {
+            promediosPorEstudiante[nota.estudiante_id] = {
+                notas: [],
+                materiasCount: new Set()
+            };
+        }
+        promediosPorEstudiante[nota.estudiante_id].notas.push(parseFloat(nota.nota));
+        promediosPorEstudiante[nota.estudiante_id].materiasCount.add(nota.materia_id);
+    });
+    
+    const exportData = Object.entries(promediosPorEstudiante).map(([estudianteId, data]) => {
+        const estudiante = estudiantes.find(e => e.id === estudianteId);
+        const promedio = data.notas.reduce((sum, nota) => sum + nota, 0) / data.notas.length;
+        
+        return {
+            'Estudiante': estudiante ? `${estudiante.nombre} ${estudiante.apellido}` : 'No encontrado',
+            'Grado': estudiante ? `${estudiante.grado}° Grado` : '',
+            'Cantidad de Notas': data.notas.length,
+            'Materias Evaluadas': data.materiasCount.size,
+            'Promedio General': promedio.toFixed(1),
+            'Literal': getNotaLiteral(promedio),
+            'Nota Más Alta': Math.max(...data.notas).toFixed(1),
+            'Nota Más Baja': Math.min(...data.notas).toFixed(1)
+        };
+    });
+    
+    exportToExcel(exportData, 'promedios_por_estudiante', 'Promedios por Estudiante');
+}
+
+function reporteEstadisticasPorMateria() {
+    const notas = db.read('notas');
+    const materias = db.read('materias');
+    
+    const estadisticasPorMateria = {};
+    
+    // Agrupar notas por materia
+    notas.forEach(nota => {
+        if (!estadisticasPorMateria[nota.materia_id]) {
+            estadisticasPorMateria[nota.materia_id] = [];
+        }
+        estadisticasPorMateria[nota.materia_id].push(parseFloat(nota.nota));
+    });
+    
+    const exportData = Object.entries(estadisticasPorMateria).map(([materiaId, notasMateria]) => {
+        const materia = materias.find(m => m.id === materiaId);
+        const promedio = notasMateria.reduce((sum, nota) => sum + nota, 0) / notasMateria.length;
+        const notaMaxima = Math.max(...notasMateria);
+        const notaMinima = Math.min(...notasMateria);
+        const aprobados = notasMateria.filter(nota => nota >= 70).length;
+        
+        return {
+            'Materia': materia ? materia.nombre : 'No encontrada',
+            'Total de Notas': notasMateria.length,
+            'Promedio': promedio.toFixed(1),
+            'Nota Máxima': notaMaxima.toFixed(1),
+            'Nota Mínima': notaMinima.toFixed(1),
+            'Estudiantes Aprobados': aprobados,
+            'Porcentaje de Aprobación': ((aprobados / notasMateria.length) * 100).toFixed(1) + '%',
+            'Notas A (90-100)': notasMateria.filter(n => n >= 90).length,
+            'Notas B (80-89)': notasMateria.filter(n => n >= 80 && n < 90).length,
+            'Notas C (70-79)': notasMateria.filter(n => n >= 70 && n < 80).length,
+            'Notas D (60-69)': notasMateria.filter(n => n >= 60 && n < 70).length,
+            'Notas F (0-59)': notasMateria.filter(n => n < 60).length
+        };
+    });
+    
+    exportToExcel(exportData, 'estadisticas_por_materia', 'Estadísticas por Materia');
+}
+
+function generateBoletinesMasivos() {
+    Swal.fire({
+        title: 'Generar Boletines Masivos',
+        html: `
+            <div class="text-start">
+                <div class="mb-3">
+                    <label for="boletines-grado" class="form-label">Seleccionar Grado</label>
+                    <select class="form-select" id="boletines-grado">
+                        <option value="">Todos los grados</option>
+                        <option value="1">1° Grado</option>
+                        <option value="2">2° Grado</option>
+                        <option value="3">3° Grado</option>
+                        <option value="4">4° Grado</option>
+                        <option value="5">5° Grado</option>
+                        <option value="6">6° Grado</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="boletines-periodo" class="form-label">Período</label>
+                    <select class="form-select" id="boletines-periodo">
+                        <option value="1er Bimestre">1er Bimestre</option>
+                        <option value="2do Bimestre">2do Bimestre</option>
+                        <option value="3er Bimestre">3er Bimestre</option>
+                        <option value="4to Bimestre">4to Bimestre</option>
+                        <option value="Final">Notas Finales</option>
+                    </select>
+                </div>
+            </div>
+        `,
+        confirmButtonText: 'Generar Boletines',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const grado = document.getElementById('boletines-grado').value;
+            const periodo = document.getElementById('boletines-periodo').value;
+            
+            showGlobalAlert('Función de boletines masivos en desarrollo', 'info');
+            // Aquí se implementaría la generación masiva de boletines
+        }
+    });
+}
+
+// ===== REPORTES ADMINISTRATIVOS =====
+
+function reporteEstadoMatriculas() {
+    const matriculas = db.read('matriculas');
+    const estadosCount = {};
+    
+    matriculas.forEach(matricula => {
+        estadosCount[matricula.estado] = (estadosCount[matricula.estado] || 0) + 1;
+    });
+    
+    const exportData = Object.entries(estadosCount).map(([estado, cantidad]) => ({
+        'Estado': estado,
+        'Cantidad': cantidad,
+        'Porcentaje': ((cantidad / matriculas.length) * 100).toFixed(1) + '%'
+    }));
+    
+    exportToExcel(exportData, 'estado_matriculas', 'Estado de Matrículas');
+}
+
+function reporteInscripcionesPendientes() {
+    const inscripciones = db.read('inscripciones').filter(i => i.estado === 'En Proceso' || i.estado === 'Pendiente');
+    
+    const exportData = inscripciones.map(inscripcion => {
+        const diasPendientes = Math.ceil((new Date() - new Date(inscripcion.fecha_solicitud)) / (1000 * 60 * 60 * 24));
+        
+        return {
+            'Código': inscripcion.codigo,
+            'Solicitante': inscripcion.solicitante_nombre,
+            'Estudiante': `${inscripcion.estudiante_nombre} ${inscripcion.estudiante_apellido}`,
+            'Grado Solicitado': `${inscripcion.grado_solicitado}° Grado`,
+            'Fecha de Solicitud': formatDateShort(inscripcion.fecha_solicitud),
+            'Días Pendientes': diasPendientes,
+            'Estado': inscripcion.estado,
+            'Teléfono': inscripcion.solicitante_telefono
+        };
+    });
+    
+    exportToExcel(exportData, 'inscripciones_pendientes', 'Inscripciones Pendientes');
+}
+
+function exportTutoresDirectorio() {
+    const tutores = db.read('tutores');
+    const estudiantes = db.read('estudiantes');
+    const ocupaciones = db.read('ocupaciones');
+    
+    const exportData = tutores.map(tutor => {
+        const estudiantesAsignados = estudiantes.filter(e => e.tutor_id === tutor.id);
+        const ocupacion = ocupaciones.find(o => o.id === tutor.ocupacion_id);
+        
+        return {
+            'Nombre Completo': `${tutor.nombre} ${tutor.apellido}`,
             'Cédula': tutor.cedula,
             'Parentesco': tutor.parentesco,
-            'Teléfono Principal': tutor.telefono,
+            'Teléfono': tutor.telefono,
             'Email': tutor.email || '',
-            'Dirección': tutor.direccion,
             'Ocupación': ocupacion ? ocupacion.nombre : '',
-            'Lugar de Trabajo': tutor.lugarTrabajo || '',
-            'Estado': tutor.estado,
-            'Observaciones': tutor.observaciones || ''
+            'Lugar de Trabajo': tutor.lugar_trabajo || '',
+            'Dirección': tutor.direccion,
+            'Estudiantes a Cargo': estudiantesAsignados.map(e => `${e.nombre} ${e.apellido}`).join(', '),
+            'Cantidad de Estudiantes': estudiantesAsignados.length,
+            'Estado': tutor.estado
         };
     });
     
-    exportToExcel('Lista de Tutores', dataToExport, 'tutores_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
+    exportToExcel(exportData, 'directorio_tutores', 'Directorio de Tutores');
 }
 
-function exportNotasReport() {
-    const notas = db.getAll('notas') || [];
-    if (notas.length === 0) {
-        showAlert.warning('Sin datos', 'No hay notas para exportar');
-        return;
-    }
+function exportCalendarioEventos() {
+    const eventos = db.read('eventos');
+    const profesores = db.read('profesores');
     
-    const estudiantes = db.getAll('estudiantes') || [];
-    const dataToExport = notas.map(nota => {
-        const estudiante = estudiantes.find(e => e.id === nota.estudianteId);
+    const exportData = eventos.map(evento => {
+        const responsable = profesores.find(p => p.id === evento.responsable);
+        
         return {
-            'Estudiante': estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : 'No encontrado',
-            'Materia': nota.materia || '',
-            'Período': nota.periodo || '',
-            'Calificación': nota.calificacion,
-            'Fecha Evaluación': formatDateShort(nota.fechaEvaluacion),
-            'Tipo Evaluación': nota.tipoEvaluacion || '',
-            'Observaciones': nota.observaciones || ''
+            'Título': evento.titulo,
+            'Tipo': evento.tipo,
+            'Fecha de Inicio': formatDateShort(evento.fecha_inicio),
+            'Fecha de Fin': evento.fecha_fin ? formatDateShort(evento.fecha_fin) : '',
+            'Hora de Inicio': evento.hora_inicio || '',
+            'Hora de Fin': evento.hora_fin || '',
+            'Lugar': evento.lugar || '',
+            'Grado': evento.grado || 'General',
+            'Responsable': responsable ? `${responsable.nombre} ${responsable.apellido}` : '',
+            'Descripción': evento.descripcion || '',
+            'Todo el Día': evento.todo_el_dia ? 'Sí' : 'No'
         };
     });
     
-    exportToExcel('Registro de Notas', dataToExport, 'notas_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
+    exportToExcel(exportData, 'calendario_eventos', 'Calendario de Eventos');
 }
 
-function exportEventosReport() {
-    const eventos = db.getAll('eventos') || [];
-    if (eventos.length === 0) {
-        showAlert.warning('Sin datos', 'No hay eventos para exportar');
+// ===== GENERADOR DE REPORTES PERSONALIZADO =====
+
+function updateReporteFields() {
+    const modulo = document.getElementById('reporte-modulo').value;
+    const camposContainer = document.getElementById('reporte-campos');
+    const filtrosContainer = document.getElementById('reporte-filtros-container');
+    
+    if (!modulo) {
+        camposContainer.innerHTML = '';
+        filtrosContainer.innerHTML = '';
         return;
     }
     
-    const dataToExport = eventos.map(evento => ({
-        'Título': evento.title,
-        'Tipo': getEventTypeText(evento.type),
-        'Descripción': evento.description || '',
-        'Fecha de Inicio': formatDateTime(evento.start),
-        'Fecha de Fin': evento.end ? formatDateTime(evento.end) : '',
-        'Ubicación': evento.location || '',
-        'Todo el día': evento.allDay ? 'Sí' : 'No',
-        'Notas': evento.notes || ''
-    }));
+    const campos = getFieldsForModule(modulo);
+    const filtros = getFiltersForModule(modulo);
     
-    exportToExcel('Lista de Eventos', dataToExport, 'eventos_' + new Date().toISOString().split('T')[0]);
-    incrementReportCounter();
+    // Renderizar campos
+    camposContainer.innerHTML = campos.map(campo => `
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="campo-${campo.key}" value="${campo.key}" checked>
+                <label class="form-check-label" for="campo-${campo.key}">
+                    ${campo.label}
+                </label>
+            </div>
+        </div>
+    `).join('');
+    
+    // Renderizar filtros
+    filtrosContainer.innerHTML = filtros.map(filtro => `
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <label class="form-label">${filtro.label}</label>
+            </div>
+            <div class="col-md-9">
+                ${filtro.type === 'select' ? 
+                    `<select class="form-select" id="filtro-${filtro.key}">
+                        <option value="">Todos</option>
+                        ${filtro.options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
+                    </select>` :
+                    `<input type="${filtro.type}" class="form-control" id="filtro-${filtro.key}">`
+                }
+            </div>
+        </div>
+    `).join('');
 }
+
+function getFieldsForModule(modulo) {
+    const fieldMaps = {
+        estudiantes: [
+            { key: 'nombre', label: 'Nombre' },
+            { key: 'apellido', label: 'Apellido' },
+            { key: 'cedula', label: 'Cédula' },
+            { key: 'fecha_nacimiento', label: 'Fecha de Nacimiento' },
+            { key: 'edad', label: 'Edad' },
+            { key: 'genero', label: 'Género' },
+            { key: 'grado', label: 'Grado' },
+            { key: 'turno', label: 'Turno' },
+            { key: 'telefono', label: 'Teléfono' },
+            { key: 'email', label: 'Email' },
+            { key: 'direccion', label: 'Dirección' },
+            { key: 'tutor', label: 'Tutor' },
+            { key: 'estado', label: 'Estado' }
+        ],
+        profesores: [
+            { key: 'nombre', label: 'Nombre' },
+            { key: 'apellido', label: 'Apellido' },
+            { key: 'cedula', label: 'Cédula' },
+            { key: 'telefono', label: 'Teléfono' },
+            { key: 'email', label: 'Email' },
+            { key: 'especialidad', label: 'Especialidad' },
+            { key: 'titulo', label: 'Título' },
+            { key: 'experiencia', label: 'Experiencia' },
+            { key: 'fecha_ingreso', label: 'Fecha de Ingreso' },
+            { key: 'estado', label: 'Estado' }
+        ],
+        notas: [
+            { key: 'estudiante', label: 'Estudiante' },
+            { key: 'materia', label: 'Materia' },
+            { key: 'profesor', label: 'Profesor' },
+            { key: 'periodo', label: 'Período' },
+            { key: 'nota', label: 'Nota' },
+            { key: 'literal', label: 'Literal' },
+            { key: 'fecha_registro', label: 'Fecha de Registro' },
+            { key: 'comentarios', label: 'Comentarios' }
+        ]
+    };
+    
+    return fieldMaps[modulo] || [];
+}
+
+function getFiltersForModule(modulo) {
+    const filterMaps = {
+        estudiantes: [
+            {
+                key: 'grado',
+                label: 'Grado',
+                type: 'select',
+                options: [
+                    { value: '1', label: '1° Grado' },
+                    { value: '2', label: '2° Grado' },
+                    { value: '3', label: '3° Grado' },
+                    { value: '4', label: '4° Grado' },
+                    { value: '5', label: '5° Grado' },
+                    { value: '6', label: '6° Grado' }
+                ]
+            },
+            {
+                key: 'genero',
+                label: 'Género',
+                type: 'select',
+                options: [
+                    { value: 'Masculino', label: 'Masculino' },
+                    { value: 'Femenino', label: 'Femenino' }
+                ]
+            },
+            {
+                key: 'estado',
+                label: 'Estado',
+                type: 'select',
+                options: [
+                    { value: 'Activo', label: 'Activo' },
+                    { value: 'Inactivo', label: 'Inactivo' }
+                ]
+            }
+        ],
+        profesores: [
+            {
+                key: 'especialidad',
+                label: 'Especialidad',
+                type: 'select',
+                options: dominicanData.getTeacherSpecialties().map(esp => ({ value: esp, label: esp }))
+            },
+            {
+                key: 'estado',
+                label: 'Estado',
+                type: 'select',
+                options: [
+                    { value: 'Activo', label: 'Activo' },
+                    { value: 'Inactivo', label: 'Inactivo' },
+                    { value: 'Licencia', label: 'En Licencia' }
+                ]
+            }
+        ],
+        notas: [
+            {
+                key: 'periodo',
+                label: 'Período',
+                type: 'select',
+                options: [
+                    { value: '1er Bimestre', label: '1er Bimestre' },
+                    { value: '2do Bimestre', label: '2do Bimestre' },
+                    { value: '3er Bimestre', label: '3er Bimestre' },
+                    { value: '4to Bimestre', label: '4to Bimestre' }
+                ]
+            }
+        ]
+    };
+    
+    return filterMaps[modulo] || [];
+}
+
+function generateReportePersonalizado() {
+    try {
+        const modulo = document.getElementById('reporte-modulo').value;
+        const formato = document.getElementById('reporte-formato').value;
+        const fechaDesde = document.getElementById('reporte-fecha-desde').value;
+        const fechaHasta = document.getElementById('reporte-fecha-hasta').value;
+        
+        if (!modulo) {
+            showGlobalAlert('Debe seleccionar un módulo', 'warning');
+            return;
+        }
+        
+        // Obtener campos seleccionados
+        const camposSeleccionados = [];
+        document.querySelectorAll('#reporte-campos input[type="checkbox"]:checked').forEach(checkbox => {
+            camposSeleccionados.push(checkbox.value);
+        });
+        
+        if (camposSeleccionados.length === 0) {
+            showGlobalAlert('Debe seleccionar al menos un campo', 'warning');
+            return;
+        }
+        
+        // Obtener datos y aplicar filtros
+        let data = db.read(modulo);
+        
+        // Aplicar filtro de fechas
+        if (fechaDesde || fechaHasta) {
+            data = filterByDateRange(data, 'created_at', fechaDesde, fechaHasta);
+        }
+        
+        // Aplicar filtros adicionales
+        const filtrosAdicionales = getActiveCustomFilters(modulo);
+        data = applyFilters(data, filtrosAdicionales);
+        
+        // Preparar datos para exportación
+        const exportData = prepareCustomReportData(data, modulo, camposSeleccionados);
+        
+        // Exportar según formato
+        const filename = `reporte_${modulo}_personalizado`;
+        
+        switch (formato) {
+            case 'excel':
+                exportToExcel(exportData, filename, `Reporte de ${modulo}`);
+                break;
+            case 'csv':
+                exportToCSV(exportData, filename);
+                break;
+            case 'json':
+                exportJSON(exportData, filename);
+                break;
+        }
+        
+        showGlobalAlert('Reporte personalizado generado correctamente', 'success');
+        
+    } catch (error) {
+        console.error('Error generando reporte personalizado:', error);
+        showGlobalAlert('Error al generar reporte personalizado', 'error');
+    }
+}
+
+function getActiveCustomFilters(modulo) {
+    const filtros = {};
+    const filtrosContainer = document.getElementById('reporte-filtros-container');
+    
+    filtrosContainer.querySelectorAll('select, input').forEach(input => {
+        if (input.value && input.id.startsWith('filtro-')) {
+            const key = input.id.replace('filtro-', '');
+            filtros[key] = input.value;
+        }
+    });
+    
+    return filtros;
+}
+
+function prepareCustomReportData(data, modulo, camposSeleccionados) {
+    // Esta función prepararía los datos según el módulo y campos seleccionados
+    // Para simplicidad, retornamos los datos tal como están
+    return data.map(item => {
+        const exportItem = {};
+        camposSeleccionados.forEach(campo => {
+            exportItem[campo] = item[campo] || '';
+        });
+        return exportItem;
+    });
+}
+
+function exportJSON(data, filename) {
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `${filename}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ===== BACKUP Y RESTAURACIÓN =====
+
+function exportAllData() {
+    try {
+        showLoading('Creando backup completo...');
+        
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            version: '1.0',
+            school: 'Escuela Jesús El Buen Maestro',
+            data: {
+                estudiantes: db.read('estudiantes'),
+                profesores: db.read('profesores'),
+                tutores: db.read('tutores'),
+                matriculas: db.read('matriculas'),
+                inscripciones: db.read('inscripciones'),
+                notas: db.read('notas'),
+                eventos: db.read('eventos'),
+                turnos: db.read('turnos'),
+                materias: db.read('materias'),
+                ocupaciones: db.read('ocupaciones'),
+                sistema: db.read('sistema')
+            },
+            statistics: {
+                totalRecords: Object.values(backupData.data).reduce((total, collection) => total + collection.length, 0),
+                collections: Object.keys(backupData.data).length
+            }
+        };
+        
+        const dataStr = JSON.stringify(backupData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `backup_completo_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Registrar en logs
+        db.logAction('backup', 'export', 'sistema', 'Backup completo creado');
+        
+        hideLoading();
+        showGlobalAlert('Backup completo creado correctamente', 'success');
+        updateReportesStats();
+        
+    } catch (error) {
+        hideLoading();
+        console.error('Error creando backup:', error);
+        showGlobalAlert('Error al crear backup completo', 'error');
+    }
+}
+
+// ===== UTILIDADES =====
+
+function showReportePreview(titulo, contenido) {
+    const preview = document.getElementById('reporte-preview');
+    const content = document.getElementById('reporte-content');
+    
+    content.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>${titulo}</h5>
+            <button class="btn btn-primary" onclick="printReporte()">
+                <i class="fas fa-print me-1"></i> Imprimir
+            </button>
+        </div>
+        ${contenido}
+    `;
+    
+    preview.style.display = 'block';
+    preview.scrollIntoView({ behavior: 'smooth' });
+}
+
+function printReporte() {
+    const content = document.getElementById('reporte-content').innerHTML;
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Reporte</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                @media print { body { margin: 0; } .btn { display: none !important; } }
+            </style>
+        </head>
+        <body>
+            ${content}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+function getNotaLiteral(nota) {
+    const valor = parseFloat(nota);
+    if (valor >= 90) return 'A';
+    if (valor >= 80) return 'B';
+    if (valor >= 70) return 'C';
+    if (valor >= 60) return 'D';
+    return 'F';
+}
+
+// Exportar funciones
+window.loadReportesSection = loadReportesSection;
+window.exportEstudiantesCompleto = exportEstudiantesCompleto;
+window.showReporteEstudiantesPorGrado = showReporteEstudiantesPorGrado;
+window.exportGradoDetallado = exportGradoDetallado;
+window.exportEstudiantesPorTurno = exportEstudiantesPorTurno;
+window.generateEdadesReport = generateEdadesReport;
+window.exportProfesoresActivos = exportProfesoresActivos;
+window.reporteProfesoresPorEspecialidad = reporteProfesoresPorEspecialidad;
+window.reporteAsignacionesMaterias = reporteAsignacionesMaterias;
+window.generateDirectorioProfesores = generateDirectorioProfesores;
+window.exportNotasCompleto = exportNotasCompleto;
+window.reportePromediosPorEstudiante = reportePromediosPorEstudiante;
+window.reporteEstadisticasPorMateria = reporteEstadisticasPorMateria;
+window.generateBoletinesMasivos = generateBoletinesMasivos;
+window.reporteEstadoMatriculas = reporteEstadoMatriculas;
+window.reporteInscripcionesPendientes = reporteInscripcionesPendientes;
+window.exportTutoresDirectorio = exportTutoresDirectorio;
+window.exportCalendarioEventos = exportCalendarioEventos;
+window.updateReporteFields = updateReporteFields;
+window.generateReportePersonalizado = generateReportePersonalizado;
+window.exportAllData = exportAllData;
+window.printReporte = printReporte;
+
+console.log('✅ Reportes.js cargado correctamente');

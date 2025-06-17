@@ -1,30 +1,30 @@
 /**
- * Módulo de gestión del calendario escolar
- * Basado en el código proporcionado con FullCalendar
+ * Módulo de calendario escolar
+ * Sistema completo de gestión de eventos y calendario académico
  */
 
 let calendar;
-let eventosData = [];
+let currentCalendarView = 'dayGridMonth';
 
-// Función principal para cargar la sección del calendario
+// Función principal para cargar la sección de calendario
 function loadCalendarioSection() {
     const section = document.getElementById('calendario-section');
     section.innerHTML = `
         <div class="page-header">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h1 class="h2">
-                    <i class="fas fa-calendar-alt me-2"></i>
+                    <i class="fas fa-calendar me-2"></i>
                     Calendario Escolar
                 </h1>
                 <div class="btn-toolbar">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary" onclick="openEventModal()">
+                        <button type="button" class="btn btn-primary" onclick="showEventoModal()">
                             <i class="fas fa-plus me-1"></i> Nuevo Evento
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="exportCalendar()">
-                            <i class="fas fa-download me-1"></i> Exportar
+                        <button type="button" class="btn btn-outline-success" onclick="exportarCalendario()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshCalendar()">
+                        <button type="button" class="btn btn-outline-info" onclick="syncCalendar()">
                             <i class="fas fa-sync me-1"></i> Actualizar
                         </button>
                     </div>
@@ -32,71 +32,49 @@ function loadCalendarioSection() {
             </div>
         </div>
 
-        <!-- Estadísticas del calendario -->
+        <!-- Filtros rápidos -->
         <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card card-primary">
+            <div class="col-md-12">
+                <div class="card">
                     <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Eventos
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" id="filter-tipo-evento" onchange="filterCalendarEvents()">
+                                    <option value="">Todos los eventos</option>
+                                    <option value="Académico">Académico</option>
+                                    <option value="Administrativo">Administrativo</option>
+                                    <option value="Cultural">Cultural</option>
+                                    <option value="Deportivo">Deportivo</option>
+                                    <option value="Evaluación">Evaluación</option>
+                                    <option value="Reunión">Reunión</option>
+                                    <option value="Feriado">Feriado</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filter-grado" onchange="filterCalendarEvents()">
+                                    <option value="">Todos los grados</option>
+                                    <option value="1">1° Grado</option>
+                                    <option value="2">2° Grado</option>
+                                    <option value="3">3° Grado</option>
+                                    <option value="4">4° Grado</option>
+                                    <option value="5">5° Grado</option>
+                                    <option value="6">6° Grado</option>
+                                    <option value="General">General</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="show-past-events" checked onchange="filterCalendarEvents()">
+                                    <label class="form-check-label" for="show-past-events">
+                                        Mostrar eventos pasados
+                                    </label>
                                 </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-eventos">0</div>
                             </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-success">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Eventos Hoy
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="eventos-hoy">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar-day fa-2x text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-warning">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Esta Semana
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="eventos-semana">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar-week fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-info">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Este Mes
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="eventos-mes">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar-alt fa-2x text-info"></i>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="clearCalendarFilters()">
+                                    <i class="fas fa-times me-1"></i> Limpiar Filtros
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -104,683 +82,874 @@ function loadCalendarioSection() {
             </div>
         </div>
 
-        <!-- Filtros del calendario -->
+        <!-- Estadísticas rápidas -->
         <div class="row mb-4">
             <div class="col-md-3">
-                <label for="filterTipoEvento" class="form-label">Tipo de Evento:</label>
-                <select class="form-select" id="filterTipoEvento" onchange="filterCalendarEvents()">
-                    <option value="">Todos los tipos</option>
-                    <option value="clase">Clase</option>
-                    <option value="examen">Examen</option>
-                    <option value="reunion">Reunión</option>
-                    <option value="evento">Evento Especial</option>
-                    <option value="feriado">Feriado</option>
-                    <option value="actividad">Actividad Escolar</option>
-                </select>
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="total-eventos">0</div>
+                                <div class="small">Total Eventos</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-3">
-                <label for="searchEventos" class="form-label">Buscar Eventos:</label>
-                <input type="text" class="form-control" id="searchEventos" 
-                       placeholder="Título o descripción..." 
-                       oninput="filterCalendarEvents()">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="eventos-mes">0</div>
+                                <div class="small">Este Mes</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <button type="button" class="btn btn-outline-secondary d-block w-100" onclick="clearCalendarFilters()">
-                    <i class="fas fa-times me-1"></i> Limpiar
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="eventos-proximos">0</div>
+                                <div class="small">Próximos 7 días</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="evaluaciones-pendientes">0</div>
+                                <div class="small">Evaluaciones Pendientes</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clipboard-check fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas -->
+        <ul class="nav nav-tabs mb-3" id="calendarioTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="calendario-tab" data-bs-toggle="tab" data-bs-target="#calendario" type="button" role="tab">
+                    <i class="fas fa-calendar me-2"></i> Calendario
                 </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="proximos-eventos-tab" data-bs-toggle="tab" data-bs-target="#proximos-eventos" type="button" role="tab">
+                    <i class="fas fa-list me-2"></i> Próximos Eventos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="plantillas-tab" data-bs-toggle="tab" data-bs-target="#plantillas" type="button" role="tab">
+                    <i class="fas fa-copy me-2"></i> Plantillas
+                </button>
+            </li>
+        </ul>
+
+        <!-- Contenido de las pestañas -->
+        <div class="tab-content" id="calendarioTabContent">
+            <!-- Pestaña del calendario -->
+            <div class="tab-pane fade show active" id="calendario" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="calendar-container">
+                            <!-- El calendario se renderiza aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de próximos eventos -->
+            <div class="tab-pane fade" id="proximos-eventos" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold">Próximos Eventos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="proximos-eventos-lista">
+                            <!-- Lista de próximos eventos -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de plantillas -->
+            <div class="tab-pane fade" id="plantillas" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold">Plantillas de Eventos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-graduation-cap fa-2x text-primary mb-2"></i>
+                                        <h6>Evaluación</h6>
+                                        <button class="btn btn-sm btn-primary" onclick="createEventFromTemplate('evaluacion')">
+                                            Crear Evento
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card border-success">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                        <h6>Reunión de Padres</h6>
+                                        <button class="btn btn-sm btn-success" onclick="createEventFromTemplate('reunion')">
+                                            Crear Evento
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card border-warning">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-music fa-2x text-warning mb-2"></i>
+                                        <h6>Evento Cultural</h6>
+                                        <button class="btn btn-sm btn-warning" onclick="createEventFromTemplate('cultural')">
+                                            Crear Evento
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Calendario -->
-        <div class="card">
-            <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Calendario Escolar</h6>
-            </div>
-            <div class="card-body">
-                <div id="calendar"></div>
-            </div>
-        </div>
-
-        <!-- Modal para agregar/editar evento -->
-        <div class="modal fade" id="eventModal" tabindex="-1">
+        <!-- Modal de evento -->
+        <div class="modal fade" id="eventoModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="eventModalTitle">
+                        <h5 class="modal-title" id="eventoModalTitle">
                             <i class="fas fa-calendar-plus me-2"></i>
                             Nuevo Evento
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="eventForm">
-                            <input type="hidden" id="eventId">
+                        <form id="eventoForm">
+                            <input type="hidden" id="evento-id">
                             
-                            <div class="row mb-3">
+                            <div class="row">
                                 <div class="col-md-8">
                                     <div class="mb-3">
-                                        <label for="eventTitle" class="form-label">Título del Evento *</label>
-                                        <input type="text" class="form-control" id="eventTitle" name="title" required>
+                                        <label for="evento-titulo" class="form-label">Título del Evento *</label>
+                                        <input type="text" class="form-control" id="evento-titulo" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="eventType" class="form-label">Tipo de Evento *</label>
-                                        <select class="form-select" id="eventType" name="type" required>
-                                            <option value="">Seleccionar tipo</option>
-                                            <option value="clase">Clase</option>
-                                            <option value="examen">Examen</option>
-                                            <option value="reunion">Reunión</option>
-                                            <option value="evento">Evento Especial</option>
-                                            <option value="feriado">Feriado</option>
-                                            <option value="actividad">Actividad Escolar</option>
+                                        <label for="evento-tipo" class="form-label">Tipo *</label>
+                                        <select class="form-select" id="evento-tipo" required>
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Académico">Académico</option>
+                                            <option value="Administrativo">Administrativo</option>
+                                            <option value="Cultural">Cultural</option>
+                                            <option value="Deportivo">Deportivo</option>
+                                            <option value="Evaluación">Evaluación</option>
+                                            <option value="Reunión">Reunión</option>
+                                            <option value="Feriado">Feriado</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="evento-fecha-inicio" class="form-label">Fecha de Inicio *</label>
+                                        <input type="date" class="form-control" id="evento-fecha-inicio" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="evento-fecha-fin" class="form-label">Fecha de Fin</label>
+                                        <input type="date" class="form-control" id="evento-fecha-fin">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="evento-hora-inicio" class="form-label">Hora de Inicio</label>
+                                        <input type="time" class="form-control" id="evento-hora-inicio">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="evento-hora-fin" class="form-label">Hora de Fin</label>
+                                        <input type="time" class="form-control" id="evento-hora-fin">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="evento-grado" class="form-label">Grado Involucrado</label>
+                                        <select class="form-select" id="evento-grado">
+                                            <option value="">Todos los grados</option>
+                                            <option value="1">1° Grado</option>
+                                            <option value="2">2° Grado</option>
+                                            <option value="3">3° Grado</option>
+                                            <option value="4">4° Grado</option>
+                                            <option value="5">5° Grado</option>
+                                            <option value="6">6° Grado</option>
+                                            <option value="General">General</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="evento-responsable" class="form-label">Responsable</label>
+                                        <select class="form-select" id="evento-responsable">
+                                            <option value="">Seleccionar responsable...</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="eventDescription" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="eventDescription" name="description" rows="3"></textarea>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="eventStart" class="form-label">Fecha y Hora de Inicio *</label>
-                                        <input type="datetime-local" class="form-control" id="eventStart" name="start" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="eventEnd" class="form-label">Fecha y Hora de Fin</label>
-                                        <input type="datetime-local" class="form-control" id="eventEnd" name="end">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="eventColor" class="form-label">Color del Evento</label>
-                                        <select class="form-select" id="eventColor" name="color">
-                                            <option value="#3498db">Azul (Clases)</option>
-                                            <option value="#e74c3c">Rojo (Exámenes)</option>
-                                            <option value="#2ecc71">Verde (Actividades)</option>
-                                            <option value="#f39c12">Naranja (Reuniones)</option>
-                                            <option value="#9b59b6">Morado (Eventos Especiales)</option>
-                                            <option value="#34495e">Gris (Feriados)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="eventLocation" class="form-label">Ubicación</label>
-                                        <input type="text" class="form-control" id="eventLocation" name="location" 
-                                               placeholder="Aula, patio, etc.">
-                                    </div>
-                                </div>
+                                <label for="evento-lugar" class="form-label">Lugar</label>
+                                <input type="text" class="form-control" id="evento-lugar" placeholder="Ej: Aula 101, Patio, Laboratorio...">
                             </div>
 
                             <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="eventAllDay" name="allDay">
-                                    <label class="form-check-label" for="eventAllDay">
-                                        Evento de todo el día
-                                    </label>
+                                <label for="evento-descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="evento-descripcion" rows="3"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="evento-todo-el-dia">
+                                        <label class="form-check-label" for="evento-todo-el-dia">
+                                            Evento de todo el día
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="eventReminder" class="form-label">Recordatorio</label>
-                                <select class="form-select" id="eventReminder" name="reminder">
-                                    <option value="">Sin recordatorio</option>
-                                    <option value="15">15 minutos antes</option>
-                                    <option value="30">30 minutos antes</option>
-                                    <option value="60">1 hora antes</option>
-                                    <option value="1440">1 día antes</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="eventNotes" class="form-label">Notas Adicionales</label>
-                                <textarea class="form-control" id="eventNotes" name="notes" rows="2"></textarea>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="evento-recordatorio">
+                                        <label class="form-check-label" for="evento-recordatorio">
+                                            Enviar recordatorio
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" onclick="saveEvent()">
-                            <i class="fas fa-save me-1"></i> Guardar Evento
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal para ver detalles del evento -->
-        <div class="modal fade" id="eventDetailsModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" id="eventDetailsHeader">
-                        <h5 class="modal-title" id="eventDetailsTitle"></h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" id="eventDetailsBody">
-                        <!-- El contenido se cargará aquí -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary me-2" id="editEventBtn">
-                            <i class="fas fa-edit me-1"></i> Editar
-                        </button>
-                        <button type="button" class="btn btn-danger" id="deleteEventBtn">
-                            <i class="fas fa-trash me-1"></i> Eliminar
+                        <button type="button" class="btn btn-primary" onclick="saveEvento()">
+                            <i class="fas fa-save me-1"></i> Guardar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
-    // Inicializar calendario después de cargar el HTML
-    setTimeout(() => {
-        loadEventosData();
-        initializeCalendar();
-        updateCalendarStats();
-    }, 100);
-}
 
-// Cargar datos de eventos
-function loadEventosData() {
-    eventosData = db.getAll('eventos') || [];
-}
-
-// Inicializar calendario
-function initializeCalendar() {
-    const calendarEl = document.getElementById('calendar');
-    
-    if (!calendarEl) {
-        console.error('Elemento del calendario no encontrado');
-        return;
-    }
-
-    // Destruir calendario existente si existe
-    if (calendar) {
-        calendar.destroy();
-    }
-
-    calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'es',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        buttonText: {
-            today: 'Hoy',
-            month: 'Mes',
-            week: 'Semana',
-            day: 'Día'
-        },
-        events: loadCalendarEvents(),
-        selectable: true,
-        selectMirror: true,
-        dayMaxEvents: true,
-        weekends: true,
-        editable: true,
-        height: 'auto',
-        select: function(selectInfo) {
-            openEventModal(null, selectInfo.startStr, selectInfo.endStr);
-        },
-        eventClick: function(clickInfo) {
-            viewEventDetails(clickInfo.event.id);
-        },
-        eventDrop: function(dropInfo) {
-            updateEventDates(dropInfo.event.id, dropInfo.event.startStr, dropInfo.event.endStr);
-        },
-        eventResize: function(resizeInfo) {
-            updateEventDates(resizeInfo.event.id, resizeInfo.event.startStr, resizeInfo.event.endStr);
-        },
-        eventDidMount: function(info) {
-            // Agregar tooltip a los eventos
-            info.el.setAttribute('title', info.event.extendedProps.description || info.event.title);
-        }
-    });
-
-    calendar.render();
-}
-
-// Cargar eventos del calendario
-function loadCalendarEvents() {
-    const filterType = document.getElementById('filterTipoEvento')?.value || '';
-    const searchTerm = document.getElementById('searchEventos')?.value?.toLowerCase() || '';
-    
-    let filteredEvents = [...eventosData];
-    
-    if (filterType) {
-        filteredEvents = filteredEvents.filter(event => event.type === filterType);
-    }
-    
-    if (searchTerm) {
-        filteredEvents = filteredEvents.filter(event => 
-            event.title.toLowerCase().includes(searchTerm) ||
-            (event.description && event.description.toLowerCase().includes(searchTerm))
-        );
-    }
-    
-    return filteredEvents.map(event => ({
-        id: event.id,
-        title: event.title,
-        start: event.start,
-        end: event.end,
-        backgroundColor: event.color || getEventTypeColor(event.type),
-        borderColor: event.color || getEventTypeColor(event.type),
-        description: event.description,
-        type: event.type,
-        location: event.location,
-        notes: event.notes,
-        allDay: event.allDay || false
-    }));
-}
-
-// Obtener color por tipo de evento
-function getEventTypeColor(type) {
-    const colors = {
-        'clase': '#3498db',
-        'examen': '#e74c3c',
-        'reunion': '#f39c12',
-        'evento': '#9b59b6',
-        'feriado': '#34495e',
-        'actividad': '#2ecc71'
-    };
-    return colors[type] || '#3498db';
-}
-
-// Filtrar eventos del calendario
-function filterCalendarEvents() {
-    if (calendar) {
-        calendar.removeAllEvents();
-        calendar.addEventSource(loadCalendarEvents());
-    }
+    // Inicializar calendario
+    initializeCalendar();
+    loadCalendarResponsables();
     updateCalendarStats();
+    loadProximosEventos();
 }
 
-// Limpiar filtros del calendario
-function clearCalendarFilters() {
-    document.getElementById('filterTipoEvento').value = '';
-    document.getElementById('searchEventos').value = '';
-    filterCalendarEvents();
+// Función para inicializar FullCalendar
+function initializeCalendar() {
+    const calendarEl = document.getElementById('calendar-container');
+    
+    if (calendarEl) {
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek'
+            },
+            buttonText: {
+                today: 'Hoy',
+                month: 'Mes',
+                week: 'Semana',
+                list: 'Lista'
+            },
+            events: getCalendarEvents(),
+            selectable: true,
+            selectMirror: true,
+            select: function(selectInfo) {
+                showEventoModal(null, selectInfo.startStr);
+            },
+            eventClick: function(clickInfo) {
+                viewEvento(clickInfo.event.id);
+            },
+            eventDidMount: function(info) {
+                // Personalizar la apariencia de los eventos
+                const eventType = info.event.extendedProps.tipo;
+                const color = getEventTypeColor(eventType);
+                info.el.style.backgroundColor = color;
+                info.el.style.borderColor = color;
+            },
+            dayMaxEvents: 3,
+            moreLinkClick: 'popover',
+            height: 'auto'
+        });
+        
+        calendar.render();
+    }
 }
 
-// Abrir modal de evento
-function openEventModal(eventId = null, startDate = null, endDate = null) {
-    const modal = new bootstrap.Modal(document.getElementById('eventModal'));
-    const form = document.getElementById('eventForm');
-    const title = document.getElementById('eventModalTitle');
+// Función para obtener eventos del calendario
+function getCalendarEvents() {
+    const eventos = db.read('eventos');
+    const filters = getActiveFilters();
+    
+    return eventos
+        .filter(evento => applyEventFilters(evento, filters))
+        .map(evento => ({
+            id: evento.id,
+            title: evento.titulo,
+            start: evento.fecha_inicio + (evento.hora_inicio ? 'T' + evento.hora_inicio : ''),
+            end: evento.fecha_fin ? 
+                (evento.fecha_fin + (evento.hora_fin ? 'T' + evento.hora_fin : '')) : 
+                null,
+            allDay: evento.todo_el_dia || !evento.hora_inicio,
+            extendedProps: {
+                tipo: evento.tipo,
+                descripcion: evento.descripcion,
+                lugar: evento.lugar,
+                grado: evento.grado,
+                responsable: evento.responsable
+            }
+        }));
+}
+
+// Función para obtener filtros activos
+function getActiveFilters() {
+    return {
+        tipo: document.getElementById('filter-tipo-evento')?.value || '',
+        grado: document.getElementById('filter-grado')?.value || '',
+        showPast: document.getElementById('show-past-events')?.checked !== false
+    };
+}
+
+// Función para aplicar filtros a eventos
+function applyEventFilters(evento, filters) {
+    // Filtro por tipo
+    if (filters.tipo && evento.tipo !== filters.tipo) {
+        return false;
+    }
+    
+    // Filtro por grado
+    if (filters.grado && evento.grado && evento.grado !== filters.grado) {
+        return false;
+    }
+    
+    // Filtro por eventos pasados
+    if (!filters.showPast) {
+        const today = new Date().toISOString().split('T')[0];
+        if (evento.fecha_inicio < today) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// Función para obtener color por tipo de evento
+function getEventTypeColor(tipo) {
+    const colors = {
+        'Académico': '#007bff',
+        'Administrativo': '#6c757d',
+        'Cultural': '#17a2b8',
+        'Deportivo': '#28a745',
+        'Evaluación': '#dc3545',
+        'Reunión': '#ffc107',
+        'Feriado': '#fd7e14',
+        'Otro': '#6f42c1'
+    };
+    return colors[tipo] || '#6c757d';
+}
+
+// Función para cargar responsables
+function loadCalendarResponsables() {
+    const profesores = db.read('profesores').filter(p => p.estado === 'Activo');
+    const responsableSelect = document.getElementById('evento-responsable');
+    
+    if (responsableSelect) {
+        responsableSelect.innerHTML = '<option value="">Seleccionar responsable...</option>';
+        
+        profesores.forEach(profesor => {
+            const option = document.createElement('option');
+            option.value = profesor.id;
+            option.textContent = `${profesor.nombre} ${profesor.apellido}`;
+            responsableSelect.appendChild(option);
+        });
+    }
+}
+
+// Función para actualizar estadísticas del calendario
+function updateCalendarStats() {
+    try {
+        const eventos = db.read('eventos');
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        
+        // Total eventos
+        document.getElementById('total-eventos').textContent = eventos.length;
+        
+        // Eventos este mes
+        const eventosMes = eventos.filter(evento => {
+            const fechaEvento = new Date(evento.fecha_inicio);
+            return fechaEvento.getMonth() === currentMonth && fechaEvento.getFullYear() === currentYear;
+        });
+        document.getElementById('eventos-mes').textContent = eventosMes.length;
+        
+        // Eventos próximos 7 días
+        const proximosSieteDias = new Date();
+        proximosSieteDias.setDate(proximosSieteDias.getDate() + 7);
+        
+        const eventosProximos = eventos.filter(evento => {
+            const fechaEvento = new Date(evento.fecha_inicio);
+            return fechaEvento >= currentDate && fechaEvento <= proximosSieteDias;
+        });
+        document.getElementById('eventos-proximos').textContent = eventosProximos.length;
+        
+        // Evaluaciones pendientes
+        const evaluacionesPendientes = eventos.filter(evento => {
+            const fechaEvento = new Date(evento.fecha_inicio);
+            return evento.tipo === 'Evaluación' && fechaEvento >= currentDate;
+        });
+        document.getElementById('evaluaciones-pendientes').textContent = evaluacionesPendientes.length;
+        
+    } catch (error) {
+        console.error('Error actualizando estadísticas del calendario:', error);
+    }
+}
+
+// Función para cargar próximos eventos
+function loadProximosEventos() {
+    try {
+        const eventos = db.read('eventos');
+        const profesores = db.read('profesores');
+        const container = document.getElementById('proximos-eventos-lista');
+        
+        if (!container) return;
+        
+        const currentDate = new Date();
+        const eventosProximos = eventos
+            .filter(evento => new Date(evento.fecha_inicio) >= currentDate)
+            .sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio))
+            .slice(0, 10);
+        
+        if (eventosProximos.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5>No hay eventos próximos</h5>
+                    <p class="text-muted">Agregue eventos al calendario para verlos aquí</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = eventosProximos.map(evento => {
+            const responsable = profesores.find(p => p.id === evento.responsable);
+            const diasHasta = Math.ceil((new Date(evento.fecha_inicio) - currentDate) / (1000 * 60 * 60 * 24));
+            
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-1">
+                                <div class="text-center">
+                                    <div class="badge" style="background-color: ${getEventTypeColor(evento.tipo)}">
+                                        ${formatDateShort(evento.fecha_inicio).split('/')[0]}
+                                    </div>
+                                    <small class="text-muted d-block">
+                                        ${formatDateShort(evento.fecha_inicio).split('/').slice(1).join('/')}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <h6 class="mb-1">${evento.titulo}</h6>
+                                <p class="mb-1 text-muted">${evento.descripcion || 'Sin descripción'}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    ${evento.lugar || 'Lugar no especificado'}
+                                    ${evento.grado ? ` | ${evento.grado}° Grado` : ''}
+                                </small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge bg-${getEventTypeColor(evento.tipo)}">${evento.tipo}</span>
+                                ${responsable ? `<div class="small text-muted mt-1">${responsable.nombre} ${responsable.apellido}</div>` : ''}
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="small text-muted">
+                                    ${diasHasta === 0 ? 'Hoy' : 
+                                      diasHasta === 1 ? 'Mañana' : 
+                                      `En ${diasHasta} días`}
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="editEvento('${evento.id}')" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="viewEvento('${evento.id}')" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Error cargando próximos eventos:', error);
+    }
+}
+
+// Función para mostrar modal de evento
+function showEventoModal(eventoId = null, fechaInicial = null) {
+    const modal = new bootstrap.Modal(document.getElementById('eventoModal'));
+    const title = document.getElementById('eventoModalTitle');
+    const form = document.getElementById('eventoForm');
     
     // Limpiar formulario
     form.reset();
-    document.getElementById('eventId').value = '';
+    document.getElementById('evento-id').value = '';
     
-    if (eventId) {
+    if (eventoId) {
         // Modo edición
-        title.innerHTML = '<i class="fas fa-edit me-2"></i>Editar Evento';
-        const event = eventosData.find(e => e.id === eventId);
+        title.innerHTML = '<i class="fas fa-calendar-plus me-2"></i>Editar Evento';
+        const evento = db.find('eventos', eventoId);
         
-        if (event) {
-            document.getElementById('eventId').value = event.id;
-            document.getElementById('eventTitle').value = event.title;
-            document.getElementById('eventDescription').value = event.description || '';
-            document.getElementById('eventStart').value = formatDateTimeForInput(event.start);
-            document.getElementById('eventEnd').value = event.end ? formatDateTimeForInput(event.end) : '';
-            document.getElementById('eventType').value = event.type || 'evento';
-            document.getElementById('eventColor').value = event.color || getEventTypeColor(event.type);
-            document.getElementById('eventLocation').value = event.location || '';
-            document.getElementById('eventAllDay').checked = event.allDay || false;
-            document.getElementById('eventReminder').value = event.reminder || '';
-            document.getElementById('eventNotes').value = event.notes || '';
+        if (evento) {
+            document.getElementById('evento-id').value = evento.id;
+            document.getElementById('evento-titulo').value = evento.titulo;
+            document.getElementById('evento-tipo').value = evento.tipo;
+            document.getElementById('evento-fecha-inicio').value = evento.fecha_inicio;
+            document.getElementById('evento-fecha-fin').value = evento.fecha_fin || '';
+            document.getElementById('evento-hora-inicio').value = evento.hora_inicio || '';
+            document.getElementById('evento-hora-fin').value = evento.hora_fin || '';
+            document.getElementById('evento-grado').value = evento.grado || '';
+            document.getElementById('evento-responsable').value = evento.responsable || '';
+            document.getElementById('evento-lugar').value = evento.lugar || '';
+            document.getElementById('evento-descripcion').value = evento.descripcion || '';
+            document.getElementById('evento-todo-el-dia').checked = evento.todo_el_dia || false;
+            document.getElementById('evento-recordatorio').checked = evento.recordatorio || false;
         }
     } else {
         // Modo creación
         title.innerHTML = '<i class="fas fa-calendar-plus me-2"></i>Nuevo Evento';
-        document.getElementById('eventType').value = 'evento';
-        document.getElementById('eventColor').value = '#3498db';
-        
-        // Si se seleccionó una fecha en el calendario
-        if (startDate) {
-            document.getElementById('eventStart').value = formatDateTimeForInput(startDate);
-            if (endDate && endDate !== startDate) {
-                document.getElementById('eventEnd').value = formatDateTimeForInput(endDate);
-            }
+        if (fechaInicial) {
+            document.getElementById('evento-fecha-inicio').value = fechaInicial;
         } else {
-            // Fecha y hora actual como default
-            const now = new Date();
-            document.getElementById('eventStart').value = formatDateTimeForInput(now.toISOString());
+            document.getElementById('evento-fecha-inicio').value = new Date().toISOString().split('T')[0];
         }
     }
     
     modal.show();
 }
 
-// Formatear fecha para input datetime-local
-function formatDateTimeForInput(dateString) {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
-
-// Guardar evento
-function saveEvent() {
-    const form = document.getElementById('eventForm');
-    
-    if (!validateForm(form)) {
-        showAlert.error('Error', 'Por favor complete todos los campos requeridos correctamente');
-        return;
-    }
-
-    const eventId = document.getElementById('eventId').value;
-    const eventData = {
-        title: document.getElementById('eventTitle').value.trim(),
-        description: document.getElementById('eventDescription').value.trim(),
-        start: document.getElementById('eventStart').value,
-        end: document.getElementById('eventEnd').value,
-        type: document.getElementById('eventType').value,
-        color: document.getElementById('eventColor').value,
-        location: document.getElementById('eventLocation').value.trim(),
-        allDay: document.getElementById('eventAllDay').checked,
-        reminder: document.getElementById('eventReminder').value,
-        notes: document.getElementById('eventNotes').value.trim()
-    };
-
-    // Validaciones adicionales
-    if (!eventData.title) {
-        showAlert.error('Error', 'El título es requerido');
-        return;
-    }
-
-    if (!eventData.start) {
-        showAlert.error('Error', 'La fecha de inicio es requerida');
-        return;
-    }
-
-    // Validar que la fecha de fin sea posterior a la de inicio
-    if (eventData.end && new Date(eventData.end) <= new Date(eventData.start)) {
-        showAlert.error('Error', 'La fecha de fin debe ser posterior a la fecha de inicio');
-        return;
-    }
-
+// Función para guardar evento
+function saveEvento() {
     try {
-        if (eventId) {
+        const form = document.getElementById('eventoForm');
+        
+        const eventoData = {
+            titulo: document.getElementById('evento-titulo').value.trim(),
+            tipo: document.getElementById('evento-tipo').value,
+            fecha_inicio: document.getElementById('evento-fecha-inicio').value,
+            fecha_fin: document.getElementById('evento-fecha-fin').value || null,
+            hora_inicio: document.getElementById('evento-hora-inicio').value || null,
+            hora_fin: document.getElementById('evento-hora-fin').value || null,
+            grado: document.getElementById('evento-grado').value || null,
+            responsable: document.getElementById('evento-responsable').value || null,
+            lugar: document.getElementById('evento-lugar').value.trim() || null,
+            descripcion: document.getElementById('evento-descripcion').value.trim() || null,
+            todo_el_dia: document.getElementById('evento-todo-el-dia').checked,
+            recordatorio: document.getElementById('evento-recordatorio').checked
+        };
+        
+        // Validaciones
+        const validationRules = {
+            titulo: { required: true, label: 'Título' },
+            tipo: { required: true, label: 'Tipo' },
+            fecha_inicio: { required: true, type: 'date', label: 'Fecha de inicio' }
+        };
+        
+        const errors = validateFormData(eventoData, validationRules);
+        
+        if (errors.length > 0) {
+            showGlobalAlert('Errores de validación:<br>• ' + errors.join('<br>• '), 'error');
+            return;
+        }
+        
+        // Validar fechas
+        if (eventoData.fecha_fin && eventoData.fecha_fin < eventoData.fecha_inicio) {
+            showGlobalAlert('La fecha de fin no puede ser anterior a la fecha de inicio', 'error');
+            return;
+        }
+        
+        const eventoId = document.getElementById('evento-id').value;
+        
+        if (eventoId) {
             // Actualizar evento existente
-            const updatedEvent = db.update('eventos', eventId, eventData);
-            const index = eventosData.findIndex(e => e.id === parseInt(eventId));
-            if (index !== -1) {
-                eventosData[index] = updatedEvent;
-            }
-            showAlert.success('¡Éxito!', 'Evento actualizado correctamente');
+            db.update('eventos', eventoId, eventoData);
+            showGlobalAlert('Evento actualizado correctamente', 'success');
         } else {
             // Crear nuevo evento
-            const newEvent = db.insert('eventos', eventData);
-            eventosData.push(newEvent);
-            showAlert.success('¡Éxito!', 'Evento creado correctamente');
+            db.create('eventos', eventoData);
+            showGlobalAlert('Evento creado correctamente', 'success');
         }
-
-        // Cerrar modal y actualizar calendario
-        const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+        
+        // Cerrar modal y recargar calendario
+        const modal = bootstrap.Modal.getInstance(document.getElementById('eventoModal'));
         modal.hide();
-        
-        // Actualizar calendario
-        if (calendar) {
-            calendar.removeAllEvents();
-            calendar.addEventSource(loadCalendarEvents());
-        }
-        
-        updateCalendarStats();
+        refreshCalendar();
         
     } catch (error) {
-        console.error('Error al guardar evento:', error);
-        showAlert.error('Error', 'No se pudo guardar el evento');
+        console.error('Error guardando evento:', error);
+        showGlobalAlert('Error al guardar evento: ' + error.message, 'error');
     }
 }
 
-// Ver detalles del evento
-function viewEventDetails(eventId) {
-    const event = eventosData.find(e => e.id == eventId);
-    
-    if (!event) {
-        showAlert.error('Error', 'Evento no encontrado');
+// Función para editar evento
+function editEvento(eventoId) {
+    showEventoModal(eventoId);
+}
+
+// Función para ver detalles de evento
+function viewEvento(eventoId) {
+    const evento = db.find('eventos', eventoId);
+    if (!evento) {
+        showGlobalAlert('Evento no encontrado', 'error');
         return;
     }
-
-    const header = document.getElementById('eventDetailsHeader');
-    const title = document.getElementById('eventDetailsTitle');
-    const body = document.getElementById('eventDetailsBody');
     
-    // Configurar header con color del evento
-    header.style.backgroundColor = event.color || getEventTypeColor(event.type);
-    title.textContent = event.title;
+    const profesores = db.read('profesores');
+    const responsable = profesores.find(p => p.id === evento.responsable);
     
-    // Generar contenido del modal
-    const detailsHtml = `
-        <div class="mb-3">
-            <strong>Tipo:</strong> ${getEventTypeText(event.type)}
-        </div>
-        <div class="mb-3">
-            <strong>Fecha de Inicio:</strong> ${formatDateTime(event.start)}
-        </div>
-        ${event.end ? `
-        <div class="mb-3">
-            <strong>Fecha de Fin:</strong> ${formatDateTime(event.end)}
-        </div>
-        ` : ''}
-        ${event.location ? `
-        <div class="mb-3">
-            <strong>Ubicación:</strong> ${event.location}
-        </div>
-        ` : ''}
-        ${event.description ? `
-        <div class="mb-3">
-            <strong>Descripción:</strong><br>
-            ${event.description}
-        </div>
-        ` : ''}
-        ${event.notes ? `
-        <div class="mb-3">
-            <strong>Notas:</strong><br>
-            ${event.notes}
-        </div>
-        ` : ''}
-        <div class="mb-3">
-            <strong>Evento de todo el día:</strong> ${event.allDay ? 'Sí' : 'No'}
-        </div>
-        ${event.reminder ? `
-        <div class="mb-3">
-            <strong>Recordatorio:</strong> ${getReminderText(event.reminder)}
-        </div>
-        ` : ''}
-        <div class="mb-3">
-            <strong>Creado:</strong> ${event.fechaRegistro ? formatDateTime(event.fechaRegistro) : 'No disponible'}
-        </div>
-    `;
-
-    body.innerHTML = detailsHtml;
-    
-    // Configurar botones
-    document.getElementById('editEventBtn').onclick = () => {
-        bootstrap.Modal.getInstance(document.getElementById('eventDetailsModal')).hide();
-        openEventModal(event.id);
-    };
-    
-    document.getElementById('deleteEventBtn').onclick = () => {
-        bootstrap.Modal.getInstance(document.getElementById('eventDetailsModal')).hide();
-        deleteEvent(event.id);
-    };
-    
-    // Mostrar modal
-    const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
-    modal.show();
-}
-
-// Obtener texto del tipo de evento
-function getEventTypeText(type) {
-    const types = {
-        'clase': 'Clase',
-        'examen': 'Examen',
-        'reunion': 'Reunión',
-        'evento': 'Evento Especial',
-        'feriado': 'Feriado',
-        'actividad': 'Actividad Escolar'
-    };
-    return types[type] || type;
-}
-
-// Obtener texto del recordatorio
-function getReminderText(minutes) {
-    if (minutes == 15) return '15 minutos antes';
-    if (minutes == 30) return '30 minutos antes';
-    if (minutes == 60) return '1 hora antes';
-    if (minutes == 1440) return '1 día antes';
-    return `${minutes} minutos antes`;
-}
-
-// Formatear fecha y hora para mostrar
-function formatDateTime(dateString) {
-    return new Date(dateString).toLocaleString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+    Swal.fire({
+        title: evento.titulo,
+        html: `
+            <div class="text-start">
+                <div class="row">
+                    <div class="col-6"><strong>Tipo:</strong></div>
+                    <div class="col-6">
+                        <span class="badge" style="background-color: ${getEventTypeColor(evento.tipo)}">
+                            ${evento.tipo}
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Fecha de Inicio:</strong></div>
+                    <div class="col-6">${formatDate(evento.fecha_inicio)}</div>
+                </div>
+                ${evento.fecha_fin ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Fecha de Fin:</strong></div>
+                        <div class="col-6">${formatDate(evento.fecha_fin)}</div>
+                    </div>
+                ` : ''}
+                ${evento.hora_inicio ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Hora:</strong></div>
+                        <div class="col-6">${evento.hora_inicio}${evento.hora_fin ? ' - ' + evento.hora_fin : ''}</div>
+                    </div>
+                ` : ''}
+                ${evento.lugar ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Lugar:</strong></div>
+                        <div class="col-6">${evento.lugar}</div>
+                    </div>
+                ` : ''}
+                ${evento.grado ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Grado:</strong></div>
+                        <div class="col-6">${evento.grado}° Grado</div>
+                    </div>
+                ` : ''}
+                ${responsable ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Responsable:</strong></div>
+                        <div class="col-6">${responsable.nombre} ${responsable.apellido}</div>
+                    </div>
+                ` : ''}
+                ${evento.descripcion ? `
+                    <div class="row mt-2">
+                        <div class="col-12"><strong>Descripción:</strong></div>
+                        <div class="col-12">${evento.descripcion}</div>
+                    </div>
+                ` : ''}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        showCancelButton: true,
+        cancelButtonText: 'Editar',
+        cancelButtonColor: '#007bff'
+    }).then((result) => {
+        if (result.isDismissed) {
+            editEvento(eventoId);
+        }
     });
 }
 
-// Eliminar evento
-function deleteEvent(eventId) {
-    const event = eventosData.find(e => e.id == eventId);
+// Función para crear evento desde plantilla
+function createEventFromTemplate(tipo) {
+    const plantillas = {
+        evaluacion: {
+            titulo: 'Evaluación de ',
+            tipo: 'Evaluación',
+            hora_inicio: '08:00',
+            hora_fin: '10:00'
+        },
+        reunion: {
+            titulo: 'Reunión de Padres de Familia',
+            tipo: 'Reunión',
+            hora_inicio: '14:00',
+            hora_fin: '16:00',
+            lugar: 'Aula Principal'
+        },
+        cultural: {
+            titulo: 'Evento Cultural',
+            tipo: 'Cultural',
+            hora_inicio: '09:00',
+            hora_fin: '11:00',
+            lugar: 'Patio Central'
+        }
+    };
     
-    if (!event) {
-        showAlert.error('Error', 'Evento no encontrado');
-        return;
-    }
-
-    showAlert.confirm(
-        '¿Está seguro?',
-        `¿Desea eliminar el evento "${event.title}"?`
-    ).then((result) => {
-        if (result.isConfirmed) {
-            try {
-                db.delete('eventos', eventId);
-                eventosData = eventosData.filter(e => e.id != eventId);
-
-                // Actualizar calendario
-                if (calendar) {
-                    calendar.removeAllEvents();
-                    calendar.addEventSource(loadCalendarEvents());
+    const plantilla = plantillas[tipo];
+    if (plantilla) {
+        showEventoModal();
+        
+        // Aplicar plantilla después de que se abra el modal
+        setTimeout(() => {
+            Object.entries(plantilla).forEach(([key, value]) => {
+                const elemento = document.getElementById(`evento-${key.replace('_', '-')}`);
+                if (elemento) {
+                    elemento.value = value;
                 }
-                
-                updateCalendarStats();
-                showAlert.success('¡Eliminado!', 'El evento ha sido eliminado');
-                
-            } catch (error) {
-                console.error('Error al eliminar evento:', error);
-                showAlert.error('Error', 'No se pudo eliminar el evento');
-            }
-        }
-    });
-}
-
-// Actualizar fechas de evento (para drag & drop)
-function updateEventDates(eventId, newStart, newEnd) {
-    const eventIndex = eventosData.findIndex(e => e.id == eventId);
-    
-    if (eventIndex !== -1) {
-        eventosData[eventIndex].start = newStart;
-        if (newEnd) {
-            eventosData[eventIndex].end = newEnd;
-        }
-        
-        // Guardar en base de datos
-        db.update('eventos', eventId, {
-            start: newStart,
-            end: newEnd
-        });
-        
-        showAlert.success('Actualizado', `Se cambió la fecha del evento "${eventosData[eventIndex].title}"`);
+            });
+        }, 100);
     }
 }
 
-// Actualizar estadísticas del calendario
-function updateCalendarStats() {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    const stats = {
-        total: eventosData.length,
-        hoy: eventosData.filter(e => {
-            const eventDate = new Date(e.start);
-            return eventDate.toDateString() === today.toDateString();
-        }).length,
-        semana: eventosData.filter(e => {
-            const eventDate = new Date(e.start);
-            return eventDate >= startOfWeek && eventDate <= endOfWeek;
-        }).length,
-        mes: eventosData.filter(e => {
-            const eventDate = new Date(e.start);
-            return eventDate >= startOfMonth && eventDate <= endOfMonth;
-        }).length
-    };
-
-    document.getElementById('total-eventos').textContent = stats.total;
-    document.getElementById('eventos-hoy').textContent = stats.hoy;
-    document.getElementById('eventos-semana').textContent = stats.semana;
-    document.getElementById('eventos-mes').textContent = stats.mes;
-}
-
-// Exportar calendario
-function exportCalendar() {
-    if (eventosData.length === 0) {
-        showAlert.warning('Sin datos', 'No hay eventos para exportar');
-        return;
-    }
-
-    const dataToExport = eventosData.map(event => ({
-        'Título': event.title,
-        'Tipo': getEventTypeText(event.type),
-        'Descripción': event.description || '',
-        'Fecha de Inicio': formatDateTime(event.start),
-        'Fecha de Fin': event.end ? formatDateTime(event.end) : '',
-        'Ubicación': event.location || '',
-        'Todo el día': event.allDay ? 'Sí' : 'No',
-        'Recordatorio': event.reminder ? getReminderText(event.reminder) : 'Sin recordatorio',
-        'Notas': event.notes || '',
-        'Color': event.color || ''
-    }));
-
-    exportToExcel('Calendario Escolar', dataToExport, 'calendario_' + new Date().toISOString().split('T')[0]);
-}
-
-// Refrescar calendario
-function refreshCalendar() {
-    loadEventosData();
+// Función para filtrar eventos del calendario
+function filterCalendarEvents() {
     if (calendar) {
         calendar.removeAllEvents();
-        calendar.addEventSource(loadCalendarEvents());
+        calendar.addEventSource(getCalendarEvents());
     }
     updateCalendarStats();
-    showAlert.success('Actualizado', 'El calendario ha sido actualizado');
+    loadProximosEventos();
 }
+
+// Función para limpiar filtros del calendario
+function clearCalendarFilters() {
+    document.getElementById('filter-tipo-evento').value = '';
+    document.getElementById('filter-grado').value = '';
+    document.getElementById('show-past-events').checked = true;
+    filterCalendarEvents();
+}
+
+// Función para actualizar calendario
+function refreshCalendar() {
+    if (calendar) {
+        calendar.refetchEvents();
+    }
+    updateCalendarStats();
+    loadProximosEventos();
+}
+
+// Función para sincronizar calendario
+function syncCalendar() {
+    showLoading('Sincronizando calendario...');
+    
+    setTimeout(() => {
+        refreshCalendar();
+        hideLoading();
+        showGlobalAlert('Calendario sincronizado correctamente', 'success');
+    }, 1000);
+}
+
+// Función para exportar calendario
+function exportarCalendario() {
+    try {
+        const eventos = db.read('eventos');
+        const profesores = db.read('profesores');
+        
+        const exportData = eventos.map(evento => {
+            const responsable = profesores.find(p => p.id === evento.responsable);
+            
+            return {
+                'Título': evento.titulo,
+                'Tipo': evento.tipo,
+                'Fecha de Inicio': formatDateShort(evento.fecha_inicio),
+                'Fecha de Fin': evento.fecha_fin ? formatDateShort(evento.fecha_fin) : '',
+                'Hora de Inicio': evento.hora_inicio || '',
+                'Hora de Fin': evento.hora_fin || '',
+                'Todo el Día': evento.todo_el_dia ? 'Sí' : 'No',
+                'Lugar': evento.lugar || '',
+                'Grado': evento.grado || 'General',
+                'Responsable': responsable ? `${responsable.nombre} ${responsable.apellido}` : '',
+                'Descripción': evento.descripcion || '',
+                'Recordatorio': evento.recordatorio ? 'Sí' : 'No',
+                'Fecha de Creación': formatDateShort(evento.created_at)
+            };
+        });
+        
+        exportToExcel(exportData, 'calendario_escolar', 'Calendario Escolar');
+        
+    } catch (error) {
+        console.error('Error exportando calendario:', error);
+        showGlobalAlert('Error al exportar calendario', 'error');
+    }
+}
+
+// Exportar funciones
+window.loadCalendarioSection = loadCalendarioSection;
+window.showEventoModal = showEventoModal;
+window.saveEvento = saveEvento;
+window.editEvento = editEvento;
+window.viewEvento = viewEvento;
+window.createEventFromTemplate = createEventFromTemplate;
+window.filterCalendarEvents = filterCalendarEvents;
+window.clearCalendarFilters = clearCalendarFilters;
+window.syncCalendar = syncCalendar;
+window.exportarCalendario = exportarCalendario;
+
+console.log('✅ Calendario.js cargado correctamente');

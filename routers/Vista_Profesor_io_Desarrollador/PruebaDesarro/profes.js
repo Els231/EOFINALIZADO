@@ -1,11 +1,12 @@
 /**
  * Módulo de gestión de profesores
- * Funcionalidades CRUD para profesores
+ * Sistema completo de CRUD para profesores con especialidades y asignaciones
  */
 
-let profesoresData = [];
 let currentProfesoresPage = 1;
 const profesoresPerPage = 10;
+let profesoresFilters = {};
+let profesoresSearchQuery = '';
 
 // Función principal para cargar la sección de profesores
 function loadProfesoresSection() {
@@ -19,93 +20,113 @@ function loadProfesoresSection() {
                 </h1>
                 <div class="btn-toolbar">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary" onclick="showAddProfesorModal()">
+                        <button type="button" class="btn btn-primary" onclick="showProfesorModal()">
                             <i class="fas fa-plus me-1"></i> Nuevo Profesor
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="exportProfesores()">
-                            <i class="fas fa-download me-1"></i> Exportar
+                        <button type="button" class="btn btn-outline-success" onclick="exportProfesores()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshProfesores()">
-                            <i class="fas fa-sync me-1"></i> Actualizar
+                        <button type="button" class="btn btn-outline-info" onclick="showAsignacionesModal()">
+                            <i class="fas fa-users-cog me-1"></i> Asignaciones
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="filtros-section">
+        <!-- Filtros y búsqueda -->
+        <div class="search-filters">
             <div class="row">
                 <div class="col-md-4">
-                    <label for="searchProfesores" class="form-label">Buscar:</label>
-                    <input type="text" class="form-control" id="searchProfesores" 
-                           placeholder="Nombre, apellido o especialidad..." 
-                           oninput="filterProfesores()">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="profesores-search" 
+                               placeholder="Buscar por nombre, apellido o cédula..."
+                               onkeyup="debounce(searchProfesores, 300)()">
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <label for="filterEspecialidad" class="form-label">Especialidad:</label>
-                    <select class="form-select" id="filterEspecialidad" onchange="filterProfesores()">
+                    <select class="form-select" id="filter-especialidad" onchange="filterProfesores()">
                         <option value="">Todas las especialidades</option>
-                        <option value="Matemáticas">Matemáticas</option>
-                        <option value="Lengua Española">Lengua Española</option>
-                        <option value="Ciencias Naturales">Ciencias Naturales</option>
-                        <option value="Ciencias Sociales">Ciencias Sociales</option>
-                        <option value="Inglés">Inglés</option>
-                        <option value="Educación Física">Educación Física</option>
-                        <option value="Educación Artística">Educación Artística</option>
-                        <option value="Formación Humana">Formación Humana</option>
-                        <option value="Informática">Informática</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="filterEstadoProfesor" class="form-label">Estado:</label>
-                    <select class="form-select" id="filterEstadoProfesor" onchange="filterProfesores()">
-                        <option value="">Todos</option>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-estado" onchange="filterProfesores()">
+                        <option value="">Todos los estados</option>
                         <option value="Activo">Activo</option>
                         <option value="Inactivo">Inactivo</option>
                         <option value="Licencia">En Licencia</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="button" class="btn btn-outline-secondary d-block w-100" onclick="clearProfesoresFilters()">
-                        <i class="fas fa-times me-1"></i> Limpiar
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-outline-secondary w-100" onclick="clearProfesoresFilters()">
+                        <i class="fas fa-times me-1"></i> Limpiar Filtros
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Estadísticas -->
+        <!-- Estadísticas rápidas -->
         <div class="row mb-4">
             <div class="col-md-3">
-                <div class="card card-primary">
-                    <div class="card-body text-center">
-                        <h3 class="card-number" id="total-profesores">0</h3>
-                        <p class="mb-0">Total Profesores</p>
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="total-profesores-activos">0</div>
+                                <div class="small">Profesores Activos</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-user-check fa-2x"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card card-success">
-                    <div class="card-body text-center">
-                        <h3 class="card-number" id="profesores-activos">0</h3>
-                        <p class="mb-0">Activos</p>
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="especialidades-cubiertas">0</div>
+                                <div class="small">Especialidades Cubiertas</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card card-warning">
-                    <div class="card-body text-center">
-                        <h3 class="card-number" id="profesores-licencia">0</h3>
-                        <p class="mb-0">En Licencia</p>
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="profesores-con-asignaciones">0</div>
+                                <div class="small">Con Asignaciones</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clipboard-list fa-2x"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card card-info">
-                    <div class="card-body text-center">
-                        <h3 class="card-number" id="especialidades-cubiertas">0</h3>
-                        <p class="mb-0">Especialidades</p>
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="carga-promedio">0</div>
+                                <div class="small">Carga Promedio</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-chart-bar fa-2x"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,19 +135,41 @@ function loadProfesoresSection() {
         <!-- Tabla de profesores -->
         <div class="card">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Lista de Profesores</h6>
+                <h6 class="m-0 font-weight-bold">
+                    Lista de Profesores
+                    <span class="badge bg-primary ms-2" id="profesores-count">0</span>
+                </h6>
             </div>
             <div class="card-body">
-                <div id="profesoresTableContainer">
-                    <!-- La tabla se cargará aquí -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Profesor</th>
+                                <th>Cédula</th>
+                                <th>Especialidad</th>
+                                <th>Contacto</th>
+                                <th>Asignaciones</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profesores-tbody">
+                            <!-- Datos se cargan aquí -->
+                        </tbody>
+                    </table>
                 </div>
-                <div id="profesoresPagination" class="mt-3">
-                    <!-- La paginación se cargará aquí -->
-                </div>
+                
+                <!-- Paginación -->
+                <nav aria-label="Paginación de profesores">
+                    <ul class="pagination justify-content-center" id="profesores-pagination">
+                        <!-- Paginación se genera aquí -->
+                    </ul>
+                </nav>
             </div>
         </div>
 
-        <!-- Modal para agregar/editar profesor -->
+        <!-- Modal de profesor -->
         <div class="modal fade" id="profesorModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -139,25 +182,20 @@ function loadProfesoresSection() {
                     </div>
                     <div class="modal-body">
                         <form id="profesorForm">
-                            <input type="hidden" id="profesorId">
+                            <input type="hidden" id="profesor-id">
                             
-                            <!-- Información Personal -->
-                            <h6 class="text-primary mb-3">
-                                <i class="fas fa-user me-2"></i>
-                                Información Personal
-                            </h6>
-                            
+                            <!-- Información personal -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nombresPr" class="form-label">Nombres *</label>
-                                        <input type="text" class="form-control" id="nombresPr" name="nombres" required>
+                                        <label for="profesor-nombre" class="form-label">Nombre *</label>
+                                        <input type="text" class="form-control" id="profesor-nombre" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="apellidosPr" class="form-label">Apellidos *</label>
-                                        <input type="text" class="form-control" id="apellidosPr" name="apellidos" required>
+                                        <label for="profesor-apellido" class="form-label">Apellido *</label>
+                                        <input type="text" class="form-control" id="profesor-apellido" required>
                                     </div>
                                 </div>
                             </div>
@@ -165,123 +203,48 @@ function loadProfesoresSection() {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="cedulaPr" class="form-label">Cédula *</label>
-                                        <input type="text" class="form-control" id="cedulaPr" name="cedula" 
+                                        <label for="profesor-cedula" class="form-label">Cédula *</label>
+                                        <input type="text" class="form-control" id="profesor-cedula" 
                                                placeholder="000-0000000-0" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="fechaNacimientoPr" class="form-label">Fecha de Nacimiento *</label>
-                                        <input type="date" class="form-control" id="fechaNacimientoPr" name="fechaNacimiento" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="generoPr" class="form-label">Género *</label>
-                                        <select class="form-select" id="generoPr" name="genero" required>
-                                            <option value="">Seleccionar género</option>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="Femenino">Femenino</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="estadoCivil" class="form-label">Estado Civil</label>
-                                        <select class="form-select" id="estadoCivil" name="estadoCivil">
-                                            <option value="">Seleccionar</option>
-                                            <option value="Soltero/a">Soltero/a</option>
-                                            <option value="Casado/a">Casado/a</option>
-                                            <option value="Divorciado/a">Divorciado/a</option>
-                                            <option value="Viudo/a">Viudo/a</option>
-                                            <option value="Unión Libre">Unión Libre</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="nacionalidad" class="form-label">Nacionalidad</label>
-                                        <input type="text" class="form-control" id="nacionalidad" name="nacionalidad" 
-                                               value="Dominicana">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Información de Contacto -->
-                            <h6 class="text-primary mb-3 mt-4">
-                                <i class="fas fa-phone me-2"></i>
-                                Información de Contacto
-                            </h6>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="telefonoPr" class="form-label">Teléfono *</label>
-                                        <input type="tel" class="form-control" id="telefonoPr" name="telefono" 
+                                        <label for="profesor-telefono" class="form-label">Teléfono *</label>
+                                        <input type="tel" class="form-control" id="profesor-telefono" 
                                                placeholder="809-000-0000" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="celular" class="form-label">Celular</label>
-                                        <input type="tel" class="form-control" id="celular" name="celular" 
-                                               placeholder="849-000-0000">
+                                        <label for="profesor-email" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="profesor-email" required>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="emailPr" class="form-label">Email *</label>
-                                <input type="email" class="form-control" id="emailPr" name="email" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="direccionPr" class="form-label">Dirección *</label>
-                                <textarea class="form-control" id="direccionPr" name="direccion" rows="2" required></textarea>
-                            </div>
-
-                            <!-- Información Académica y Profesional -->
-                            <h6 class="text-primary mb-3 mt-4">
-                                <i class="fas fa-graduation-cap me-2"></i>
-                                Información Académica y Profesional
-                            </h6>
-
+                            <!-- Información académica -->
+                            <h6 class="border-bottom pb-2 mb-3">Información Académica</h6>
+                            
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="especialidad" class="form-label">Especialidad Principal *</label>
-                                        <select class="form-select" id="especialidad" name="especialidad" required>
-                                            <option value="">Seleccionar especialidad</option>
-                                            <option value="Matemáticas">Matemáticas</option>
-                                            <option value="Lengua Española">Lengua Española</option>
-                                            <option value="Ciencias Naturales">Ciencias Naturales</option>
-                                            <option value="Ciencias Sociales">Ciencias Sociales</option>
-                                            <option value="Inglés">Inglés</option>
-                                            <option value="Educación Física">Educación Física</option>
-                                            <option value="Educación Artística">Educación Artística</option>
-                                            <option value="Formación Humana">Formación Humana y Religiosa</option>
-                                            <option value="Informática">Informática</option>
-                                            <option value="Educación Inicial">Educación Inicial</option>
-                                            <option value="Educación Especial">Educación Especial</option>
+                                        <label for="profesor-especialidad" class="form-label">Especialidad Principal *</label>
+                                        <select class="form-select" id="profesor-especialidad" required>
+                                            <!-- Se llena dinámicamente -->
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nivelEducativo" class="form-label">Nivel Educativo *</label>
-                                        <select class="form-select" id="nivelEducativo" name="nivelEducativo" required>
-                                            <option value="">Seleccionar nivel</option>
-                                            <option value="Bachiller">Bachiller</option>
-                                            <option value="Técnico Superior">Técnico Superior</option>
-                                            <option value="Licenciatura">Licenciatura</option>
-                                            <option value="Especialidad">Especialidad</option>
-                                            <option value="Maestría">Maestría</option>
-                                            <option value="Doctorado">Doctorado</option>
+                                        <label for="profesor-especialidades-secundarias" class="form-label">Especialidades Secundarias</label>
+                                        <select class="form-select" id="profesor-especialidades-secundarias" multiple>
+                                            <!-- Se llena dinámicamente -->
                                         </select>
+                                        <div class="form-text">Mantén Ctrl presionado para seleccionar múltiples opciones</div>
                                     </div>
                                 </div>
                             </div>
@@ -289,521 +252,817 @@ function loadProfesoresSection() {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="tituloObtenido" class="form-label">Título Obtenido</label>
-                                        <input type="text" class="form-control" id="tituloObtenido" name="tituloObtenido">
+                                        <label for="profesor-titulo" class="form-label">Título Académico</label>
+                                        <input type="text" class="form-control" id="profesor-titulo" 
+                                               placeholder="Ej: Licenciatura en Educación Básica">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="institucionFormacion" class="form-label">Institución de Formación</label>
-                                        <input type="text" class="form-control" id="institucionFormacion" name="institucionFormacion">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="anoGraduacion" class="form-label">Año de Graduación</label>
-                                        <input type="number" class="form-control" id="anoGraduacion" name="anoGraduacion" 
-                                               min="1980" max="2024">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="experienciaAnos" class="form-label">Años de Experiencia</label>
-                                        <input type="number" class="form-control" id="experienciaAnos" name="experienciaAnos" 
+                                        <label for="profesor-experiencia" class="form-label">Años de Experiencia</label>
+                                        <input type="number" class="form-control" id="profesor-experiencia" 
                                                min="0" max="50">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Información Laboral -->
-                            <h6 class="text-primary mb-3 mt-4">
-                                <i class="fas fa-briefcase me-2"></i>
-                                Información Laboral
-                            </h6>
-
+                            <!-- Dirección -->
+                            <h6 class="border-bottom pb-2 mb-3">Dirección</h6>
+                            
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="fechaIngreso" class="form-label">Fecha de Ingreso *</label>
-                                        <input type="date" class="form-control" id="fechaIngreso" name="fechaIngreso" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="tipoContrato" class="form-label">Tipo de Contrato</label>
-                                        <select class="form-select" id="tipoContrato" name="tipoContrato">
-                                            <option value="">Seleccionar</option>
-                                            <option value="Tiempo Completo">Tiempo Completo</option>
-                                            <option value="Medio Tiempo">Medio Tiempo</option>
-                                            <option value="Por Horas">Por Horas</option>
-                                            <option value="Temporal">Temporal</option>
+                                        <label for="profesor-provincia" class="form-label">Provincia</label>
+                                        <select class="form-select" id="profesor-provincia" onchange="loadMunicipios('profesor')">
+                                            <option value="">Seleccionar...</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="estadoPr" class="form-label">Estado Laboral *</label>
-                                        <select class="form-select" id="estadoPr" name="estado" required>
+                                        <label for="profesor-municipio" class="form-label">Municipio</label>
+                                        <select class="form-select" id="profesor-municipio" onchange="loadSectores('profesor')">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="profesor-sector" class="form-label">Sector</label>
+                                        <select class="form-select" id="profesor-sector">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="profesor-direccion" class="form-label">Dirección Completa</label>
+                                <textarea class="form-control" id="profesor-direccion" rows="2"></textarea>
+                            </div>
+
+                            <!-- Estado y observaciones -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="profesor-estado" class="form-label">Estado</label>
+                                        <select class="form-select" id="profesor-estado">
                                             <option value="Activo">Activo</option>
                                             <option value="Inactivo">Inactivo</option>
                                             <option value="Licencia">En Licencia</option>
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="salario" class="form-label">Salario</label>
-                                        <input type="number" class="form-control" id="salario" name="salario" 
-                                               min="0" step="0.01">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="horarioTrabajo" class="form-label">Horario de Trabajo</label>
-                                        <select class="form-select" id="horarioTrabajo" name="horarioTrabajo">
-                                            <option value="">Seleccionar</option>
-                                            <option value="Matutino">Matutino (7:00 AM - 12:00 PM)</option>
-                                            <option value="Vespertino">Vespertino (1:00 PM - 6:00 PM)</option>
-                                            <option value="Completo">Horario Completo (7:00 AM - 5:00 PM)</option>
-                                        </select>
+                                        <label for="profesor-fecha-ingreso" class="form-label">Fecha de Ingreso</label>
+                                        <input type="date" class="form-control" id="profesor-fecha-ingreso">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="observacionesPr" class="form-label">Observaciones</label>
-                                <textarea class="form-control" id="observacionesPr" name="observaciones" rows="2"></textarea>
+                                <label for="profesor-observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="profesor-observaciones" rows="3"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary" onclick="saveProfesor()">
-                            <i class="fas fa-save me-1"></i> Guardar Profesor
+                            <i class="fas fa-save me-1"></i> Guardar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Modal de asignaciones -->
+        <div class="modal fade" id="asignacionesModal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-users-cog me-2"></i>
+                            Asignaciones de Profesores
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="asignaciones-content">
+                            <!-- Contenido de asignaciones se carga aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
-    
+
+    // Cargar datos iniciales
     loadProfesoresData();
+    loadEspecialidades();
+    loadProvincias('profesor');
     updateProfesoresStats();
 }
 
 // Función para cargar datos de profesores
 function loadProfesoresData() {
-    const savedData = localStorage.getItem('profesoresData');
-    if (savedData) {
-        profesoresData = JSON.parse(savedData);
-    } else {
-        // Datos iniciales vacíos
-        profesoresData = [];
+    try {
+        const allProfesores = db.read('profesores');
+        let filteredProfesores = allProfesores;
+
+        // Aplicar búsqueda
+        if (profesoresSearchQuery) {
+            filteredProfesores = filterByMultipleFields(
+                filteredProfesores, 
+                profesoresSearchQuery, 
+                ['nombre', 'apellido', 'cedula', 'email']
+            );
+        }
+
+        // Aplicar filtros
+        filteredProfesores = applyFilters(filteredProfesores, profesoresFilters);
+
+        // Actualizar contador
+        document.getElementById('profesores-count').textContent = filteredProfesores.length;
+
+        // Paginar resultados
+        const paginatedData = paginate(filteredProfesores, currentProfesoresPage, profesoresPerPage);
+        
+        // Renderizar tabla
+        renderProfesoresTable(paginatedData.data);
+        
+        // Renderizar paginación
+        renderProfesoresPagination(paginatedData);
+
+    } catch (error) {
+        console.error('Error cargando profesores:', error);
+        showGlobalAlert('Error al cargar datos de profesores', 'error');
     }
-    displayProfesores();
 }
 
-// Función para mostrar profesores
-function displayProfesores() {
-    const container = document.getElementById('profesoresTableContainer');
-    if (!container) return;
-
-    if (profesoresData.length === 0) {
-        showEmptyState(container, 'No hay profesores registrados', 'fas fa-chalkboard-teacher');
-        document.getElementById('profesoresPagination').innerHTML = '';
+// Función para renderizar tabla de profesores
+function renderProfesoresTable(profesores) {
+    const tbody = document.getElementById('profesores-tbody');
+    
+    if (profesores.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <div class="empty-state">
+                        <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                        <h5>No hay profesores registrados</h5>
+                        <p class="text-muted">Comience agregando un nuevo profesor</p>
+                        <button type="button" class="btn btn-primary" onclick="showProfesorModal()">
+                            <i class="fas fa-plus me-1"></i> Agregar Profesor
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
         return;
     }
 
-    // Aplicar filtros
-    let filteredData = applyProfesoresFilters();
-    
-    // Paginar datos
-    const paginatedData = paginateData(filteredData, currentProfesoresPage, profesoresPerPage);
-    
-    // Crear tabla
-    let tableHTML = `
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Profesor</th>
-                        <th>Especialidad</th>
-                        <th>Nivel Educativo</th>
-                        <th>Estado</th>
-                        <th>Fecha Ingreso</th>
-                        <th>Contacto</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    paginatedData.data.forEach(profesor => {
-        const estadoBadge = getProfesorEstadoBadge(profesor.estado);
-        const edad = profesor.fechaNacimiento ? calculateAge(profesor.fechaNacimiento) : 'N/A';
+    tbody.innerHTML = profesores.map(profesor => {
+        const asignaciones = getProfesorAsignaciones(profesor.id);
         
-        tableHTML += `
+        return `
             <tr>
                 <td>
                     <div class="d-flex align-items-center">
-                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
-                            <i class="fas fa-user text-primary"></i>
+                        <div class="avatar me-3" style="background-color: #667eea;">
+                            ${profesor.nombre.charAt(0)}${profesor.apellido.charAt(0)}
                         </div>
                         <div>
-                            <div class="fw-bold">${profesor.nombres} ${profesor.apellidos}</div>
-                            <small class="text-muted">${profesor.cedula}</small>
+                            <div class="fw-bold">${profesor.nombre} ${profesor.apellido}</div>
+                            <small class="text-muted">${profesor.titulo || 'Sin título especificado'}</small>
                         </div>
                     </div>
                 </td>
+                <td>${profesor.cedula}</td>
                 <td>
-                    <span class="badge bg-info">${profesor.especialidad}</span>
-                </td>
-                <td>${profesor.nivelEducativo}</td>
-                <td>${estadoBadge}</td>
-                <td>${formatDateShort(profesor.fechaIngreso)}</td>
-                <td>
-                    <div>
-                        <small class="text-muted">
-                            <i class="fas fa-phone me-1"></i>${profesor.telefono}
-                        </small><br>
-                        <small class="text-muted">
-                            <i class="fas fa-envelope me-1"></i>${profesor.email}
-                        </small>
-                    </div>
+                    <span class="badge bg-primary">${profesor.especialidad}</span>
+                    ${profesor.especialidades_secundarias ? 
+                        profesor.especialidades_secundarias.map(esp => 
+                            `<span class="badge bg-secondary ms-1">${esp}</span>`
+                        ).join('') : ''
+                    }
                 </td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary" onclick="editProfesor('${profesor.id}')" title="Editar">
+                    <div>${profesor.telefono}</div>
+                    <small class="text-muted">${profesor.email}</small>
+                </td>
+                <td>
+                    <span class="badge bg-info">${asignaciones.length} materias</span>
+                </td>
+                <td>${getStatusBadge(profesor.estado || 'Activo')}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="editProfesor('${profesor.id}')" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-info" onclick="viewProfesor('${profesor.id}')" title="Ver detalles">
+                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                onclick="viewProfesor('${profesor.id}')" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteProfesor('${profesor.id}')" title="Eliminar">
+                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                onclick="manageAsignaciones('${profesor.id}')" title="Asignaciones">
+                            <i class="fas fa-clipboard-list"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteProfesor('${profesor.id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         `;
-    });
+    }).join('');
+}
+
+// Función para renderizar paginación
+function renderProfesoresPagination(paginatedData) {
+    const pagination = document.getElementById('profesores-pagination');
     
-    tableHTML += `
-                </tbody>
-            </table>
-        </div>
+    if (paginatedData.totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHtml = '';
+    
+    // Botón anterior
+    paginationHtml += `
+        <li class="page-item ${!paginatedData.hasPrev ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changeProfesoresPage(${currentProfesoresPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
     `;
     
-    container.innerHTML = tableHTML;
+    // Números de página
+    for (let i = 1; i <= paginatedData.totalPages; i++) {
+        if (i === currentProfesoresPage || 
+            i === 1 || 
+            i === paginatedData.totalPages || 
+            (i >= currentProfesoresPage - 1 && i <= currentProfesoresPage + 1)) {
+            
+            paginationHtml += `
+                <li class="page-item ${i === currentProfesoresPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changeProfesoresPage(${i})">${i}</a>
+                </li>
+            `;
+        } else if (i === currentProfesoresPage - 2 || i === currentProfesoresPage + 2) {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
     
-    // Actualizar paginación
-    document.getElementById('profesoresPagination').innerHTML = 
-        createPagination(paginatedData.totalPages, currentProfesoresPage, 'goToProfesoresPage');
+    // Botón siguiente
+    paginationHtml += `
+        <li class="page-item ${!paginatedData.hasNext ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changeProfesoresPage(${currentProfesoresPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    `;
+    
+    pagination.innerHTML = paginationHtml;
 }
 
-// Función para obtener badge del estado del profesor
-function getProfesorEstadoBadge(estado) {
-    const badges = {
-        'Activo': '<span class="badge bg-success">Activo</span>',
-        'Inactivo': '<span class="badge bg-danger">Inactivo</span>',
-        'Licencia': '<span class="badge bg-warning">En Licencia</span>'
-    };
-    return badges[estado] || `<span class="badge bg-secondary">${estado}</span>`;
+// Función para cargar especialidades
+function loadEspecialidades() {
+    const especialidades = dominicanData.getTeacherSpecialties();
+    const selectElements = [
+        document.getElementById('profesor-especialidad'),
+        document.getElementById('profesor-especialidades-secundarias'),
+        document.getElementById('filter-especialidad')
+    ];
+    
+    selectElements.forEach(select => {
+        if (select) {
+            const isFilter = select.id === 'filter-especialidad';
+            const isMultiple = select.multiple;
+            
+            if (!isFilter && !isMultiple) {
+                select.innerHTML = '<option value="">Seleccionar especialidad...</option>';
+            }
+            
+            especialidades.forEach(especialidad => {
+                const option = document.createElement('option');
+                option.value = especialidad;
+                option.textContent = especialidad;
+                select.appendChild(option);
+            });
+        }
+    });
 }
 
-// Función para aplicar filtros
-function applyProfesoresFilters() {
-    let filtered = [...profesoresData];
-    
-    const searchTerm = document.getElementById('searchProfesores')?.value?.toLowerCase() || '';
-    const especialidadFilter = document.getElementById('filterEspecialidad')?.value || '';
-    const estadoFilter = document.getElementById('filterEstadoProfesor')?.value || '';
-    
-    if (searchTerm) {
-        filtered = filtered.filter(profesor => {
-            const nombreCompleto = `${profesor.nombres} ${profesor.apellidos}`.toLowerCase();
-            const especialidad = profesor.especialidad?.toLowerCase() || '';
-            return nombreCompleto.includes(searchTerm) || 
-                   especialidad.includes(searchTerm) ||
-                   profesor.cedula.includes(searchTerm);
+// Función para actualizar estadísticas de profesores
+function updateProfesoresStats() {
+    try {
+        const profesores = db.read('profesores');
+        const profesoresActivos = profesores.filter(p => p.estado === 'Activo');
+        
+        // Total profesores activos
+        document.getElementById('total-profesores-activos').textContent = profesoresActivos.length;
+        
+        // Especialidades cubiertas
+        const especialidadesCubiertas = new Set();
+        profesoresActivos.forEach(profesor => {
+            if (profesor.especialidad) {
+                especialidadesCubiertas.add(profesor.especialidad);
+            }
+            if (profesor.especialidades_secundarias) {
+                profesor.especialidades_secundarias.forEach(esp => especialidadesCubiertas.add(esp));
+            }
         });
+        document.getElementById('especialidades-cubiertas').textContent = especialidadesCubiertas.size;
+        
+        // Profesores con asignaciones
+        const profesoresConAsignaciones = profesoresActivos.filter(profesor => {
+            const asignaciones = getProfesorAsignaciones(profesor.id);
+            return asignaciones.length > 0;
+        });
+        document.getElementById('profesores-con-asignaciones').textContent = profesoresConAsignaciones.length;
+        
+        // Carga promedio (simulada - en un sistema real se calcularía con horarios)
+        const cargaPromedio = profesoresConAsignaciones.length > 0 ? 
+            Math.round(profesoresConAsignaciones.reduce((acc, profesor) => {
+                return acc + getProfesorAsignaciones(profesor.id).length;
+            }, 0) / profesoresConAsignaciones.length) : 0;
+        document.getElementById('carga-promedio').textContent = cargaPromedio;
+        
+    } catch (error) {
+        console.error('Error actualizando estadísticas:', error);
     }
+}
+
+// Función para obtener asignaciones de un profesor (simulada)
+function getProfesorAsignaciones(profesorId) {
+    // En un sistema real, esto vendría de una tabla de asignaciones
+    const materias = db.read('materias');
+    const profesor = db.find('profesores', profesorId);
     
-    if (especialidadFilter) {
-        filtered = filtered.filter(p => p.especialidad === especialidadFilter);
-    }
+    if (!profesor) return [];
     
-    if (estadoFilter) {
-        filtered = filtered.filter(p => p.estado === estadoFilter);
-    }
-    
-    return filtered;
+    // Simular asignaciones basadas en especialidad
+    return materias.filter(materia => {
+        if (profesor.especialidad === 'Educación Básica') return true;
+        if (profesor.especialidad === 'Lengua Española' && materia.codigo === 'ESP') return true;
+        if (profesor.especialidad === 'Matemáticas' && materia.codigo === 'MAT') return true;
+        if (profesor.especialidad === 'Ciencias Naturales' && materia.codigo === 'CN') return true;
+        if (profesor.especialidad === 'Ciencias Sociales' && materia.codigo === 'CS') return true;
+        if (profesor.especialidad === 'Inglés' && materia.codigo === 'ING') return true;
+        if (profesor.especialidad === 'Educación Física' && materia.codigo === 'EF') return true;
+        return false;
+    }).slice(0, Math.floor(Math.random() * 4) + 1); // 1-4 materias aleatoriamente
 }
 
-// Función para limpiar filtros
-function clearProfesoresFilters() {
-    document.getElementById('searchProfesores').value = '';
-    document.getElementById('filterEspecialidad').value = '';
-    document.getElementById('filterEstadoProfesor').value = '';
-    filterProfesores();
-}
-
-// Función para filtrar profesores
-function filterProfesores() {
-    currentProfesoresPage = 1;
-    displayProfesores();
-}
-
-// Función para cambiar página
-function goToProfesoresPage(page) {
-    currentProfesoresPage = page;
-    displayProfesores();
-}
-
-// Función para mostrar modal de nuevo profesor
-function showAddProfesorModal() {
+// Función para mostrar modal de profesor
+function showProfesorModal(profesorId = null) {
     const modal = new bootstrap.Modal(document.getElementById('profesorModal'));
-    document.getElementById('profesorModalTitle').innerHTML = '<i class="fas fa-chalkboard-teacher me-2"></i>Nuevo Profesor';
-    document.getElementById('profesorId').value = '';
-    clearForm(document.getElementById('profesorForm'));
+    const title = document.getElementById('profesorModalTitle');
+    const form = document.getElementById('profesorForm');
     
-    // Establecer fecha actual para fecha de ingreso
-    document.getElementById('fechaIngreso').value = new Date().toISOString().split('T')[0];
+    // Limpiar formulario
+    form.reset();
+    document.getElementById('profesor-id').value = '';
     
-    modal.show();
-}
-
-// Función para editar profesor
-function editProfesor(id) {
-    const profesor = profesoresData.find(p => p.id === id);
-    if (!profesor) return;
-    
-    const modal = new bootstrap.Modal(document.getElementById('profesorModal'));
-    document.getElementById('profesorModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Profesor';
-    
-    // Llenar formulario
-    document.getElementById('profesorId').value = profesor.id;
-    document.getElementById('nombresPr').value = profesor.nombres || '';
-    document.getElementById('apellidosPr').value = profesor.apellidos || '';
-    document.getElementById('cedulaPr').value = profesor.cedula || '';
-    document.getElementById('fechaNacimientoPr').value = profesor.fechaNacimiento || '';
-    document.getElementById('generoPr').value = profesor.genero || '';
-    document.getElementById('estadoCivil').value = profesor.estadoCivil || '';
-    document.getElementById('nacionalidad').value = profesor.nacionalidad || '';
-    document.getElementById('telefonoPr').value = profesor.telefono || '';
-    document.getElementById('celular').value = profesor.celular || '';
-    document.getElementById('emailPr').value = profesor.email || '';
-    document.getElementById('direccionPr').value = profesor.direccion || '';
-    document.getElementById('especialidad').value = profesor.especialidad || '';
-    document.getElementById('nivelEducativo').value = profesor.nivelEducativo || '';
-    document.getElementById('tituloObtenido').value = profesor.tituloObtenido || '';
-    document.getElementById('institucionFormacion').value = profesor.institucionFormacion || '';
-    document.getElementById('anoGraduacion').value = profesor.anoGraduacion || '';
-    document.getElementById('experienciaAnos').value = profesor.experienciaAnos || '';
-    document.getElementById('fechaIngreso').value = profesor.fechaIngreso || '';
-    document.getElementById('tipoContrato').value = profesor.tipoContrato || '';
-    document.getElementById('estadoPr').value = profesor.estado || '';
-    document.getElementById('salario').value = profesor.salario || '';
-    document.getElementById('horarioTrabajo').value = profesor.horarioTrabajo || '';
-    document.getElementById('observacionesPr').value = profesor.observaciones || '';
+    if (profesorId) {
+        // Modo edición
+        title.innerHTML = '<i class="fas fa-chalkboard-teacher me-2"></i>Editar Profesor';
+        const profesor = db.find('profesores', profesorId);
+        
+        if (profesor) {
+            document.getElementById('profesor-id').value = profesor.id;
+            document.getElementById('profesor-nombre').value = profesor.nombre || '';
+            document.getElementById('profesor-apellido').value = profesor.apellido || '';
+            document.getElementById('profesor-cedula').value = profesor.cedula || '';
+            document.getElementById('profesor-telefono').value = profesor.telefono || '';
+            document.getElementById('profesor-email').value = profesor.email || '';
+            document.getElementById('profesor-especialidad').value = profesor.especialidad || '';
+            
+            // Especialidades secundarias
+            if (profesor.especialidades_secundarias) {
+                const select = document.getElementById('profesor-especialidades-secundarias');
+                Array.from(select.options).forEach(option => {
+                    option.selected = profesor.especialidades_secundarias.includes(option.value);
+                });
+            }
+            
+            document.getElementById('profesor-titulo').value = profesor.titulo || '';
+            document.getElementById('profesor-experiencia').value = profesor.experiencia || '';
+            document.getElementById('profesor-provincia').value = profesor.provincia || '';
+            
+            // Cargar municipios y sectores si hay provincia
+            if (profesor.provincia) {
+                loadMunicipios('profesor');
+                setTimeout(() => {
+                    document.getElementById('profesor-municipio').value = profesor.municipio || '';
+                    if (profesor.municipio) {
+                        loadSectores('profesor');
+                        setTimeout(() => {
+                            document.getElementById('profesor-sector').value = profesor.sector || '';
+                        }, 100);
+                    }
+                }, 100);
+            }
+            
+            document.getElementById('profesor-direccion').value = profesor.direccion || '';
+            document.getElementById('profesor-estado').value = profesor.estado || 'Activo';
+            document.getElementById('profesor-fecha-ingreso').value = profesor.fecha_ingreso || '';
+            document.getElementById('profesor-observaciones').value = profesor.observaciones || '';
+        }
+    } else {
+        // Modo creación
+        title.innerHTML = '<i class="fas fa-chalkboard-teacher me-2"></i>Nuevo Profesor';
+        document.getElementById('profesor-estado').value = 'Activo';
+        document.getElementById('profesor-fecha-ingreso').value = new Date().toISOString().split('T')[0];
+    }
     
     modal.show();
 }
 
 // Función para guardar profesor
 function saveProfesor() {
-    const form = document.getElementById('profesorForm');
-    if (!validateForm(form)) {
-        showAlert.error('Error', 'Por favor complete todos los campos requeridos correctamente');
+    try {
+        const form = document.getElementById('profesorForm');
+        
+        // Obtener especialidades secundarias seleccionadas
+        const especialidadesSecundarias = Array.from(
+            document.getElementById('profesor-especialidades-secundarias').selectedOptions
+        ).map(option => option.value);
+        
+        const profesorData = {
+            nombre: document.getElementById('profesor-nombre').value.trim(),
+            apellido: document.getElementById('profesor-apellido').value.trim(),
+            cedula: document.getElementById('profesor-cedula').value.trim(),
+            telefono: document.getElementById('profesor-telefono').value.trim(),
+            email: document.getElementById('profesor-email').value.trim(),
+            especialidad: document.getElementById('profesor-especialidad').value,
+            especialidades_secundarias: especialidadesSecundarias,
+            titulo: document.getElementById('profesor-titulo').value.trim(),
+            experiencia: document.getElementById('profesor-experiencia').value,
+            provincia: document.getElementById('profesor-provincia').value,
+            municipio: document.getElementById('profesor-municipio').value,
+            sector: document.getElementById('profesor-sector').value,
+            direccion: document.getElementById('profesor-direccion').value.trim(),
+            estado: document.getElementById('profesor-estado').value,
+            fecha_ingreso: document.getElementById('profesor-fecha-ingreso').value,
+            observaciones: document.getElementById('profesor-observaciones').value.trim()
+        };
+        
+        // Validaciones
+        const validationRules = {
+            nombre: { required: true, label: 'Nombre' },
+            apellido: { required: true, label: 'Apellido' },
+            cedula: { required: true, type: 'cedula', label: 'Cédula' },
+            telefono: { required: true, type: 'phone', label: 'Teléfono' },
+            email: { required: true, type: 'email', label: 'Email' },
+            especialidad: { required: true, label: 'Especialidad' }
+        };
+        
+        const errors = validateFormData(profesorData, validationRules);
+        
+        if (errors.length > 0) {
+            showGlobalAlert('Errores de validación:<br>• ' + errors.join('<br>• '), 'error');
+            return;
+        }
+        
+        // Formatear datos
+        profesorData.telefono = formatPhoneNumber(profesorData.telefono);
+        profesorData.cedula = formatCedula(profesorData.cedula);
+        
+        // Convertir experiencia a número
+        if (profesorData.experiencia) {
+            profesorData.experiencia = parseInt(profesorData.experiencia);
+        }
+        
+        const profesorId = document.getElementById('profesor-id').value;
+        
+        if (profesorId) {
+            // Actualizar profesor existente
+            db.update('profesores', profesorId, profesorData);
+            showGlobalAlert('Profesor actualizado correctamente', 'success');
+        } else {
+            // Crear nuevo profesor
+            db.create('profesores', profesorData);
+            showGlobalAlert('Profesor creado correctamente', 'success');
+        }
+        
+        // Cerrar modal y recargar datos
+        const modal = bootstrap.Modal.getInstance(document.getElementById('profesorModal'));
+        modal.hide();
+        loadProfesoresData();
+        updateProfesoresStats();
+        
+    } catch (error) {
+        console.error('Error guardando profesor:', error);
+        showGlobalAlert('Error al guardar profesor: ' + error.message, 'error');
+    }
+}
+
+// Función para editar profesor
+function editProfesor(profesorId) {
+    showProfesorModal(profesorId);
+}
+
+// Función para ver detalles de profesor
+function viewProfesor(profesorId) {
+    const profesor = db.find('profesores', profesorId);
+    if (!profesor) {
+        showGlobalAlert('Profesor no encontrado', 'error');
         return;
     }
     
-    const formData = new FormData(form);
-    const profesorData = {
-        id: document.getElementById('profesorId').value || generateId(),
-        nombres: formData.get('nombres'),
-        apellidos: formData.get('apellidos'),
-        cedula: formData.get('cedula'),
-        fechaNacimiento: formData.get('fechaNacimiento'),
-        genero: formData.get('genero'),
-        estadoCivil: formData.get('estadoCivil'),
-        nacionalidad: formData.get('nacionalidad') || 'Dominicana',
-        telefono: formData.get('telefono'),
-        celular: formData.get('celular'),
-        email: formData.get('email'),
-        direccion: formData.get('direccion'),
-        especialidad: formData.get('especialidad'),
-        nivelEducativo: formData.get('nivelEducativo'),
-        tituloObtenido: formData.get('tituloObtenido'),
-        institucionFormacion: formData.get('institucionFormacion'),
-        anoGraduacion: formData.get('anoGraduacion') ? parseInt(formData.get('anoGraduacion')) : null,
-        experienciaAnos: formData.get('experienciaAnos') ? parseInt(formData.get('experienciaAnos')) : null,
-        fechaIngreso: formData.get('fechaIngreso'),
-        tipoContrato: formData.get('tipoContrato'),
-        estado: formData.get('estado'),
-        salario: formData.get('salario') ? parseFloat(formData.get('salario')) : null,
-        horarioTrabajo: formData.get('horarioTrabajo'),
-        observaciones: formData.get('observaciones'),
-        fechaCreacion: new Date().toISOString(),
-        fechaModificacion: new Date().toISOString()
-    };
+    const asignaciones = getProfesorAsignaciones(profesor.id);
     
-    const existingIndex = profesoresData.findIndex(p => p.id === profesorData.id);
-    
-    if (existingIndex >= 0) {
-        profesoresData[existingIndex] = { ...profesoresData[existingIndex], ...profesorData };
-        showAlert.success('¡Actualizado!', 'El profesor ha sido actualizado correctamente');
-    } else {
-        profesoresData.push(profesorData);
-        showAlert.success('¡Registrado!', 'El profesor ha sido registrado correctamente');
-    }
-    
-    // Guardar en localStorage
-    localStorage.setItem('profesoresData', JSON.stringify(profesoresData));
-    
-    // Cerrar modal y actualizar tabla
-    bootstrap.Modal.getInstance(document.getElementById('profesorModal')).hide();
-    displayProfesores();
-    updateProfesoresStats();
-}
-
-// Función para eliminar profesor
-function deleteProfesor(id) {
-    showAlert.confirm(
-        '¿Está seguro?',
-        'Esta acción no se puede deshacer'
-    ).then((result) => {
-        if (result.isConfirmed) {
-            profesoresData = profesoresData.filter(p => p.id !== id);
-            localStorage.setItem('profesoresData', JSON.stringify(profesoresData));
-            displayProfesores();
-            updateProfesoresStats();
-            showAlert.success('¡Eliminado!', 'El profesor ha sido eliminado correctamente');
+    Swal.fire({
+        title: `${profesor.nombre} ${profesor.apellido}`,
+        html: `
+            <div class="text-start">
+                <div class="row">
+                    <div class="col-6"><strong>Cédula:</strong></div>
+                    <div class="col-6">${profesor.cedula}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Teléfono:</strong></div>
+                    <div class="col-6">${profesor.telefono}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Email:</strong></div>
+                    <div class="col-6">${profesor.email}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Especialidad:</strong></div>
+                    <div class="col-6">${profesor.especialidad}</div>
+                </div>
+                ${profesor.titulo ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Título:</strong></div>
+                        <div class="col-6">${profesor.titulo}</div>
+                    </div>
+                ` : ''}
+                ${profesor.experiencia ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Experiencia:</strong></div>
+                        <div class="col-6">${profesor.experiencia} años</div>
+                    </div>
+                ` : ''}
+                <div class="row">
+                    <div class="col-6"><strong>Estado:</strong></div>
+                    <div class="col-6">${getStatusBadge(profesor.estado)}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Asignaciones:</strong></div>
+                    <div class="col-6">${asignaciones.length} materias</div>
+                </div>
+                ${profesor.fecha_ingreso ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Fecha de Ingreso:</strong></div>
+                        <div class="col-6">${formatDateShort(profesor.fecha_ingreso)}</div>
+                    </div>
+                ` : ''}
+                ${profesor.observaciones ? `
+                    <div class="row mt-2">
+                        <div class="col-12"><strong>Observaciones:</strong></div>
+                        <div class="col-12">${profesor.observaciones}</div>
+                    </div>
+                ` : ''}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        showCancelButton: true,
+        cancelButtonText: 'Editar',
+        cancelButtonColor: '#007bff'
+    }).then((result) => {
+        if (result.isDismissed) {
+            editProfesor(profesorId);
         }
     });
 }
 
-// Función para ver detalles de profesor
-function viewProfesor(id) {
-    const profesor = profesoresData.find(p => p.id === id);
-    if (!profesor) return;
+// Función para eliminar profesor
+function deleteProfesor(profesorId) {
+    const profesor = db.find('profesores', profesorId);
+    if (!profesor) {
+        showGlobalAlert('Profesor no encontrado', 'error');
+        return;
+    }
     
-    const edad = profesor.fechaNacimiento ? calculateAge(profesor.fechaNacimiento) : 'No especificada';
-    const experiencia = profesor.experienciaAnos ? `${profesor.experienciaAnos} años` : 'No especificada';
-    
-    const detalles = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Información Personal</h6>
-                <p><strong>Nombre:</strong> ${profesor.nombres} ${profesor.apellidos}</p>
-                <p><strong>Cédula:</strong> ${profesor.cedula}</p>
-                <p><strong>Edad:</strong> ${edad}</p>
-                <p><strong>Género:</strong> ${profesor.genero}</p>
-                <p><strong>Estado Civil:</strong> ${profesor.estadoCivil || 'No especificado'}</p>
-                <p><strong>Nacionalidad:</strong> ${profesor.nacionalidad}</p>
-                
-                <h6>Contacto</h6>
-                <p><strong>Teléfono:</strong> ${profesor.telefono}</p>
-                <p><strong>Celular:</strong> ${profesor.celular || 'No especificado'}</p>
-                <p><strong>Email:</strong> ${profesor.email}</p>
-                <p><strong>Dirección:</strong> ${profesor.direccion}</p>
-            </div>
-            <div class="col-md-6">
-                <h6>Información Académica</h6>
-                <p><strong>Especialidad:</strong> ${profesor.especialidad}</p>
-                <p><strong>Nivel Educativo:</strong> ${profesor.nivelEducativo}</p>
-                <p><strong>Título:</strong> ${profesor.tituloObtenido || 'No especificado'}</p>
-                <p><strong>Institución:</strong> ${profesor.institucionFormacion || 'No especificada'}</p>
-                <p><strong>Año Graduación:</strong> ${profesor.anoGraduacion || 'No especificado'}</p>
-                <p><strong>Experiencia:</strong> ${experiencia}</p>
-                
-                <h6>Información Laboral</h6>
-                <p><strong>Fecha Ingreso:</strong> ${formatDate(profesor.fechaIngreso)}</p>
-                <p><strong>Tipo Contrato:</strong> ${profesor.tipoContrato || 'No especificado'}</p>
-                <p><strong>Estado:</strong> ${profesor.estado}</p>
-                <p><strong>Horario:</strong> ${profesor.horarioTrabajo || 'No especificado'}</p>
-                ${profesor.salario ? `<p><strong>Salario:</strong> ${formatCurrency(profesor.salario)}</p>` : ''}
-            </div>
-        </div>
-        ${profesor.observaciones ? `<p><strong>Observaciones:</strong> ${profesor.observaciones}</p>` : ''}
-    `;
-    
-    Swal.fire({
-        title: 'Detalles del Profesor',
-        html: detalles,
-        icon: 'info',
-        width: '800px'
+    confirmAction(
+        '¿Eliminar profesor?',
+        `¿Está seguro de eliminar a ${profesor.nombre} ${profesor.apellido}? Esta acción no se puede deshacer.`,
+        'Sí, eliminar'
+    ).then((result) => {
+        if (result.isConfirmed) {
+            try {
+                db.delete('profesores', profesorId);
+                showGlobalAlert('Profesor eliminado correctamente', 'success');
+                loadProfesoresData();
+                updateProfesoresStats();
+            } catch (error) {
+                console.error('Error eliminando profesor:', error);
+                showGlobalAlert('Error al eliminar profesor', 'error');
+            }
+        }
     });
 }
 
-// Función para actualizar estadísticas
-function updateProfesoresStats() {
-    const total = profesoresData.length;
-    const activos = profesoresData.filter(p => p.estado === 'Activo').length;
-    const enLicencia = profesoresData.filter(p => p.estado === 'Licencia').length;
+// Función para gestionar asignaciones de un profesor
+function manageAsignaciones(profesorId) {
+    const profesor = db.find('profesores', profesorId);
+    if (!profesor) {
+        showGlobalAlert('Profesor no encontrado', 'error');
+        return;
+    }
     
-    // Contar especialidades únicas
-    const especialidades = new Set(profesoresData.map(p => p.especialidad).filter(e => e));
+    const asignaciones = getProfesorAsignaciones(profesorId);
+    const materias = db.read('materias');
     
-    document.getElementById('total-profesores').textContent = total;
-    document.getElementById('profesores-activos').textContent = activos;
-    document.getElementById('profesores-licencia').textContent = enLicencia;
-    document.getElementById('especialidades-cubiertas').textContent = especialidades.size;
+    Swal.fire({
+        title: `Asignaciones de ${profesor.nombre} ${profesor.apellido}`,
+        html: `
+            <div class="text-start">
+                <p><strong>Especialidad Principal:</strong> ${profesor.especialidad}</p>
+                <h6>Materias Asignadas:</h6>
+                ${asignaciones.length > 0 ? 
+                    asignaciones.map(materia => 
+                        `<span class="badge bg-primary me-1">${materia.nombre}</span>`
+                    ).join('') : 
+                    '<p class="text-muted">Sin asignaciones actuales</p>'
+                }
+                <hr>
+                <small class="text-muted">
+                    En un sistema completo, aquí se gestionarían las asignaciones de materias y horarios.
+                </small>
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar'
+    });
+}
+
+// Función para mostrar modal de todas las asignaciones
+function showAsignacionesModal() {
+    const modal = new bootstrap.Modal(document.getElementById('asignacionesModal'));
+    const container = document.getElementById('asignaciones-content');
+    
+    const profesores = db.read('profesores').filter(p => p.estado === 'Activo');
+    const materias = db.read('materias');
+    
+    let asignacionesHtml = `
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Esta es una vista general de las asignaciones de profesores. En un sistema completo,
+            aquí se gestionarían horarios, grupos y cargas académicas.
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Profesor</th>
+                        <th>Especialidad</th>
+                        <th>Materias Asignadas</th>
+                        <th>Carga</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    profesores.forEach(profesor => {
+        const asignaciones = getProfesorAsignaciones(profesor.id);
+        
+        asignacionesHtml += `
+            <tr>
+                <td>
+                    <div class="fw-bold">${profesor.nombre} ${profesor.apellido}</div>
+                    <small class="text-muted">${profesor.titulo || 'Sin título'}</small>
+                </td>
+                <td>${profesor.especialidad}</td>
+                <td>
+                    ${asignaciones.map(materia => 
+                        `<span class="badge bg-primary me-1">${materia.nombre}</span>`
+                    ).join('')}
+                </td>
+                <td>
+                    <span class="badge bg-info">${asignaciones.length} materias</span>
+                </td>
+                <td>${getStatusBadge(profesor.estado)}</td>
+            </tr>
+        `;
+    });
+    
+    asignacionesHtml += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    container.innerHTML = asignacionesHtml;
+    modal.show();
+}
+
+// Función de búsqueda
+function searchProfesores() {
+    profesoresSearchQuery = document.getElementById('profesores-search').value.trim();
+    currentProfesoresPage = 1;
+    loadProfesoresData();
+}
+
+// Función para filtrar profesores
+function filterProfesores() {
+    profesoresFilters = {
+        especialidad: document.getElementById('filter-especialidad').value,
+        estado: document.getElementById('filter-estado').value
+    };
+    
+    // Remover filtros vacíos
+    Object.keys(profesoresFilters).forEach(key => {
+        if (!profesoresFilters[key]) {
+            delete profesoresFilters[key];
+        }
+    });
+    
+    currentProfesoresPage = 1;
+    loadProfesoresData();
+}
+
+// Función para limpiar filtros
+function clearProfesoresFilters() {
+    document.getElementById('profesores-search').value = '';
+    document.getElementById('filter-especialidad').value = '';
+    document.getElementById('filter-estado').value = '';
+    
+    profesoresSearchQuery = '';
+    profesoresFilters = {};
+    currentProfesoresPage = 1;
+    loadProfesoresData();
+}
+
+// Función para cambiar página
+function changeProfesoresPage(page) {
+    currentProfesoresPage = page;
+    loadProfesoresData();
 }
 
 // Función para exportar profesores
 function exportProfesores() {
-    if (profesoresData.length === 0) {
-        showAlert.warning('Sin datos', 'No hay profesores para exportar');
-        return;
+    try {
+        const profesores = db.read('profesores');
+        
+        const exportData = profesores.map(profesor => {
+            const asignaciones = getProfesorAsignaciones(profesor.id);
+            
+            return {
+                'Nombre': profesor.nombre,
+                'Apellido': profesor.apellido,
+                'Cédula': profesor.cedula,
+                'Teléfono': profesor.telefono,
+                'Email': profesor.email,
+                'Especialidad Principal': profesor.especialidad,
+                'Especialidades Secundarias': profesor.especialidades_secundarias ? 
+                    profesor.especialidades_secundarias.join(', ') : '',
+                'Título Académico': profesor.titulo || '',
+                'Años de Experiencia': profesor.experiencia || '',
+                'Provincia': profesor.provincia || '',
+                'Municipio': profesor.municipio || '',
+                'Sector': profesor.sector || '',
+                'Dirección': profesor.direccion || '',
+                'Estado': profesor.estado,
+                'Fecha de Ingreso': profesor.fecha_ingreso ? formatDateShort(profesor.fecha_ingreso) : '',
+                'Materias Asignadas': asignaciones.map(m => m.nombre).join(', '),
+                'Carga de Trabajo': asignaciones.length,
+                'Observaciones': profesor.observaciones || '',
+                'Fecha de Registro': formatDateShort(profesor.created_at)
+            };
+        });
+        
+        exportToExcel(exportData, 'profesores', 'Lista de Profesores');
+        
+    } catch (error) {
+        console.error('Error exportando profesores:', error);
+        showGlobalAlert('Error al exportar datos', 'error');
     }
-    
-    const dataToExport = profesoresData.map(profesor => ({
-        Nombres: profesor.nombres,
-        Apellidos: profesor.apellidos,
-        Cédula: profesor.cedula,
-        'Fecha Nacimiento': formatDateShort(profesor.fechaNacimiento),
-        Género: profesor.genero,
-        'Estado Civil': profesor.estadoCivil || '',
-        Nacionalidad: profesor.nacionalidad,
-        Teléfono: profesor.telefono,
-        Celular: profesor.celular || '',
-        Email: profesor.email,
-        Dirección: profesor.direccion,
-        Especialidad: profesor.especialidad,
-        'Nivel Educativo': profesor.nivelEducativo,
-        'Título Obtenido': profesor.tituloObtenido || '',
-        'Institución Formación': profesor.institucionFormacion || '',
-        'Año Graduación': profesor.anoGraduacion || '',
-        'Años Experiencia': profesor.experienciaAnos || '',
-        'Fecha Ingreso': formatDateShort(profesor.fechaIngreso),
-        'Tipo Contrato': profesor.tipoContrato || '',
-        Estado: profesor.estado,
-        Salario: profesor.salario || '',
-        'Horario Trabajo': profesor.horarioTrabajo || '',
-        Observaciones: profesor.observaciones || ''
-    }));
-    
-    exportToExcel('Profesores', dataToExport, 'profesores_' + new Date().toISOString().split('T')[0]);
 }
 
-// Función para refrescar datos
-function refreshProfesores() {
-    loadProfesoresData();
-    updateProfesoresStats();
-    showAlert.success('¡Actualizado!', 'Los datos han sido actualizados');
-}
+// Exportar funciones
+window.loadProfesoresSection = loadProfesoresSection;
+window.showProfesorModal = showProfesorModal;
+window.saveProfesor = saveProfesor;
+window.editProfesor = editProfesor;
+window.viewProfesor = viewProfesor;
+window.deleteProfesor = deleteProfesor;
+window.manageAsignaciones = manageAsignaciones;
+window.showAsignacionesModal = showAsignacionesModal;
+window.searchProfesores = searchProfesores;
+window.filterProfesores = filterProfesores;
+window.clearProfesoresFilters = clearProfesoresFilters;
+window.changeProfesoresPage = changeProfesoresPage;
+window.exportProfesores = exportProfesores;
 
-// Inicializar cuando se carga la sección
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof loadProfesoresSection === 'function') {
-        // La función está disponible pero no la ejecutamos automáticamente
-        // Se ejecutará cuando el usuario navegue a la sección
-    }
-});
+console.log('✅ Profesores.js cargado correctamente');

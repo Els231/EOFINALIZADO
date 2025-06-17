@@ -18,10 +18,10 @@ app.use(express.static('.'));
 
 // Configuración de la base de datos MSSQL
 const dbConfig = {
-    server: process.env.DB_SERVER || 'localhost',
-    database: process.env.DB_NAME || 'sistema_escolar',
-    user: process.env.DB_USER || 'sa',
-    password: process.env.DB_PASSWORD || 'tu_password',
+    server: process.env.DB_SERVER || 'MARVINCHAVARRIA\SQL2022',
+    database: process.env.DB_NAME || 'WebEo',
+    user: process.env.DB_USER || 'MARVINCHAVARRIA\Marvin Acevedo',
+    password: process.env.DB_PASSWORD || '',
     port: parseInt(process.env.DB_PORT) || 1433,
     options: {
         encrypt: process.env.DB_ENCRYPT === 'true', // Para Azure

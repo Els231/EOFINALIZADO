@@ -1,6 +1,6 @@
 /**
  * Utilidades generales para el sistema escolar
- * Funciones auxiliares, validaciones y formateo con integración al sistema de sincronización
+ * Funciones auxiliares, validaciones y formateo
  */
 
 // ===== FORMATEO DE FECHAS =====
@@ -390,42 +390,7 @@ function paginate(data, page, itemsPerPage) {
     };
 }
 
-// ===== SINCRONIZACIÓN CON BASE DE DATOS =====
-
-function getRelatedData(collection, recordId, relationField) {
-    try {
-        if (!window.db) return [];
-        
-        const relatedRecords = window.db.read(collection);
-        return relatedRecords.filter(record => record[relationField] === recordId);
-    } catch (error) {
-        console.error('Error al obtener datos relacionados:', error);
-        return [];
-    }
-}
-
-function updateRelatedRecords(collection, foreignKey, oldId, newId) {
-    try {
-        if (!window.db) return false;
-        
-        const records = window.db.read(collection);
-        let updated = 0;
-        
-        records.forEach(record => {
-            if (record[foreignKey] === oldId) {
-                window.db.update(collection, record.id, { [foreignKey]: newId });
-                updated++;
-            }
-        });
-        
-        return updated;
-    } catch (error) {
-        console.error('Error al actualizar registros relacionados:', error);
-        return 0;
-    }
-}
-
-// ===== VALIDACIÓN DE INTEGRIDAD =====
+// ===== VALIDACIÓN DE FORMULARIOS =====
 
 function validateFormData(formData, rules) {
     const errors = [];
@@ -435,44 +400,45 @@ function validateFormData(formData, rules) {
         
         // Campo requerido
         if (rule.required && !validateRequired(value)) {
-            errors.push(`El campo ${rule.label || field} es requerido`);
+            errors.push(`${rule.label || field} es requerido`);
             return;
         }
         
-        // Solo validar si hay valor
+        // Validar solo si hay valor
         if (value) {
-            // Validación de email
+            // Validar email
             if (rule.type === 'email' && !validateEmail(value)) {
-                errors.push(`El campo ${rule.label || field} debe ser un email válido`);
+                errors.push(`${rule.label || field} debe ser un email válido`);
             }
             
-            // Validación de teléfono
+            // Validar teléfono
             if (rule.type === 'phone' && !validatePhone(value)) {
-                errors.push(`El campo ${rule.label || field} debe ser un teléfono válido`);
+                errors.push(`${rule.label || field} debe ser un teléfono válido`);
             }
             
-            // Validación de cédula
+            // Validar cédula
             if (rule.type === 'cedula' && !validateCedula(value)) {
-                errors.push(`El campo ${rule.label || field} debe ser una cédula válida`);
+                errors.push(`${rule.label || field} debe ser una cédula válida (000-0000000-0)`);
             }
             
-            // Validación numérica
+            // Validar número
             if (rule.type === 'number' && !validateNumeric(value, rule.min, rule.max)) {
-                errors.push(`El campo ${rule.label || field} debe ser un número válido`);
+                errors.push(`${rule.label || field} debe ser un número válido`);
             }
             
-            // Validación de fecha
+            // Validar fecha
             if (rule.type === 'date' && !validateDate(value)) {
-                errors.push(`El campo ${rule.label || field} debe ser una fecha válida`);
+                errors.push(`${rule.label || field} debe ser una fecha válida`);
             }
             
-            // Validación de longitud
-            if (rule.minLength && value.length < rule.minLength) {
-                errors.push(`El campo ${rule.label || field} debe tener al menos ${rule.minLength} caracteres`);
+            // Validar longitud mínima
+            if (rule.minLength && value.toString().length < rule.minLength) {
+                errors.push(`${rule.label || field} debe tener al menos ${rule.minLength} caracteres`);
             }
             
-            if (rule.maxLength && value.length > rule.maxLength) {
-                errors.push(`El campo ${rule.label || field} no puede tener más de ${rule.maxLength} caracteres`);
+            // Validar longitud máxima
+            if (rule.maxLength && value.toString().length > rule.maxLength) {
+                errors.push(`${rule.label || field} no debe superar ${rule.maxLength} caracteres`);
             }
         }
     });
@@ -480,153 +446,100 @@ function validateFormData(formData, rules) {
     return errors;
 }
 
-// ===== UTILIDADES DE UI =====
+// ===== UTILIDADES DE ESTADO =====
 
-function showLoading(element, text = 'Cargando...') {
-    if (typeof element === 'string') {
-        element = document.getElementById(element);
-    }
+function getStatusBadge(status) {
+    const statusMap = {
+        'Activo': 'success',
+        'Inactivo': 'secondary',
+        'Pendiente': 'warning',
+        'Aprobado': 'success',
+        'Rechazado': 'danger',
+        'En Proceso': 'info',
+        'Completado': 'success',
+        'Cancelado': 'danger'
+    };
     
-    if (element) {
-        element.innerHTML = `
-            <div class="text-center">
-                <div class="loading-spinner"></div>
-                <p class="text-muted mt-2">${text}</p>
-            </div>
-        `;
-    }
+    const badgeClass = statusMap[status] || 'secondary';
+    return `<span class="badge bg-${badgeClass}">${status}</span>`;
 }
 
-function hideLoading(element, content = '') {
-    if (typeof element === 'string') {
-        element = document.getElementById(element);
-    }
+function getGradeColor(grade) {
+    const gradeColors = {
+        '1': '#FF6B6B',
+        '2': '#4ECDC4', 
+        '3': '#45B7D1',
+        '4': '#96CEB4',
+        '5': '#FFEAA7',
+        '6': '#DDA0DD'
+    };
     
-    if (element) {
-        element.innerHTML = content;
-    }
-}
-
-function showToast(message, type = 'info', duration = 3000) {
-    const toast = document.createElement('div');
-    toast.className = `toast align-items-center text-white bg-${type} border-0`;
-    toast.setAttribute('role', 'alert');
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-    `;
-    
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
-        </div>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Auto-remover
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.remove();
-        }
-    }, duration);
+    return gradeColors[grade.toString()] || '#6C757D';
 }
 
 // ===== DEBOUNCE Y THROTTLE =====
 
-function debounce(func, wait) {
+function debounce(func, wait, immediate) {
     let timeout;
     return function executedFunction(...args) {
         const later = () => {
-            clearTimeout(timeout);
-            func(...args);
+            timeout = null;
+            if (!immediate) func(...args);
         };
+        const callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
+        if (callNow) func(...args);
     };
 }
 
 function throttle(func, limit) {
     let inThrottle;
-    return function() {
-        const args = arguments;
-        const context = this;
+    return function(...args) {
         if (!inThrottle) {
-            func.apply(context, args);
+            func.apply(this, args);
             inThrottle = true;
             setTimeout(() => inThrottle = false, limit);
         }
     };
 }
 
-// ===== EXPORTACIÓN DE FUNCIONES =====
+// Exportar todas las funciones
+window.formatDate = formatDate;
+window.formatDateShort = formatDateShort;
+window.formatDateTime = formatDateTime;
+window.validateEmail = validateEmail;
+window.validatePhone = validatePhone;
+window.validateCedula = validateCedula;
+window.validateRequired = validateRequired;
+window.validateNumeric = validateNumeric;
+window.validateDate = validateDate;
+window.validateGrade = validateGrade;
+window.validateAge = validateAge;
+window.generateId = generateId;
+window.generateCode = generateCode;
+window.generateStudentCode = generateStudentCode;
+window.calculateAge = calculateAge;
+window.calculateGPA = calculateGPA;
+window.calculateAttendancePercentage = calculateAttendancePercentage;
+window.formatCurrency = formatCurrency;
+window.formatPercentage = formatPercentage;
+window.formatPhoneNumber = formatPhoneNumber;
+window.formatCedula = formatCedula;
+window.sortArray = sortArray;
+window.getNestedValue = getNestedValue;
+window.groupBy = groupBy;
+window.uniqueBy = uniqueBy;
+window.exportToExcel = exportToExcel;
+window.exportToCSV = exportToCSV;
+window.searchInText = searchInText;
+window.filterByMultipleFields = filterByMultipleFields;
+window.applyFilters = applyFilters;
+window.paginate = paginate;
+window.validateFormData = validateFormData;
+window.getStatusBadge = getStatusBadge;
+window.getGradeColor = getGradeColor;
+window.debounce = debounce;
+window.throttle = throttle;
 
-// Hacer funciones globalmente disponibles
-window.utils = {
-    // Formateo
-    formatDate,
-    formatDateShort,
-    formatDateTime,
-    formatCurrency,
-    formatNumber,
-    formatPercentage,
-    formatPhoneNumber,
-    formatCedula,
-    
-    // Validaciones
-    validateEmail,
-    validatePhone,
-    validateCedula,
-    validateRequired,
-    validateNumeric,
-    validateDate,
-    validateGrade,
-    validateAge,
-    validateFormData,
-    
-    // Generadores
-    generateId,
-    generateCode,
-    generateStudentCode,
-    
-    // Cálculos
-    calculateAge,
-    calculateGPA,
-    calculateAttendancePercentage,
-    
-    // Arrays y objetos
-    sortArray,
-    getNestedValue,
-    groupBy,
-    uniqueBy,
-    
-    // Exportación
-    exportToExcel,
-    exportToCSV,
-    
-    // Búsqueda y filtrado
-    searchInText,
-    filterByMultipleFields,
-    applyFilters,
-    paginate,
-    
-    // Base de datos
-    getRelatedData,
-    updateRelatedRecords,
-    
-    // UI
-    showLoading,
-    hideLoading,
-    showToast,
-    debounce,
-    throttle
-};
-
-// También hacer funciones individuales disponibles globalmente para compatibilidad
-Object.assign(window, window.utils);
+console.log('✅ Utils.js cargado correctamente');

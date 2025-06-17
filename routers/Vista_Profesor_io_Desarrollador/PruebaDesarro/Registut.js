@@ -1,11 +1,12 @@
 /**
- * Módulo de gestión de tutores
- * Funcionalidades CRUD para tutores y representantes legales
+ * Módulo de gestión de tutores/representantes
+ * Sistema completo de CRUD para tutores con validaciones
  */
 
-let tutoresData = [];
 let currentTutoresPage = 1;
 const tutoresPerPage = 10;
+let tutoresFilters = {};
+let tutoresSearchQuery = '';
 
 // Función principal para cargar la sección de tutores
 function loadTutoresSection() {
@@ -19,126 +20,117 @@ function loadTutoresSection() {
                 </h1>
                 <div class="btn-toolbar">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary" onclick="showAddTutorModal()">
+                        <button type="button" class="btn btn-primary" onclick="showTutorModal()">
                             <i class="fas fa-plus me-1"></i> Nuevo Tutor
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="exportTutores()">
-                            <i class="fas fa-download me-1"></i> Exportar
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshTutores()">
-                            <i class="fas fa-sync me-1"></i> Actualizar
+                        <button type="button" class="btn btn-outline-success" onclick="exportTutores()">
+                            <i class="fas fa-file-excel me-1"></i> Exportar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Estadísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card card-primary">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Tutores
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-tutores">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-users fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-success">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Tutores Activos
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="tutores-activos">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-user-check fa-2x text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-warning">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Padres
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-padres">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-male fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card card-info">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Madres
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-madres">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-female fa-2x text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros -->
-        <div class="filtros-section">
+        <!-- Filtros y búsqueda -->
+        <div class="search-filters">
             <div class="row">
                 <div class="col-md-4">
-                    <label for="searchTutores" class="form-label">Buscar:</label>
-                    <input type="text" class="form-control" id="searchTutores" 
-                           placeholder="Nombre, apellido o cédula..." 
-                           oninput="filterTutores()">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="tutores-search" 
+                               placeholder="Buscar por nombre, apellido o cédula..."
+                               onkeyup="debounce(searchTutores, 300)()">
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="filterParentesco" class="form-label">Parentesco:</label>
-                    <select class="form-select" id="filterParentesco" onchange="filterTutores()">
-                        <option value="">Todos</option>
-                        <option value="Padre">Padre</option>
-                        <option value="Madre">Madre</option>
-                        <option value="Abuelo/a">Abuelo/a</option>
-                        <option value="Tío/a">Tío/a</option>
-                        <option value="Tutor Legal">Tutor Legal</option>
-                        <option value="Otro">Otro</option>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-parentesco" onchange="filterTutores()">
+                        <option value="">Todos los parentescos</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="filterEstadoTutor" class="form-label">Estado:</label>
-                    <select class="form-select" id="filterEstadoTutor" onchange="filterTutores()">
-                        <option value="">Todos</option>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-genero" onchange="filterTutores()">
+                        <option value="">Todos los géneros</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="filter-estado" onchange="filterTutores()">
+                        <option value="">Todos los estados</option>
                         <option value="Activo">Activo</option>
                         <option value="Inactivo">Inactivo</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="button" class="btn btn-outline-secondary d-block w-100" onclick="clearTutoresFilters()">
+                    <button type="button" class="btn btn-outline-secondary w-100" onclick="clearTutoresFilters()">
                         <i class="fas fa-times me-1"></i> Limpiar
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="total-tutores-activos">0</div>
+                                <div class="small">Tutores Activos</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="tutores-con-estudiantes">0</div>
+                                <div class="small">Con Estudiantes</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-user-graduate fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="padres-registrados">0</div>
+                                <div class="small">Padres/Madres</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-heart fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="h4 mb-0" id="tutores-legales">0</div>
+                                <div class="small">Tutores Legales</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-gavel fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -146,19 +138,42 @@ function loadTutoresSection() {
         <!-- Tabla de tutores -->
         <div class="card">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Lista de Tutores</h6>
+                <h6 class="m-0 font-weight-bold">
+                    Lista de Tutores
+                    <span class="badge bg-primary ms-2" id="tutores-count">0</span>
+                </h6>
             </div>
             <div class="card-body">
-                <div id="tutoresTableContainer">
-                    <!-- La tabla se cargará aquí -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre Completo</th>
+                                <th>Cédula</th>
+                                <th>Parentesco</th>
+                                <th>Contacto</th>
+                                <th>Ocupación</th>
+                                <th>Estudiantes</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tutores-tbody">
+                            <!-- Datos se cargan aquí -->
+                        </tbody>
+                    </table>
                 </div>
-                <div id="tutoresPagination" class="mt-3">
-                    <!-- La paginación se cargará aquí -->
-                </div>
+                
+                <!-- Paginación -->
+                <nav aria-label="Paginación de tutores">
+                    <ul class="pagination justify-content-center" id="tutores-pagination">
+                        <!-- Paginación se genera aquí -->
+                    </ul>
+                </nav>
             </div>
         </div>
 
-        <!-- Modal para agregar/editar tutor -->
+        <!-- Modal de tutor -->
         <div class="modal fade" id="tutorModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -171,188 +186,132 @@ function loadTutoresSection() {
                     </div>
                     <div class="modal-body">
                         <form id="tutorForm">
-                            <input type="hidden" id="tutorId">
+                            <input type="hidden" id="tutor-id">
                             
                             <!-- Información personal -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <h6 class="text-primary">Información Personal</h6>
-                                    <hr>
-                                </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nombresTutor" class="form-label">Nombres *</label>
-                                        <input type="text" class="form-control" id="nombresTutor" name="nombres" required>
+                                        <label for="tutor-nombre" class="form-label">Nombre *</label>
+                                        <input type="text" class="form-control" id="tutor-nombre" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="apellidosTutor" class="form-label">Apellidos *</label>
-                                        <input type="text" class="form-control" id="apellidosTutor" name="apellidos" required>
+                                        <label for="tutor-apellido" class="form-label">Apellido *</label>
+                                        <input type="text" class="form-control" id="tutor-apellido" required>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row mb-4">
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="cedulaTutor" class="form-label">Cédula *</label>
-                                        <input type="text" class="form-control" id="cedulaTutor" name="cedula" 
+                                        <label for="tutor-cedula" class="form-label">Cédula *</label>
+                                        <input type="text" class="form-control" id="tutor-cedula" 
                                                placeholder="000-0000000-0" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="fechaNacimientoTutor" class="form-label">Fecha de Nacimiento</label>
-                                        <input type="date" class="form-control" id="fechaNacimientoTutor" name="fechaNacimiento">
+                                        <label for="tutor-parentesco" class="form-label">Parentesco *</label>
+                                        <select class="form-select" id="tutor-parentesco" required>
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="generoTutor" class="form-label">Género</label>
-                                        <select class="form-select" id="generoTutor" name="genero">
-                                            <option value="">Seleccionar género</option>
+                                        <label for="tutor-genero" class="form-label">Género</label>
+                                        <select class="form-select" id="tutor-genero">
+                                            <option value="">Seleccionar...</option>
                                             <option value="Masculino">Masculino</option>
                                             <option value="Femenino">Femenino</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="estadoCivilTutor" class="form-label">Estado Civil</label>
-                                        <select class="form-select" id="estadoCivilTutor" name="estadoCivil">
-                                            <option value="">Seleccionar</option>
-                                            <option value="Soltero/a">Soltero/a</option>
-                                            <option value="Casado/a">Casado/a</option>
-                                            <option value="Divorciado/a">Divorciado/a</option>
-                                            <option value="Viudo/a">Viudo/a</option>
-                                            <option value="Unión Libre">Unión Libre</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="nacionalidadTutor" class="form-label">Nacionalidad</label>
-                                        <input type="text" class="form-control" id="nacionalidadTutor" name="nacionalidad" 
-                                               value="Dominicana">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Información de contacto -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <h6 class="text-success">Información de Contacto</h6>
-                                    <hr>
-                                </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="telefonoTutor" class="form-label">Teléfono Principal *</label>
-                                        <input type="tel" class="form-control" id="telefonoTutor" name="telefono" 
+                                        <label for="tutor-telefono" class="form-label">Teléfono *</label>
+                                        <input type="tel" class="form-control" id="tutor-telefono" 
                                                placeholder="809-000-0000" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="telefonoSecundarioTutor" class="form-label">Teléfono Secundario</label>
-                                        <input type="tel" class="form-control" id="telefonoSecundarioTutor" name="telefonoSecundario" 
-                                               placeholder="809-000-0000">
-                                    </div>
-                                </div>
                             </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="emailTutor" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="emailTutor" name="email">
+                                        <label for="tutor-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="tutor-email">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="whatsappTutor" class="form-label">WhatsApp</label>
-                                        <input type="tel" class="form-control" id="whatsappTutor" name="whatsapp" 
-                                               placeholder="809-000-0000">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="direccionTutor" class="form-label">Dirección *</label>
-                                <textarea class="form-control" id="direccionTutor" name="direccion" rows="2" required></textarea>
                             </div>
 
                             <!-- Información laboral -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <h6 class="text-info">Información Laboral</h6>
-                                    <hr>
-                                </div>
+                            <h6 class="border-bottom pb-2 mb-3">Información Laboral</h6>
+                            
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="ocupacionTutor" class="form-label">Ocupación</label>
-                                        <select class="form-select" id="ocupacionTutor" name="ocupacion">
-                                            <option value="">Seleccionar ocupación</option>
+                                        <label for="tutor-ocupacion" class="form-label">Ocupación</label>
+                                        <select class="form-select" id="tutor-ocupacion">
+                                            <option value="">Seleccionar...</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="lugarTrabajoTutor" class="form-label">Lugar de Trabajo</label>
-                                        <input type="text" class="form-control" id="lugarTrabajoTutor" name="lugarTrabajo">
+                                        <label for="tutor-lugar-trabajo" class="form-label">Lugar de Trabajo</label>
+                                        <input type="text" class="form-control" id="tutor-lugar-trabajo">
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-6">
+                            <!-- Dirección -->
+                            <h6 class="border-bottom pb-2 mb-3">Dirección</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="ingresosMensualesTutor" class="form-label">Ingresos Mensuales</label>
-                                        <input type="number" class="form-control" id="ingresosMensualesTutor" name="ingresosMensuales" 
-                                               step="0.01" min="0" placeholder="0.00">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="telefonoTrabajoTutor" class="form-label">Teléfono del Trabajo</label>
-                                        <input type="tel" class="form-control" id="telefonoTrabajoTutor" name="telefonoTrabajo" 
-                                               placeholder="809-000-0000">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Relación familiar -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <h6 class="text-warning">Relación Familiar</h6>
-                                    <hr>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="parentescoTutor" class="form-label">Parentesco *</label>
-                                        <select class="form-select" id="parentescoTutor" name="parentesco" required>
-                                            <option value="">Seleccionar parentesco</option>
-                                            <option value="Padre">Padre</option>
-                                            <option value="Madre">Madre</option>
-                                            <option value="Abuelo">Abuelo</option>
-                                            <option value="Abuela">Abuela</option>
-                                            <option value="Tío">Tío</option>
-                                            <option value="Tía">Tía</option>
-                                            <option value="Hermano">Hermano</option>
-                                            <option value="Hermana">Hermana</option>
-                                            <option value="Tutor Legal">Tutor Legal</option>
-                                            <option value="Otro">Otro</option>
+                                        <label for="tutor-provincia" class="form-label">Provincia</label>
+                                        <select class="form-select" id="tutor-provincia" onchange="loadMunicipios('tutor')">
+                                            <option value="">Seleccionar...</option>
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="tutor-municipio" class="form-label">Municipio</label>
+                                        <select class="form-select" id="tutor-municipio" onchange="loadSectores('tutor')">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="tutor-sector" class="form-label">Sector</label>
+                                        <select class="form-select" id="tutor-sector">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="tutor-direccion" class="form-label">Dirección Completa *</label>
+                                <textarea class="form-control" id="tutor-direccion" rows="2" required></textarea>
+                            </div>
+
+                            <!-- Estado y observaciones -->
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="estadoTutor" class="form-label">Estado *</label>
-                                        <select class="form-select" id="estadoTutor" name="estado" required>
-                                            <option value="">Seleccionar estado</option>
+                                        <label for="tutor-estado" class="form-label">Estado</label>
+                                        <select class="form-select" id="tutor-estado">
                                             <option value="Activo">Activo</option>
                                             <option value="Inactivo">Inactivo</option>
                                         </select>
@@ -360,565 +319,658 @@ function loadTutoresSection() {
                                 </div>
                             </div>
 
-                            <!-- Información de emergencia -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <h6 class="text-danger">Contacto de Emergencia</h6>
-                                    <hr>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="contactoEmergenciaNombre" class="form-label">Nombre Contacto de Emergencia</label>
-                                        <input type="text" class="form-control" id="contactoEmergenciaNombre" name="contactoEmergenciaNombre">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="contactoEmergenciaTelefono" class="form-label">Teléfono Contacto de Emergencia</label>
-                                        <input type="tel" class="form-control" id="contactoEmergenciaTelefono" name="contactoEmergenciaTelefono" 
-                                               placeholder="809-000-0000">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Observaciones -->
                             <div class="mb-3">
-                                <label for="observacionesTutor" class="form-label">Observaciones</label>
-                                <textarea class="form-control" id="observacionesTutor" name="observaciones" rows="3"></textarea>
+                                <label for="tutor-observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="tutor-observaciones" rows="3"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary" onclick="saveTutor()">
-                            <i class="fas fa-save me-1"></i> Guardar Tutor
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal para ver detalles del tutor -->
-        <div class="modal fade" id="tutorDetailsModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            <i class="fas fa-users me-2"></i>
-                            Detalles del Tutor
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" id="tutorDetailsContent">
-                        <!-- El contenido se cargará aquí -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" onclick="printTutorDetails()">
-                            <i class="fas fa-print me-1"></i> Imprimir
+                            <i class="fas fa-save me-1"></i> Guardar
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
+
+    // Cargar datos iniciales
     loadTutoresData();
-    loadOcupacionesForTutores();
+    loadParentescos();
+    loadOcupaciones();
+    loadProvincias('tutor');
     updateTutoresStats();
 }
 
 // Función para cargar datos de tutores
 function loadTutoresData() {
-    tutoresData = db.getAll('tutores') || [];
-    displayTutores();
-}
+    try {
+        const allTutores = db.read('tutores');
+        let filteredTutores = allTutores;
 
-// Función para cargar ocupaciones para tutores
-function loadOcupacionesForTutores() {
-    const ocupaciones = db.getAll('ocupaciones') || [];
-    const select = document.getElementById('ocupacionTutor');
-    
-    if (select) {
-        select.innerHTML = '<option value="">Seleccionar ocupación</option>';
-        ocupaciones.forEach(ocupacion => {
-            select.innerHTML += `<option value="${ocupacion.id}">${ocupacion.nombre}</option>`;
-        });
+        // Aplicar búsqueda
+        if (tutoresSearchQuery) {
+            filteredTutores = filterByMultipleFields(
+                filteredTutores, 
+                tutoresSearchQuery, 
+                ['nombre', 'apellido', 'cedula']
+            );
+        }
+
+        // Aplicar filtros
+        filteredTutores = applyFilters(filteredTutores, tutoresFilters);
+
+        // Actualizar contador
+        document.getElementById('tutores-count').textContent = filteredTutores.length;
+
+        // Paginar resultados
+        const paginatedData = paginate(filteredTutores, currentTutoresPage, tutoresPerPage);
+        
+        // Renderizar tabla
+        renderTutoresTable(paginatedData.data);
+        
+        // Renderizar paginación
+        renderTutoresPagination(paginatedData);
+
+    } catch (error) {
+        console.error('Error cargando tutores:', error);
+        showGlobalAlert('Error al cargar datos de tutores', 'error');
     }
 }
 
-// Función para mostrar tutores
-function displayTutores() {
-    const container = document.getElementById('tutoresTableContainer');
-    if (!container) return;
-
-    if (tutoresData.length === 0) {
-        showEmptyState(container, 'No hay tutores registrados', 'fas fa-users');
-        document.getElementById('tutoresPagination').innerHTML = '';
+// Función para renderizar tabla de tutores
+function renderTutoresTable(tutores) {
+    const tbody = document.getElementById('tutores-tbody');
+    
+    if (tutores.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <div class="empty-state">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5>No hay tutores registrados</h5>
+                        <p class="text-muted">Comience agregando un nuevo tutor</p>
+                        <button type="button" class="btn btn-primary" onclick="showTutorModal()">
+                            <i class="fas fa-plus me-1"></i> Agregar Tutor
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
         return;
     }
 
-    // Aplicar filtros
-    let filteredData = applyTutoresFilters();
+    const ocupaciones = db.read('ocupaciones');
+    const estudiantes = db.read('estudiantes');
     
-    // Paginar datos
-    const paginatedData = paginateData(filteredData, currentTutoresPage, tutoresPerPage);
-    
-    // Crear tabla
-    let tableHTML = `
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Tutor</th>
-                        <th>Cédula</th>
-                        <th>Parentesco</th>
-                        <th>Contacto</th>
-                        <th>Ocupación</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    const ocupaciones = db.getAll('ocupaciones') || [];
-    
-    paginatedData.data.forEach(tutor => {
-        const edad = tutor.fechaNacimiento ? calculateAge(tutor.fechaNacimiento) : 'N/A';
-        const estadoBadge = getTutorEstadoBadge(tutor.estado);
-        const ocupacion = ocupaciones.find(o => o.id == tutor.ocupacion);
-        const ocupacionNombre = ocupacion ? ocupacion.nombre : 'No especificada';
+    tbody.innerHTML = tutores.map(tutor => {
+        const ocupacion = ocupaciones.find(o => o.id === tutor.ocupacion_id);
+        const estudiantesAsignados = estudiantes.filter(e => e.tutor_id === tutor.id);
         
-        tableHTML += `
+        return `
             <tr>
                 <td>
                     <div class="d-flex align-items-center">
-                        <div class="avatar me-2">
-                            ${getInitials(tutor.nombres, tutor.apellidos)}
+                        <div class="avatar me-3" style="background-color: #28a745;">
+                            ${tutor.nombre.charAt(0)}${tutor.apellido.charAt(0)}
                         </div>
                         <div>
-                            <div class="fw-bold">${tutor.nombres} ${tutor.apellidos}</div>
-                            <small class="text-muted">${edad} años • ${tutor.genero || 'N/A'}</small>
+                            <div class="fw-bold">${tutor.nombre} ${tutor.apellido}</div>
+                            <small class="text-muted">${tutor.email || 'Sin email'}</small>
                         </div>
                     </div>
                 </td>
                 <td>${tutor.cedula}</td>
                 <td>
-                    <span class="badge ${getParentescoBadgeClass(tutor.parentesco)}">${tutor.parentesco}</span>
+                    <span class="badge bg-info">${tutor.parentesco}</span>
                 </td>
                 <td>
-                    <div>
-                        <i class="fas fa-phone text-muted me-1"></i>${tutor.telefono}
-                    </div>
-                    ${tutor.email ? `<div><i class="fas fa-envelope text-muted me-1"></i>${tutor.email}</div>` : ''}
-                    ${tutor.whatsapp ? `<div><i class="fab fa-whatsapp text-success me-1"></i>${tutor.whatsapp}</div>` : ''}
+                    <div>${tutor.telefono}</div>
+                    <small class="text-muted">${tutor.email || 'Sin email'}</small>
                 </td>
                 <td>
-                    <small class="text-muted">${ocupacionNombre}</small>
-                    ${tutor.lugarTrabajo ? `<br><small class="text-muted">${tutor.lugarTrabajo}</small>` : ''}
+                    ${ocupacion ? ocupacion.nombre : 'No especificada'}
+                    ${tutor.lugar_trabajo ? `<br><small class="text-muted">${tutor.lugar_trabajo}</small>` : ''}
                 </td>
-                <td>${estadoBadge}</td>
                 <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary" onclick="editTutor('${tutor.id}')" title="Editar">
+                    <span class="badge bg-success">${estudiantesAsignados.length} estudiante(s)</span>
+                </td>
+                <td>${getStatusBadge(tutor.estado || 'Activo')}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="editTutor('${tutor.id}')" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-info" onclick="viewTutor('${tutor.id}')" title="Ver detalles">
+                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                onclick="viewTutor('${tutor.id}')" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteTutor('${tutor.id}')" title="Eliminar">
+                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                onclick="viewTutorEstudiantes('${tutor.id}')" title="Ver estudiantes">
+                            <i class="fas fa-user-graduate"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteTutor('${tutor.id}')" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         `;
-    });
-    
-    tableHTML += `
-                </tbody>
-            </table>
-        </div>
-    `;
-    
-    container.innerHTML = tableHTML;
-    
-    // Actualizar paginación
-    document.getElementById('tutoresPagination').innerHTML = 
-        createPagination(paginatedData.totalPages, currentTutoresPage, 'goToTutoresPage');
+    }).join('');
 }
 
-// Función para obtener clase de badge por parentesco
-function getParentescoBadgeClass(parentesco) {
-    const classes = {
-        'Padre': 'bg-primary',
-        'Madre': 'bg-info',
-        'Abuelo': 'bg-secondary',
-        'Abuela': 'bg-secondary',
-        'Tío': 'bg-warning',
-        'Tía': 'bg-warning',
-        'Tutor Legal': 'bg-danger',
-        'Otro': 'bg-dark'
-    };
-    return classes[parentesco] || 'bg-secondary';
-}
-
-// Función para obtener badge del estado del tutor
-function getTutorEstadoBadge(estado) {
-    const badges = {
-        'Activo': '<span class="badge bg-success">Activo</span>',
-        'Inactivo': '<span class="badge bg-secondary">Inactivo</span>'
-    };
-    return badges[estado] || `<span class="badge bg-secondary">${estado}</span>`;
-}
-
-// Función para aplicar filtros
-function applyTutoresFilters() {
-    let filtered = [...tutoresData];
+// Función para renderizar paginación
+function renderTutoresPagination(paginatedData) {
+    const pagination = document.getElementById('tutores-pagination');
     
-    const searchTerm = document.getElementById('searchTutores')?.value?.toLowerCase() || '';
-    const parentescoFilter = document.getElementById('filterParentesco')?.value || '';
-    const estadoFilter = document.getElementById('filterEstadoTutor')?.value || '';
-    
-    if (searchTerm) {
-        filtered = filtered.filter(tutor => {
-            const nombreCompleto = `${tutor.nombres} ${tutor.apellidos}`.toLowerCase();
-            return nombreCompleto.includes(searchTerm) || 
-                   tutor.cedula.includes(searchTerm) ||
-                   (tutor.telefono && tutor.telefono.includes(searchTerm)) ||
-                   (tutor.email && tutor.email.toLowerCase().includes(searchTerm));
-        });
-    }
-    
-    if (parentescoFilter) {
-        filtered = filtered.filter(t => t.parentesco === parentescoFilter);
-    }
-    
-    if (estadoFilter) {
-        filtered = filtered.filter(t => t.estado === estadoFilter);
-    }
-    
-    return filtered;
-}
-
-// Función para limpiar filtros
-function clearTutoresFilters() {
-    document.getElementById('searchTutores').value = '';
-    document.getElementById('filterParentesco').value = '';
-    document.getElementById('filterEstadoTutor').value = '';
-    filterTutores();
-}
-
-// Función para filtrar tutores
-function filterTutores() {
-    currentTutoresPage = 1;
-    displayTutores();
-}
-
-// Función para cambiar página
-function goToTutoresPage(page) {
-    currentTutoresPage = page;
-    displayTutores();
-}
-
-// Función para mostrar modal de nuevo tutor
-function showAddTutorModal() {
-    const modal = new bootstrap.Modal(document.getElementById('tutorModal'));
-    document.getElementById('tutorModalTitle').innerHTML = '<i class="fas fa-users me-2"></i>Nuevo Tutor';
-    document.getElementById('tutorId').value = '';
-    clearForm(document.getElementById('tutorForm'));
-    
-    // Establecer valores por defecto
-    document.getElementById('estadoTutor').value = 'Activo';
-    document.getElementById('nacionalidadTutor').value = 'Dominicana';
-    
-    // Cargar ocupaciones
-    loadOcupacionesForTutores();
-    
-    modal.show();
-}
-
-// Función para editar tutor
-function editTutor(id) {
-    const tutor = tutoresData.find(t => t.id === parseInt(id));
-    if (!tutor) {
-        showAlert.error('Error', 'Tutor no encontrado');
+    if (paginatedData.totalPages <= 1) {
+        pagination.innerHTML = '';
         return;
     }
     
+    let paginationHtml = '';
+    
+    // Botón anterior
+    paginationHtml += `
+        <li class="page-item ${!paginatedData.hasPrev ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changeTutoresPage(${currentTutoresPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+    `;
+    
+    // Números de página
+    for (let i = 1; i <= paginatedData.totalPages; i++) {
+        if (i === currentTutoresPage || 
+            i === 1 || 
+            i === paginatedData.totalPages || 
+            (i >= currentTutoresPage - 1 && i <= currentTutoresPage + 1)) {
+            
+            paginationHtml += `
+                <li class="page-item ${i === currentTutoresPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changeTutoresPage(${i})">${i}</a>
+                </li>
+            `;
+        } else if (i === currentTutoresPage - 2 || i === currentTutoresPage + 2) {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
+    
+    // Botón siguiente
+    paginationHtml += `
+        <li class="page-item ${!paginatedData.hasNext ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changeTutoresPage(${currentTutoresPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    `;
+    
+    pagination.innerHTML = paginationHtml;
+}
+
+// Función para cargar parentescos
+function loadParentescos() {
+    const parentescos = dominicanData.getRelationshipTypes();
+    const selectElements = [
+        document.getElementById('tutor-parentesco'),
+        document.getElementById('filter-parentesco')
+    ];
+    
+    selectElements.forEach(select => {
+        if (select) {
+            const isFilter = select.id === 'filter-parentesco';
+            if (!isFilter) {
+                select.innerHTML = '<option value="">Seleccionar parentesco...</option>';
+            }
+            
+            parentescos.forEach(parentesco => {
+                const option = document.createElement('option');
+                option.value = parentesco;
+                option.textContent = parentesco;
+                select.appendChild(option);
+            });
+        }
+    });
+}
+
+// Función para cargar ocupaciones
+function loadOcupaciones() {
+    const ocupaciones = db.read('ocupaciones');
+    const ocupacionSelect = document.getElementById('tutor-ocupacion');
+    
+    if (ocupacionSelect) {
+        ocupacionSelect.innerHTML = '<option value="">Seleccionar ocupación...</option>';
+        
+        ocupaciones.forEach(ocupacion => {
+            const option = document.createElement('option');
+            option.value = ocupacion.id;
+            option.textContent = ocupacion.nombre;
+            ocupacionSelect.appendChild(option);
+        });
+    }
+}
+
+// Función para actualizar estadísticas de tutores
+function updateTutoresStats() {
+    try {
+        const tutores = db.read('tutores');
+        const estudiantes = db.read('estudiantes');
+        const tutoresActivos = tutores.filter(t => t.estado === 'Activo');
+        
+        // Total tutores activos
+        document.getElementById('total-tutores-activos').textContent = tutoresActivos.length;
+        
+        // Tutores con estudiantes
+        const tutoresConEstudiantes = tutoresActivos.filter(tutor => {
+            return estudiantes.some(e => e.tutor_id === tutor.id);
+        });
+        document.getElementById('tutores-con-estudiantes').textContent = tutoresConEstudiantes.length;
+        
+        // Padres/Madres
+        const padresMadres = tutoresActivos.filter(t => 
+            t.parentesco === 'Padre' || t.parentesco === 'Madre'
+        );
+        document.getElementById('padres-registrados').textContent = padresMadres.length;
+        
+        // Tutores legales
+        const tutoresLegales = tutoresActivos.filter(t => t.parentesco === 'Tutor Legal');
+        document.getElementById('tutores-legales').textContent = tutoresLegales.length;
+        
+    } catch (error) {
+        console.error('Error actualizando estadísticas:', error);
+    }
+}
+
+// Función para mostrar modal de tutor
+function showTutorModal(tutorId = null) {
     const modal = new bootstrap.Modal(document.getElementById('tutorModal'));
-    document.getElementById('tutorModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Editar Tutor';
-    document.getElementById('tutorId').value = tutor.id;
+    const title = document.getElementById('tutorModalTitle');
+    const form = document.getElementById('tutorForm');
     
-    // Cargar ocupaciones
-    loadOcupacionesForTutores();
+    // Limpiar formulario
+    form.reset();
+    document.getElementById('tutor-id').value = '';
     
-    // Llenar formulario con datos existentes
-    setTimeout(() => {
-        document.getElementById('nombresTutor').value = tutor.nombres || '';
-        document.getElementById('apellidosTutor').value = tutor.apellidos || '';
-        document.getElementById('cedulaTutor').value = tutor.cedula || '';
-        document.getElementById('fechaNacimientoTutor').value = tutor.fechaNacimiento || '';
-        document.getElementById('generoTutor').value = tutor.genero || '';
-        document.getElementById('estadoCivilTutor').value = tutor.estadoCivil || '';
-        document.getElementById('nacionalidadTutor').value = tutor.nacionalidad || '';
-        document.getElementById('telefonoTutor').value = tutor.telefono || '';
-        document.getElementById('telefonoSecundarioTutor').value = tutor.telefonoSecundario || '';
-        document.getElementById('emailTutor').value = tutor.email || '';
-        document.getElementById('whatsappTutor').value = tutor.whatsapp || '';
-        document.getElementById('direccionTutor').value = tutor.direccion || '';
-        document.getElementById('ocupacionTutor').value = tutor.ocupacion || '';
-        document.getElementById('lugarTrabajoTutor').value = tutor.lugarTrabajo || '';
-        document.getElementById('ingresosMensualesTutor').value = tutor.ingresosMensuales || '';
-        document.getElementById('telefonoTrabajoTutor').value = tutor.telefonoTrabajo || '';
-        document.getElementById('parentescoTutor').value = tutor.parentesco || '';
-        document.getElementById('estadoTutor').value = tutor.estado || '';
-        document.getElementById('contactoEmergenciaNombre').value = tutor.contactoEmergenciaNombre || '';
-        document.getElementById('contactoEmergenciaTelefono').value = tutor.contactoEmergenciaTelefono || '';
-        document.getElementById('observacionesTutor').value = tutor.observaciones || '';
-    }, 100);
+    if (tutorId) {
+        // Modo edición
+        title.innerHTML = '<i class="fas fa-users me-2"></i>Editar Tutor';
+        const tutor = db.find('tutores', tutorId);
+        
+        if (tutor) {
+            document.getElementById('tutor-id').value = tutor.id;
+            document.getElementById('tutor-nombre').value = tutor.nombre || '';
+            document.getElementById('tutor-apellido').value = tutor.apellido || '';
+            document.getElementById('tutor-cedula').value = tutor.cedula || '';
+            document.getElementById('tutor-parentesco').value = tutor.parentesco || '';
+            document.getElementById('tutor-genero').value = tutor.genero || '';
+            document.getElementById('tutor-telefono').value = tutor.telefono || '';
+            document.getElementById('tutor-email').value = tutor.email || '';
+            document.getElementById('tutor-ocupacion').value = tutor.ocupacion_id || '';
+            document.getElementById('tutor-lugar-trabajo').value = tutor.lugar_trabajo || '';
+            document.getElementById('tutor-provincia').value = tutor.provincia || '';
+            
+            // Cargar municipios y sectores si hay provincia
+            if (tutor.provincia) {
+                loadMunicipios('tutor');
+                setTimeout(() => {
+                    document.getElementById('tutor-municipio').value = tutor.municipio || '';
+                    if (tutor.municipio) {
+                        loadSectores('tutor');
+                        setTimeout(() => {
+                            document.getElementById('tutor-sector').value = tutor.sector || '';
+                        }, 100);
+                    }
+                }, 100);
+            }
+            
+            document.getElementById('tutor-direccion').value = tutor.direccion || '';
+            document.getElementById('tutor-estado').value = tutor.estado || 'Activo';
+            document.getElementById('tutor-observaciones').value = tutor.observaciones || '';
+        }
+    } else {
+        // Modo creación
+        title.innerHTML = '<i class="fas fa-users me-2"></i>Nuevo Tutor';
+        document.getElementById('tutor-estado').value = 'Activo';
+    }
     
     modal.show();
 }
 
 // Función para guardar tutor
 function saveTutor() {
-    const form = document.getElementById('tutorForm');
-    
-    if (!validateForm(form)) {
-        showAlert.error('Error', 'Por favor complete todos los campos requeridos correctamente');
-        return;
-    }
-    
-    const formData = new FormData(form);
-    const tutorData = {};
-    
-    // Convertir FormData a objeto
-    for (let [key, value] of formData.entries()) {
-        tutorData[key] = value;
-    }
-    
     try {
-        const tutorId = document.getElementById('tutorId').value;
+        const form = document.getElementById('tutorForm');
+        
+        const tutorData = {
+            nombre: document.getElementById('tutor-nombre').value.trim(),
+            apellido: document.getElementById('tutor-apellido').value.trim(),
+            cedula: document.getElementById('tutor-cedula').value.trim(),
+            parentesco: document.getElementById('tutor-parentesco').value,
+            genero: document.getElementById('tutor-genero').value,
+            telefono: document.getElementById('tutor-telefono').value.trim(),
+            email: document.getElementById('tutor-email').value.trim(),
+            ocupacion_id: document.getElementById('tutor-ocupacion').value,
+            lugar_trabajo: document.getElementById('tutor-lugar-trabajo').value.trim(),
+            provincia: document.getElementById('tutor-provincia').value,
+            municipio: document.getElementById('tutor-municipio').value,
+            sector: document.getElementById('tutor-sector').value,
+            direccion: document.getElementById('tutor-direccion').value.trim(),
+            estado: document.getElementById('tutor-estado').value,
+            observaciones: document.getElementById('tutor-observaciones').value.trim()
+        };
+        
+        // Validaciones
+        const validationRules = {
+            nombre: { required: true, label: 'Nombre' },
+            apellido: { required: true, label: 'Apellido' },
+            cedula: { required: true, type: 'cedula', label: 'Cédula' },
+            parentesco: { required: true, label: 'Parentesco' },
+            telefono: { required: true, type: 'phone', label: 'Teléfono' },
+            direccion: { required: true, label: 'Dirección' }
+        };
+        
+        if (tutorData.email) {
+            validationRules.email = { type: 'email', label: 'Email' };
+        }
+        
+        const errors = validateFormData(tutorData, validationRules);
+        
+        if (errors.length > 0) {
+            showGlobalAlert('Errores de validación:<br>• ' + errors.join('<br>• '), 'error');
+            return;
+        }
+        
+        // Formatear datos
+        tutorData.telefono = formatPhoneNumber(tutorData.telefono);
+        tutorData.cedula = formatCedula(tutorData.cedula);
+        
+        const tutorId = document.getElementById('tutor-id').value;
         
         if (tutorId) {
             // Actualizar tutor existente
-            const updatedTutor = db.update('tutores', tutorId, tutorData);
-            const index = tutoresData.findIndex(t => t.id === parseInt(tutorId));
-            if (index !== -1) {
-                tutoresData[index] = updatedTutor;
-            }
-            showAlert.success('¡Éxito!', 'Tutor actualizado correctamente');
+            db.update('tutores', tutorId, tutorData);
+            showGlobalAlert('Tutor actualizado correctamente', 'success');
         } else {
-            // Verificar si la cédula ya existe
-            const existingTutor = tutoresData.find(t => t.cedula === tutorData.cedula);
-            if (existingTutor) {
-                showAlert.error('Error', 'Ya existe un tutor con esta cédula');
-                return;
-            }
-            
             // Crear nuevo tutor
-            const newTutor = db.insert('tutores', tutorData);
-            tutoresData.push(newTutor);
-            showAlert.success('¡Éxito!', 'Tutor registrado correctamente');
+            db.create('tutores', tutorData);
+            showGlobalAlert('Tutor creado correctamente', 'success');
         }
         
-        // Actualizar vista y cerrar modal
-        displayTutores();
+        // Cerrar modal y recargar datos
+        const modal = bootstrap.Modal.getInstance(document.getElementById('tutorModal'));
+        modal.hide();
+        loadTutoresData();
         updateTutoresStats();
-        bootstrap.Modal.getInstance(document.getElementById('tutorModal')).hide();
         
     } catch (error) {
-        console.error('Error al guardar tutor:', error);
-        showAlert.error('Error', 'No se pudo guardar el tutor');
+        console.error('Error guardando tutor:', error);
+        showGlobalAlert('Error al guardar tutor: ' + error.message, 'error');
     }
 }
 
+// Función para editar tutor
+function editTutor(tutorId) {
+    showTutorModal(tutorId);
+}
+
+// Función para ver detalles de tutor
+function viewTutor(tutorId) {
+    const tutor = db.find('tutores', tutorId);
+    if (!tutor) {
+        showGlobalAlert('Tutor no encontrado', 'error');
+        return;
+    }
+    
+    const ocupaciones = db.read('ocupaciones');
+    const estudiantes = db.read('estudiantes');
+    const ocupacion = ocupaciones.find(o => o.id === tutor.ocupacion_id);
+    const estudiantesAsignados = estudiantes.filter(e => e.tutor_id === tutor.id);
+    
+    Swal.fire({
+        title: `${tutor.nombre} ${tutor.apellido}`,
+        html: `
+            <div class="text-start">
+                <div class="row">
+                    <div class="col-6"><strong>Cédula:</strong></div>
+                    <div class="col-6">${tutor.cedula}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Parentesco:</strong></div>
+                    <div class="col-6">${tutor.parentesco}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Género:</strong></div>
+                    <div class="col-6">${tutor.genero || 'No especificado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Teléfono:</strong></div>
+                    <div class="col-6">${tutor.telefono}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Email:</strong></div>
+                    <div class="col-6">${tutor.email || 'No registrado'}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Ocupación:</strong></div>
+                    <div class="col-6">${ocupacion ? ocupacion.nombre : 'No especificada'}</div>
+                </div>
+                ${tutor.lugar_trabajo ? `
+                    <div class="row">
+                        <div class="col-6"><strong>Lugar de Trabajo:</strong></div>
+                        <div class="col-6">${tutor.lugar_trabajo}</div>
+                    </div>
+                ` : ''}
+                <div class="row">
+                    <div class="col-6"><strong>Dirección:</strong></div>
+                    <div class="col-6">${tutor.direccion}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Estado:</strong></div>
+                    <div class="col-6">${getStatusBadge(tutor.estado)}</div>
+                </div>
+                <div class="row">
+                    <div class="col-6"><strong>Estudiantes:</strong></div>
+                    <div class="col-6">${estudiantesAsignados.length} asignado(s)</div>
+                </div>
+                ${tutor.observaciones ? `
+                    <div class="row mt-2">
+                        <div class="col-12"><strong>Observaciones:</strong></div>
+                        <div class="col-12">${tutor.observaciones}</div>
+                    </div>
+                ` : ''}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        showCancelButton: true,
+        cancelButtonText: 'Editar',
+        cancelButtonColor: '#007bff'
+    }).then((result) => {
+        if (result.isDismissed) {
+            editTutor(tutorId);
+        }
+    });
+}
+
+// Función para ver estudiantes de un tutor
+function viewTutorEstudiantes(tutorId) {
+    const tutor = db.find('tutores', tutorId);
+    const estudiantes = db.read('estudiantes');
+    const estudiantesAsignados = estudiantes.filter(e => e.tutor_id === tutorId);
+    
+    if (!tutor) {
+        showGlobalAlert('Tutor no encontrado', 'error');
+        return;
+    }
+    
+    let estudiantesHtml = '';
+    if (estudiantesAsignados.length > 0) {
+        estudiantesHtml = estudiantesAsignados.map(estudiante => 
+            `<div class="mb-2">
+                <span class="badge bg-primary">${estudiante.nombre} ${estudiante.apellido}</span>
+                <small class="text-muted ms-2">${estudiante.grado}° Grado</small>
+            </div>`
+        ).join('');
+    } else {
+        estudiantesHtml = '<p class="text-muted">No hay estudiantes asignados a este tutor.</p>';
+    }
+    
+    Swal.fire({
+        title: `Estudiantes de ${tutor.nombre} ${tutor.apellido}`,
+        html: `
+            <div class="text-start">
+                <p><strong>Parentesco:</strong> ${tutor.parentesco}</p>
+                <hr>
+                <h6>Estudiantes Asignados (${estudiantesAsignados.length}):</h6>
+                ${estudiantesHtml}
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Cerrar'
+    });
+}
+
 // Función para eliminar tutor
-function deleteTutor(id) {
-    showAlert.confirm(
-        '¿Está seguro?',
-        'Esta acción no se puede deshacer. ¿Desea eliminar este tutor?'
+function deleteTutor(tutorId) {
+    const tutor = db.find('tutores', tutorId);
+    if (!tutor) {
+        showGlobalAlert('Tutor no encontrado', 'error');
+        return;
+    }
+    
+    // Verificar si tiene estudiantes asignados
+    const estudiantes = db.read('estudiantes');
+    const estudiantesAsignados = estudiantes.filter(e => e.tutor_id === tutorId);
+    
+    if (estudiantesAsignados.length > 0) {
+        showGlobalAlert(
+            `No se puede eliminar el tutor porque tiene ${estudiantesAsignados.length} estudiante(s) asignado(s). Primero debe reasignar o eliminar los estudiantes.`,
+            'warning'
+        );
+        return;
+    }
+    
+    confirmAction(
+        '¿Eliminar tutor?',
+        `¿Está seguro de eliminar a ${tutor.nombre} ${tutor.apellido}? Esta acción no se puede deshacer.`,
+        'Sí, eliminar'
     ).then((result) => {
         if (result.isConfirmed) {
             try {
-                db.delete('tutores', id);
-                tutoresData = tutoresData.filter(t => t.id !== parseInt(id));
-                displayTutores();
+                db.delete('tutores', tutorId);
+                showGlobalAlert('Tutor eliminado correctamente', 'success');
+                loadTutoresData();
                 updateTutoresStats();
-                showAlert.success('¡Eliminado!', 'El tutor ha sido eliminado');
             } catch (error) {
-                console.error('Error al eliminar tutor:', error);
-                showAlert.error('Error', 'No se pudo eliminar el tutor');
+                console.error('Error eliminando tutor:', error);
+                showGlobalAlert('Error al eliminar tutor', 'error');
             }
         }
     });
 }
 
-// Función para ver detalles del tutor
-function viewTutor(id) {
-    const tutor = tutoresData.find(t => t.id === parseInt(id));
-    if (!tutor) {
-        showAlert.error('Error', 'Tutor no encontrado');
-        return;
-    }
-    
-    const edad = tutor.fechaNacimiento ? calculateAge(tutor.fechaNacimiento) : 'No especificada';
-    const ocupaciones = db.getAll('ocupaciones') || [];
-    const ocupacion = ocupaciones.find(o => o.id == tutor.ocupacion);
-    
-    const content = `
-        <div class="container-fluid">
-            <!-- Información personal -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-primary text-white p-2 rounded">INFORMACIÓN PERSONAL</h5>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Nombres:</strong> ${tutor.nombres}</p>
-                    <p><strong>Apellidos:</strong> ${tutor.apellidos}</p>
-                    <p><strong>Cédula:</strong> ${tutor.cedula}</p>
-                    <p><strong>Fecha de Nacimiento:</strong> ${formatDate(tutor.fechaNacimiento) || 'No especificada'}</p>
-                    <p><strong>Edad:</strong> ${edad} años</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Género:</strong> ${tutor.genero || 'No especificado'}</p>
-                    <p><strong>Estado Civil:</strong> ${tutor.estadoCivil || 'No especificado'}</p>
-                    <p><strong>Nacionalidad:</strong> ${tutor.nacionalidad || 'No especificada'}</p>
-                    <p><strong>Parentesco:</strong> <span class="badge ${getParentescoBadgeClass(tutor.parentesco)}">${tutor.parentesco}</span></p>
-                    <p><strong>Estado:</strong> ${getTutorEstadoBadge(tutor.estado)}</p>
-                </div>
-                <div class="col-12">
-                    <p><strong>Dirección:</strong> ${tutor.direccion}</p>
-                </div>
-            </div>
-            
-            <!-- Información de contacto -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-success text-white p-2 rounded">INFORMACIÓN DE CONTACTO</h5>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Teléfono Principal:</strong> ${tutor.telefono}</p>
-                    <p><strong>Teléfono Secundario:</strong> ${tutor.telefonoSecundario || 'No especificado'}</p>
-                    <p><strong>Email:</strong> ${tutor.email || 'No especificado'}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>WhatsApp:</strong> ${tutor.whatsapp || 'No especificado'}</p>
-                    <p><strong>Teléfono del Trabajo:</strong> ${tutor.telefonoTrabajo || 'No especificado'}</p>
-                </div>
-            </div>
-            
-            <!-- Información laboral -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="bg-info text-white p-2 rounded">INFORMACIÓN LABORAL</h5>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Ocupación:</strong> ${ocupacion ? ocupacion.nombre : 'No especificada'}</p>
-                    <p><strong>Lugar de Trabajo:</strong> ${tutor.lugarTrabajo || 'No especificado'}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Ingresos Mensuales:</strong> ${tutor.ingresosMensuales ? formatCurrency(tutor.ingresosMensuales) : 'No especificado'}</p>
-                </div>
-            </div>
-            
-            <!-- Contacto de emergencia -->
-            ${tutor.contactoEmergenciaNombre ? `
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h5 class="bg-danger text-white p-2 rounded">CONTACTO DE EMERGENCIA</h5>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Nombre:</strong> ${tutor.contactoEmergenciaNombre}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Teléfono:</strong> ${tutor.contactoEmergenciaTelefono || 'No especificado'}</p>
-                    </div>
-                </div>
-            ` : ''}
-            
-            <!-- Observaciones -->
-            ${tutor.observaciones ? `
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h5 class="bg-warning text-dark p-2 rounded">OBSERVACIONES</h5>
-                        <p>${tutor.observaciones}</p>
-                    </div>
-                </div>
-            ` : ''}
-        </div>
-    `;
-    
-    document.getElementById('tutorDetailsContent').innerHTML = content;
-    const modal = new bootstrap.Modal(document.getElementById('tutorDetailsModal'));
-    modal.show();
+// Función de búsqueda
+function searchTutores() {
+    tutoresSearchQuery = document.getElementById('tutores-search').value.trim();
+    currentTutoresPage = 1;
+    loadTutoresData();
 }
 
-// Función para imprimir detalles del tutor
-function printTutorDetails() {
-    window.print();
-}
-
-// Función para actualizar estadísticas
-function updateTutoresStats() {
-    const stats = {
-        total: tutoresData.length,
-        activos: tutoresData.filter(t => t.estado === 'Activo').length,
-        padres: tutoresData.filter(t => t.parentesco === 'Padre').length,
-        madres: tutoresData.filter(t => t.parentesco === 'Madre').length
+// Función para filtrar tutores
+function filterTutores() {
+    tutoresFilters = {
+        parentesco: document.getElementById('filter-parentesco').value,
+        genero: document.getElementById('filter-genero').value,
+        estado: document.getElementById('filter-estado').value
     };
     
-    document.getElementById('total-tutores').textContent = stats.total;
-    document.getElementById('tutores-activos').textContent = stats.activos;
-    document.getElementById('total-padres').textContent = stats.padres;
-    document.getElementById('total-madres').textContent = stats.madres;
+    // Remover filtros vacíos
+    Object.keys(tutoresFilters).forEach(key => {
+        if (!tutoresFilters[key]) {
+            delete tutoresFilters[key];
+        }
+    });
+    
+    currentTutoresPage = 1;
+    loadTutoresData();
+}
+
+// Función para limpiar filtros
+function clearTutoresFilters() {
+    document.getElementById('tutores-search').value = '';
+    document.getElementById('filter-parentesco').value = '';
+    document.getElementById('filter-genero').value = '';
+    document.getElementById('filter-estado').value = '';
+    
+    tutoresSearchQuery = '';
+    tutoresFilters = {};
+    currentTutoresPage = 1;
+    loadTutoresData();
+}
+
+// Función para cambiar página
+function changeTutoresPage(page) {
+    currentTutoresPage = page;
+    loadTutoresData();
 }
 
 // Función para exportar tutores
 function exportTutores() {
-    if (tutoresData.length === 0) {
-        showAlert.warning('Sin datos', 'No hay tutores para exportar');
-        return;
+    try {
+        const tutores = db.read('tutores');
+        const ocupaciones = db.read('ocupaciones');
+        const estudiantes = db.read('estudiantes');
+        
+        const exportData = tutores.map(tutor => {
+            const ocupacion = ocupaciones.find(o => o.id === tutor.ocupacion_id);
+            const estudiantesAsignados = estudiantes.filter(e => e.tutor_id === tutor.id);
+            
+            return {
+                'Nombre': tutor.nombre,
+                'Apellido': tutor.apellido,
+                'Cédula': tutor.cedula,
+                'Parentesco': tutor.parentesco,
+                'Género': tutor.genero || '',
+                'Teléfono': tutor.telefono,
+                'Email': tutor.email || '',
+                'Ocupación': ocupacion ? ocupacion.nombre : '',
+                'Lugar de Trabajo': tutor.lugar_trabajo || '',
+                'Provincia': tutor.provincia || '',
+                'Municipio': tutor.municipio || '',
+                'Sector': tutor.sector || '',
+                'Dirección': tutor.direccion,
+                'Estado': tutor.estado,
+                'Estudiantes Asignados': estudiantesAsignados.length,
+                'Nombres de Estudiantes': estudiantesAsignados.map(e => `${e.nombre} ${e.apellido}`).join(', '),
+                'Observaciones': tutor.observaciones || '',
+                'Fecha de Registro': formatDateShort(tutor.created_at)
+            };
+        });
+        
+        exportToExcel(exportData, 'tutores', 'Lista de Tutores');
+        
+    } catch (error) {
+        console.error('Error exportando tutores:', error);
+        showGlobalAlert('Error al exportar datos', 'error');
     }
-    
-    const ocupaciones = db.getAll('ocupaciones') || [];
-    
-    const dataToExport = tutoresData.map(tutor => {
-        const ocupacion = ocupaciones.find(o => o.id == tutor.ocupacion);
-        return {
-            'Nombres': tutor.nombres,
-            'Apellidos': tutor.apellidos,
-            'Cédula': tutor.cedula,
-            'Fecha Nacimiento': formatDateShort(tutor.fechaNacimiento) || '',
-            'Edad': tutor.fechaNacimiento ? calculateAge(tutor.fechaNacimiento) : '',
-            'Género': tutor.genero || '',
-            'Estado Civil': tutor.estadoCivil || '',
-            'Nacionalidad': tutor.nacionalidad || '',
-            'Parentesco': tutor.parentesco,
-            'Estado': tutor.estado,
-            'Teléfono Principal': tutor.telefono,
-            'Teléfono Secundario': tutor.telefonoSecundario || '',
-            'Email': tutor.email || '',
-            'WhatsApp': tutor.whatsapp || '',
-            'Dirección': tutor.direccion,
-            'Ocupación': ocupacion ? ocupacion.nombre : '',
-            'Lugar de Trabajo': tutor.lugarTrabajo || '',
-            'Ingresos Mensuales': tutor.ingresosMensuales || '',
-            'Teléfono Trabajo': tutor.telefonoTrabajo || '',
-            'Contacto Emergencia': tutor.contactoEmergenciaNombre || '',
-            'Teléfono Emergencia': tutor.contactoEmergenciaTelefono || '',
-            'Observaciones': tutor.observaciones || ''
-        };
-    });
-    
-    exportToExcel('Lista de Tutores', dataToExport, 'tutores_' + new Date().toISOString().split('T')[0]);
 }
 
-// Función para refrescar datos
-function refreshTutores() {
-    loadTutoresData();
-    updateTutoresStats();
-    showAlert.success('Actualizado', 'Los datos han sido actualizados');
-}
+// Exportar funciones
+window.loadTutoresSection = loadTutoresSection;
+window.showTutorModal = showTutorModal;
+window.saveTutor = saveTutor;
+window.editTutor = editTutor;
+window.viewTutor = viewTutor;
+window.viewTutorEstudiantes = viewTutorEstudiantes;
+window.deleteTutor = deleteTutor;
+window.searchTutores = searchTutores;
+window.filterTutores = filterTutores;
+window.clearTutoresFilters = clearTutoresFilters;
+window.changeTutoresPage = changeTutoresPage;
+window.exportTutores = exportTutores;
+
+console.log('✅ Tutores.js cargado correctamente');
