@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mssql": "^11.0.1"
+  },
+  "name": "eofinalizado",
+  "version": "1.0.0",
+  "main": "serv.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Els231/EOFINALIZADO.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Els231/EOFINALIZADO/issues"
+  },
+  "homepage": "https://github.com/Els231/EOFINALIZADO#readme",
+  "description": ""
+}

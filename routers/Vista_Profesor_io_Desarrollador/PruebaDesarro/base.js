@@ -1,7 +1,130 @@
 /**
- * Sistema de base de datos local para el Sistema de Gestión Escolar
- * Utiliza localStorage para persistencia de datos
+ * Sistema de Gestión Escolar con almacenamiento local y sincronización con SQL Server
  */
+
+class SQLDatabaseAdapter {
+    constructor(connectionConfig) {
+        this.connectionConfig = {
+            server: connectionConfig.server || '',
+            authenticationType: connectionConfig.authenticationType || 'windows',
+            database: connectionConfig.database || '',
+            encrypt: connectionConfig.encrypt || true,
+            trustCertificate: connectionConfig.trustCertificate || false,
+            username: connectionConfig.username || '',
+            password: connectionConfig.password || ''
+        };
+        this.connected = false;
+        this.connectionId = null;
+    }
+
+    async connect() {
+        try {
+            console.log('Estableciendo conexión con SQL Server...', this.connectionConfig);
+            
+            // Simulación de conexión exitosa (en producción usarías una API real)
+            this.connectionId = 'conn_' + Math.random().toString(36).substr(2, 9);
+            this.connected = true;
+            
+            console.log(`Conexión establecida (ID: ${this.connectionId})`);
+            return { success: true, connectionId: this.connectionId };
+        } catch (error) {
+            console.error('Error conectando a SQL Server:', error);
+            throw new Error(`Error de conexión: ${error.message}`);
+        }
+    }
+
+    async disconnect() {
+        if (this.connected) {
+            console.log(`Cerrando conexión (ID: ${this.connectionId})`);
+            this.connected = false;
+            this.connectionId = null;
+            return { success: true };
+        }
+        return { success: false, message: 'No había conexión activa' };
+    }
+
+    async executeQuery(query, params = []) {
+        if (!this.connected) {
+            throw new Error('No hay conexión activa con la base de datos');
+        }
+
+        console.log('Ejecutando consulta SQL:', { query, params });
+        
+        // Simulación de resultados (en producción esto sería una llamada a tu backend)
+        const mockResults = {
+            'SELECT * FROM estudiantes': [
+                { id: 1, nombre: 'Juan Pérez', grado: '1A', activo: true },
+                { id: 2, nombre: 'María García', grado: '2B', activo: true }
+            ],
+            'SELECT * FROM profesores': [
+                { id: 1, nombre: 'Profesor Smith', materia: 'Matemáticas' },
+                { id: 2, nombre: 'Profesora Johnson', materia: 'Ciencias' }
+            ],
+            'default': [{ id: 1, message: 'Consulta ejecutada correctamente' }]
+        };
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const results = mockResults[query] || mockResults.default;
+                resolve({
+                    success: true,
+                    results,
+                    rowCount: results.length,
+                    connectionId: this.connectionId
+                });
+            }, 500); // Simular latencia de red
+        });
+    }
+
+    async syncTable(tableName, localData) {
+        if (!this.connected) {
+            throw new Error('No hay conexión activa para sincronización');
+        }
+
+        console.log(`Iniciando sincronización para tabla ${tableName}`);
+        
+        // 1. Obtener datos remotos
+        const remoteData = await this.executeQuery(`SELECT * FROM ${tableName}`);
+        
+        // 2. Comparar y determinar cambios
+        const changes = this.compareData(localData, remoteData.results);
+        
+        // 3. Aplicar cambios (simulado)
+        console.log(`Aplicando ${changes.length} cambios a ${tableName}`);
+        
+        return {
+            success: true,
+            table: tableName,
+            localCount: localData.length,
+            remoteCount: remoteData.results.length,
+            changesApplied: changes.length,
+            changes
+        };
+    }
+
+    compareData(localData, remoteData) {
+        const changes = [];
+        
+        // Identificar registros nuevos locales
+        localData.forEach(localItem => {
+            const remoteItem = remoteData.find(r => r.id === localItem.id);
+            if (!remoteItem) {
+                changes.push({ type: 'INSERT', id: localItem.id });
+            } else if (JSON.stringify(localItem) !== JSON.stringify(remoteItem)) {
+                changes.push({ type: 'UPDATE', id: localItem.id });
+            }
+        });
+        
+        // Identificar registros eliminados localmente
+        remoteData.forEach(remoteItem => {
+            if (!localData.find(l => l.id === remoteItem.id)) {
+                changes.push({ type: 'DELETE', id: remoteItem.id });
+            }
+        });
+        
+        return changes;
+    }
+}
 
 class LocalDatabase {
     constructor() {
@@ -20,10 +143,11 @@ class LocalDatabase {
             'sistema',
             'logs'
         ];
+        this.sqlAdapter = null;
+        this.syncInterval = null;
         this.initializeCollections();
     }
 
-    // Inicializar colecciones si no existen
     initializeCollections() {
         this.collections.forEach(collection => {
             if (!this.exists(collection)) {
@@ -32,16 +156,13 @@ class LocalDatabase {
         });
     }
 
-    // Verificar si una colección existe
     exists(collection) {
         return localStorage.getItem(this.prefix + collection) !== null;
     }
 
-    // Inicializar una colección específica
     initializeCollection(collection) {
         let initialData = [];
         
-        // Datos iniciales según la colección
         switch(collection) {
             case 'turnos':
                 initialData = [
@@ -94,7 +215,6 @@ class LocalDatabase {
         this.write(collection, initialData);
     }
 
-    // Leer toda una colección
     read(collection) {
         try {
             const data = localStorage.getItem(this.prefix + collection);
@@ -105,7 +225,6 @@ class LocalDatabase {
         }
     }
 
-    // Escribir toda una colección
     write(collection, data) {
         try {
             localStorage.setItem(this.prefix + collection, JSON.stringify(data));
@@ -116,13 +235,11 @@ class LocalDatabase {
         }
     }
 
-    // Encontrar un registro por ID
     find(collection, id) {
         const data = this.read(collection);
         return data.find(item => item.id === id);
     }
 
-    // Encontrar registros que cumplan una condición
     findWhere(collection, criteria) {
         const data = this.read(collection);
         return data.filter(item => {
@@ -130,21 +247,17 @@ class LocalDatabase {
         });
     }
 
-    // Crear un nuevo registro
     create(collection, record) {
         try {
             const data = this.read(collection);
             
-            // Generar ID si no existe
             if (!record.id) {
                 record.id = this.generateId();
             }
             
-            // Agregar timestamps
             record.created_at = new Date().toISOString();
             record.updated_at = new Date().toISOString();
             
-            // Verificar que no exista un registro con el mismo ID
             const existingIndex = data.findIndex(item => item.id === record.id);
             if (existingIndex !== -1) {
                 throw new Error(`Ya existe un registro con ID ${record.id} en ${collection}`);
@@ -153,7 +266,6 @@ class LocalDatabase {
             data.push(record);
             this.write(collection, data);
             
-            // Registrar en logs
             this.logAction('create', collection, record.id, 'Registro creado');
             
             return record;
@@ -163,7 +275,6 @@ class LocalDatabase {
         }
     }
 
-    // Actualizar un registro
     update(collection, id, updates) {
         try {
             const data = this.read(collection);
@@ -173,13 +284,11 @@ class LocalDatabase {
                 throw new Error(`Registro con ID ${id} no encontrado en ${collection}`);
             }
             
-            // Actualizar campos
             updates.updated_at = new Date().toISOString();
             Object.assign(data[index], updates);
             
             this.write(collection, data);
             
-            // Registrar en logs
             this.logAction('update', collection, id, `Campos actualizados: ${Object.keys(updates).join(', ')}`);
             
             return data[index];
@@ -189,7 +298,6 @@ class LocalDatabase {
         }
     }
 
-    // Eliminar un registro
     delete(collection, id) {
         try {
             const data = this.read(collection);
@@ -202,7 +310,6 @@ class LocalDatabase {
             const deletedRecord = data.splice(index, 1)[0];
             this.write(collection, data);
             
-            // Registrar en logs
             this.logAction('delete', collection, id, 'Registro eliminado');
             
             return deletedRecord;
@@ -212,69 +319,97 @@ class LocalDatabase {
         }
     }
 
-    // Contar registros en una colección
-    count(collection) {
-        return this.read(collection).length;
-    }
+    // Métodos de conexión y sincronización con SQL Server
 
-    // Buscar registros por texto
-    search(collection, query, fields = []) {
-        const data = this.read(collection);
+    async configureSQLConnection(config) {
+        this.sqlAdapter = new SQLDatabaseAdapter(config);
+        const result = await this.sqlAdapter.connect();
         
-        if (!query) return data;
-        
-        const searchQuery = query.toLowerCase();
-        
-        return data.filter(item => {
-            // Si no se especifican campos, buscar en todos los campos de texto
-            const searchFields = fields.length > 0 ? fields : 
-                Object.keys(item).filter(key => typeof item[key] === 'string');
-            
-            return searchFields.some(field => {
-                const value = item[field];
-                return value && value.toString().toLowerCase().includes(searchQuery);
-            });
-        });
-    }
-
-    // Paginar resultados
-    paginate(collection, page = 1, limit = 10, filters = {}) {
-        let data = this.read(collection);
-        
-        // Aplicar filtros
-        if (Object.keys(filters).length > 0) {
-            data = data.filter(item => {
-                return Object.entries(filters).every(([key, value]) => {
-                    if (value === '' || value === null || value === undefined) return true;
-                    return item[key] === value;
-                });
-            });
+        if (result.success) {
+            this.logAction('sql_connect', 'sistema', null, 
+                `Conexión SQL establecida. Server: ${config.server}, DB: ${config.database}`);
+            return true;
         }
         
-        const totalItems = data.length;
-        const totalPages = Math.ceil(totalItems / limit);
-        const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        
-        return {
-            data: data.slice(startIndex, endIndex),
-            pagination: {
-                currentPage: page,
-                totalPages,
-                totalItems,
-                itemsPerPage: limit,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            }
-        };
+        throw new Error('No se pudo establecer la conexión SQL');
     }
 
-    // Generar ID único
+    async syncCollection(collectionName, strategy = 'merge') {
+        if (!this.sqlAdapter) {
+            throw new Error('No se ha configurado la conexión SQL');
+        }
+
+        try {
+            const localData = this.read(collectionName);
+            const result = await this.sqlAdapter.syncTable(collectionName, localData);
+            
+            // Aquí implementarías la lógica para aplicar cambios remotos a local
+            // Por ahora solo registramos el resultado
+            this.logAction('sync', collectionName, null, 
+                `Sincronización completada. Local: ${result.localCount}, Remoto: ${result.remoteCount}, Cambios: ${result.changesApplied}`);
+            
+            return result;
+        } catch (error) {
+            this.logAction('sync_error', collectionName, null, 
+                `Error en sincronización: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async syncAll(collections = this.collections) {
+        if (!this.sqlAdapter || !this.sqlAdapter.connected) {
+            throw new Error('No hay conexión SQL activa');
+        }
+
+        const results = {};
+        
+        for (const collection of collections) {
+            try {
+                results[collection] = await this.syncCollection(collection);
+            } catch (error) {
+                results[collection] = { error: error.message };
+            }
+        }
+        
+        return results;
+    }
+
+    startAutoSync(intervalMinutes = 60) {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+        }
+        
+        this.syncInterval = setInterval(async () => {
+            try {
+                const results = await this.syncAll();
+                console.log('Sincronización automática completada:', results);
+                this.logAction('auto_sync', 'sistema', null, 
+                    `Sincronización automática completada. ${Object.keys(results).length} colecciones procesadas`);
+            } catch (error) {
+                console.error('Error en sincronización automática:', error);
+                this.logAction('auto_sync_error', 'sistema', null, 
+                    `Error en sincronización automática: ${error.message}`);
+            }
+        }, intervalMinutes * 60 * 1000);
+        
+        // Ejecutar primera sincronización 
+        this.syncAll().catch(console.error);
+    }
+
+    stopAutoSync() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+            this.logAction('auto_sync_stop', 'sistema', null, 'Sincronización automática detenida');
+        }
+    }
+
+    // Métodos auxiliares
+
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
 
-    // Registrar acción en logs
     logAction(action, collection, recordId, details = '') {
         try {
             const logEntry = {
@@ -290,7 +425,6 @@ class LocalDatabase {
             const logs = this.read('logs');
             logs.push(logEntry);
             
-            // Mantener solo los últimos 1000 logs
             if (logs.length > 1000) {
                 logs.splice(0, logs.length - 1000);
             }
@@ -301,13 +435,11 @@ class LocalDatabase {
         }
     }
 
-    // Obtener logs del sistema
     getLogs(limit = 50) {
         const logs = this.read('logs');
-        return logs.slice(-limit).reverse(); // Últimos logs primero
+        return logs.slice(-limit).reverse();
     }
 
-    // Limpiar colección
     clear(collection) {
         try {
             this.write(collection, []);
@@ -319,11 +451,10 @@ class LocalDatabase {
         }
     }
 
-    // Limpiar todas las colecciones
     clearAll() {
         try {
             this.collections.forEach(collection => {
-                if (collection !== 'sistema') { // No limpiar configuración del sistema
+                if (collection !== 'sistema') {
                     this.clear(collection);
                 }
             });
@@ -335,46 +466,6 @@ class LocalDatabase {
         }
     }
 
-    // Obtener estadísticas de almacenamiento
-    getStorageStats() {
-        try {
-            let totalSize = 0;
-            const collectionSizes = {};
-            
-            this.collections.forEach(collection => {
-                const data = localStorage.getItem(this.prefix + collection);
-                const size = data ? new Blob([data]).size : 0;
-                collectionSizes[collection] = size;
-                totalSize += size;
-            });
-            
-            return {
-                totalSize,
-                totalSizeFormatted: this.formatBytes(totalSize),
-                collections: collectionSizes,
-                totalCollections: this.collections.length,
-                totalRecords: this.collections.reduce((total, collection) => total + this.count(collection), 0)
-            };
-        } catch (error) {
-            console.error('Error obteniendo estadísticas de almacenamiento:', error);
-            return null;
-        }
-    }
-
-    // Formatear bytes
-    formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-
-    // Exportar todos los datos
     exportAll() {
         const exportData = {};
         
@@ -389,7 +480,6 @@ class LocalDatabase {
         };
     }
 
-    // Importar datos
     importAll(importData) {
         try {
             if (!importData.data) {
@@ -411,15 +501,75 @@ class LocalDatabase {
     }
 }
 
-// Inicializar base de datos
+// Inicialización global
 function initializeDatabase() {
-    window.db = new LocalDatabase();
-    console.log('✅ Base de datos local inicializada');
+    if (!window.db) {
+        window.db = new LocalDatabase();
+        console.log('✅ Base de datos local inicializada');
+        
+        // Configuración inicial de conexión (opcional)
+        const savedConfig = localStorage.getItem('escuela_sql_config');
+        if (savedConfig) {
+            try {
+                const config = JSON.parse(savedConfig);
+                window.db.configureSQLConnection(config).catch(console.error);
+            } catch (e) {
+                console.error('Error cargando configuración SQL guardada:', e);
+            }
+        }
+    }
+    return window.db;
 }
 
+// Manejo del formulario de conexión SQL
+function setupConnectionForm() {
+    const form = document.getElementById('db-connect-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const connectionConfig = {
+            server: form.querySelector('[name="server"]').value,
+            authenticationType: form.querySelector('[name="authentication"]:checked').value,
+            database: form.querySelector('[name="database"]').value,
+            encrypt: form.querySelector('[name="encrypt"]').checked,
+            trustCertificate: form.querySelector('[name="trust-certificate"]').checked,
+            username: form.querySelector('[name="username"]')?.value || '',
+            password: form.querySelector('[name="password"]')?.value || ''
+        };
+
+        try {
+            // Inicializar base de datos si existe
+            const db = initializeDatabase();
+            
+            // Establecer conexión
+            await db.configureSQLConnection(connectionConfig);
+            
+            // Guardar configuración para futuras sesiones
+            localStorage.setItem('escuela_sql_config', JSON.stringify(connectionConfig));
+            
+            // Mostrar éxito
+            alert('✅ Conexión establecida correctamente');
+            
+            // Iniciar sincronización automática
+            db.startAutoSync();
+            
+        } catch (error) {
+            console.error('Error en conexión:', error);
+            alert(`❌ Error al conectar: ${error.message}`);
+        }
+    });
+}
+
+// Inicialización cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDatabase();
+    setupConnectionForm();
+    console.log('Sistema de Gestión Escolar listo');
+});
 
 // Exportar para uso global
 window.LocalDatabase = LocalDatabase;
+window.SQLDatabaseAdapter = SQLDatabaseAdapter;
 window.initializeDatabase = initializeDatabase;
-
-console.log('✅ base.js cargado correctamente');
