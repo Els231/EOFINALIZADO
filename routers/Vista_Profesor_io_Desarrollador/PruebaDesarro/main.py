@@ -8,7 +8,7 @@ from flask_cors import CORS
 from sqlalchemy.orm import DeclarativeBase
 
 # Importar el blueprint de la API
-from api import api
+from routers.Vista_Profesor_io_Desarrollador.PruebaDesarro.api.api import api
 
 class Base(DeclarativeBase):
     pass
