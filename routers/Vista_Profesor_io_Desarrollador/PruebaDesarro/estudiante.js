@@ -189,7 +189,9 @@ function loadEstudiantesSection() {
                                     <div class="mb-3">
                                         <label for="estudiante-turno" class="form-label">Turno *</label>
                                         <select class="form-select" id="estudiante-turno" required>
-                                            <!-- Se llena dinámicamente -->
+                                            <option value="">Seleccionar...</option>
+                                            <option value="1">Matutino</option>
+                                            <option value="1">Vespertino</option>
                                         </select>
                                     </div>
                                 </div>
