@@ -149,7 +149,7 @@ function loadEstudiantesSection() {
                                     <div class="mb-3">
                                         <label for="estudiante-codigo" class="form-label">Código Estudiantil</label>
                                         <input type="text" class="form-control" id="estudiante-codigo" 
-                                               placeholder="Ej: EST-2023-001">
+                                               placeholder="Ej: 000000-MADL">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
